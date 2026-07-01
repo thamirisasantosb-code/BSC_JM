@@ -1,0 +1,176 @@
+﻿Período,1º Campo,2º Campo,Milha,KPI,Meta 4 Pontos,Meta 2 Pontos,Resultado Final,PESO,Pontuação Máxima,Pontuação Atingida,GAP Pontuação,GAP Peso Ponderado
+W25,JM TRANSP.,,SAFETY,Comunicação de Acidente,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W24,JM TRANSP.,,SAFETY,Comunicação de Acidente,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W23,JM TRANSP.,,SAFETY,Comunicação de Acidente,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W21,JM TRANSP.,,SAFETY,Comunicação de Acidente,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W22,JM TRANSP.,,SAFETY,Comunicação de Acidente,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W21,JM TRANSP.,,SAFETY,Investigação de Acidente no Prazo,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W25,JM TRANSP.,,SAFETY,Investigação de Acidente no Prazo,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W22,JM TRANSP.,,SAFETY,Investigação de Acidente no Prazo,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W24,JM TRANSP.,,SAFETY,Investigação de Acidente no Prazo,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W23,JM TRANSP.,,SAFETY,Investigação de Acidente no Prazo,> 97 %,> 95 %,100 %,1.5,8,6,0.00 🟢,0
+W21,JM TRANSP.,,SAFETY,Ad. Vec Fleet,> 90 %,> 88 %,84 %,6,24,0,-24.00 🔴,0
+W25,JM TRANSP.,,SAFETY,Ad. Vec Fleet,> 90 %,> 88 %,84 %,6,24,0,-24.00 🔴,0
+W24,JM TRANSP.,,SAFETY,Ad. Vec Fleet,> 90 %,> 88 %,84 %,6,24,0,-24.00 🔴,0
+W22,JM TRANSP.,,SAFETY,Ad. Vec Fleet,> 90 %,> 88 %,84 %,6,24,0,-24.00 🔴,0
+W23,JM TRANSP.,,SAFETY,Ad. Vec Fleet,> 90 %,> 88 %,84 %,6,24,0,-24.00 🔴,0
+W21,JM TRANSP.,,SAFETY,Telemetria Scorecard,> 90 %,> 85 %,79.72 %,7,28,0,-28.00 🔴,14
+W23,JM TRANSP.,,SAFETY,Telemetria Scorecard,> 90 %,> 85 %,80.79 %,7,28,0,-28.00 🔴,14
+W25,JM TRANSP.,,SAFETY,Telemetria Scorecard,> 90 %,> 85 %,,7,28,0,-28.00 🔴,14
+W22,JM TRANSP.,,SAFETY,Telemetria Scorecard,> 90 %,> 85 %,80.24 %,7,28,0,-28.00 🔴,14
+W24,JM TRANSP.,,SAFETY,Telemetria Scorecard,> 90 %,> 85 %,,7,28,0,-28.00 🔴,14
+W21,JM TRANSP.,,SAFETY,Crash Rate (Graves),< 1.6,< 3.6,0,4,16,16,0.00 🟢,0
+W22,JM TRANSP.,,SAFETY,Crash Rate (Graves),< 1.6,< 3.6,0,4,16,16,0.00 🟢,0
+W24,JM TRANSP.,,SAFETY,Crash Rate (Graves),< 1.6,< 3.6,0,4,16,16,0.00 🟢,0
+W25,JM TRANSP.,,SAFETY,Crash Rate (Graves),< 1.6,< 3.6,0,4,16,16,0.00 🟢,0
+W23,JM TRANSP.,,SAFETY,Crash Rate (Graves),< 1.6,< 3.6,0,4,16,16,0.00 🟢,0
+W24,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Driver,> 97 %,> 95 %,96.31 %,2.5,12,5,-5.00 🔴,3
+W22,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Driver,> 97 %,> 95 %,97.31 %,2.5,12,10,0.00 🟢,0
+W21,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Driver,> 97 %,> 95 %,96.54 %,2.5,12,5,-5.00 🔴,3
+W23,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Driver,> 97 %,> 95 %,95.75 %,2.5,12,5,-5.00 🔴,3
+W25,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Driver,> 97 %,> 95 %,95.78 %,2.5,12,5,-5.00 🔴,3
+W24,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Dispatcher,> 97 %,> 95 %,100 %,2.5,12,10,0.00 🟢,0
+W21,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Dispatcher,> 97 %,> 95 %,100 %,2.5,12,10,0.00 🟢,0
+W22,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Dispatcher,> 97 %,> 95 %,100 %,2.5,12,10,0.00 🟢,0
+W23,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Dispatcher,> 97 %,> 95 %,100 %,2.5,12,10,0.00 🟢,0
+W25,JM TRANSP.,,SAFETY,Aderência Treinamentos Safety Dispatcher,> 97 %,> 95 %,100 %,2.5,12,10,0.00 🟢,0
+W24,JM TRANSP.,,SAFETY,Acidente Fatal,> 0,,,0,0,0,0.00 🟢,0
+W25,JM TRANSP.,,SAFETY,Acidente Fatal,> 0,,,0,0,0,0.00 🟢,0
+W23,JM TRANSP.,,SAFETY,Acidente Fatal,> 0,,,0,0,0,0.00 🟢,0
+W22,JM TRANSP.,,SAFETY,Acidente Fatal,> 0,,0,0,0,0,0.00 🟢,0
+W21,JM TRANSP.,,SAFETY,Acidente Fatal,> 0,,,0,0,0,0.00 🟢,0
+W24,JM TRANSP.,,FM - FULL,Pickup Sucess (SI) FULL,> 97.9 %,> 95.9 %,96.41 %,7,28,14,-14.00 🔴,0
+W25,JM TRANSP.,,FM - FULL,Pickup Sucess (SI) FULL,> 97.9 %,> 95.9 %,81.63 %,7,28,0,-28.00 🔴,1
+W21,JM TRANSP.,,FM - FULL,Pickup Sucess (SI) FULL,> 98 %,> 96 %,95.5 %,7,28,0,-28.00 🔴,1
+W23,JM TRANSP.,,FM - FULL,Pickup Sucess (SI) FULL,> 97.9 %,> 95.9 %,95.57 %,7,28,0,-28.00 🔴,1
+W22,JM TRANSP.,,FM - FULL,Pickup Sucess (SI) FULL,> 98 %,> 96 %,97.91 %,7,28,14,-14.00 🔴,0
+W23,JM TRANSP.,,FM - FULL,Pickup Sucess (Ontime) FULL,> 92.65 %,> 90.65 %,89.45 %,6,24,0,-24.00 🔴,1
+W22,JM TRANSP.,,FM - FULL,Pickup Sucess (Ontime) FULL,> 94.2 %,> 92.2 %,92.02 %,6,24,0,-24.00 🔴,1
+W24,JM TRANSP.,,FM - FULL,Pickup Sucess (Ontime) FULL,> 92.6 %,> 90.6 %,88.76 %,6,24,0,-24.00 🔴,1
+W25,JM TRANSP.,,FM - FULL,Pickup Sucess (Ontime) FULL,> 92.6 %,> 90.6 %,57.51 %,6,24,0,-24.00 🔴,1
+W21,JM TRANSP.,,FM - FULL,Pickup Sucess (Ontime) FULL,> 94.2 %,> 92.2 %,89.5 %,6,24,0,-24.00 🔴,1
+W21,JM TRANSP.,,FM - FULL,Aderência ao Perfil FULL,> 95 %,> 93 %,93.38 %,3,12,6,-6.00 🔴,0
+W24,JM TRANSP.,,FM - FULL,Aderência ao Perfil FULL,> 95 %,> 93 %,96.88 %,3,12,12,0.00 🟢,0
+W22,JM TRANSP.,,FM - FULL,Aderência ao Perfil FULL,> 95 %,> 93 %,94.4 %,3,12,6,-6.00 🔴,0
+W25,JM TRANSP.,,FM - FULL,Aderência ao Perfil FULL,> 95 %,> 93 %,98.37 %,3,12,12,0.00 🟢,0
+W23,JM TRANSP.,,FM - FULL,Aderência ao Perfil FULL,> 95 %,> 93 %,98.46 %,3,12,12,0.00 🟢,0
+W23,JM TRANSP.,,FM - FULL,1º Bipe FULL,> 85 %,> 83 %,92.51 %,3,12,12,0.00 🟢,0
+W22,JM TRANSP.,,FM - FULL,1º Bipe FULL,> 85 %,> 83 %,95.33 %,3,12,12,0.00 🟢,0
+W24,JM TRANSP.,,FM - FULL,1º Bipe FULL,> 85 %,> 83 %,91.32 %,3,12,12,0.00 🟢,0
+W21,JM TRANSP.,,FM - FULL,1º Bipe FULL,> 85 %,> 83 %,90.57 %,3,12,12,0.00 🟢,0
+W25,JM TRANSP.,,FM - FULL,1º Bipe FULL,> 85 %,> 83 %,81.44 %,3,12,0,-12.00 🔴,0
+W24,JM TRANSP.,,FM - FULL,% Utilização Frota Fixa FULL,> 95 %,> 93 %,84.79 %,3,12,0,-12.00 🔴,0
+W21,JM TRANSP.,,FM - FULL,% Utilização Frota Fixa FULL,> 95 %,> 93 %,87.56 %,3,12,0,-12.00 🔴,0
+W25,JM TRANSP.,,FM - FULL,% Utilização Frota Fixa FULL,> 95 %,> 93 %,74.29 %,3,12,0,-12.00 🔴,0
+W22,JM TRANSP.,,FM - FULL,% Utilização Frota Fixa FULL,> 95 %,> 93 %,87.38 %,3,12,0,-12.00 🔴,0
+W23,JM TRANSP.,,FM - FULL,% Utilização Frota Fixa FULL,> 95 %,> 93 %,89.46 %,3,12,0,-12.00 🔴,0
+W23,JM TRANSP.,,FM - FULL,Ad. Config FULL,> 95 %,> 93 %,91.29 %,3,12,0,-12.00 🔴,0
+W22,JM TRANSP.,,FM - FULL,Ad. Config FULL,> 95 %,> 93 %,95.08 %,3,12,12,0.00 🟢,0
+W21,JM TRANSP.,,FM - FULL,Ad. Config FULL,> 95 %,> 93 %,149.33 %,3,12,12,0.00 🟢,0
+W25,JM TRANSP.,,FM - FULL,Ad. Config FULL,> 95 %,> 93 %,30 %,3,12,0,-12.00 🔴,0
+W24,JM TRANSP.,,FM - FULL,Ad. Config FULL,> 95 %,> 93 %,87.25 %,3,12,0,-12.00 🔴,0
+W22,JM TRANSP.,,FM - XD,Pickup Success,> 92.9 %,> 90.9 %,94.57 %,7,28,28,0.00 🟢,0
+W25,JM TRANSP.,,FM - XD,Pickup Success,> 92.6 %,> 90.6 %,65.91 %,7,28,0,-28.00 🔴,11
+W21,JM TRANSP.,,FM - XD,Pickup Success,> 92.9 %,> 90.9 %,93.97 %,7,28,28,0.00 🟢,0
+W24,JM TRANSP.,,FM - XD,Pickup Success,> 92.6 %,> 90.6 %,92.19 %,7,28,14,-14.00 🔴,6
+W23,JM TRANSP.,,FM - XD,Pickup Success,> 92.64 %,> 90.64 %,92.78 %,7,28,28,0.00 🟢,0
+W22,JM TRANSP.,,FM - XD,Pickup Sucess Ontime,> 83.9 %,> 81.9 %,86.01 %,4,16,16,0.00 🟢,0
+W23,JM TRANSP.,,FM - XD,Pickup Sucess Ontime,> 82.7 %,> 80.7 %,84.35 %,4,16,16,0.00 🟢,0
+W25,JM TRANSP.,,FM - XD,Pickup Sucess Ontime,> 82.5 %,> 80.5 %,59.3 %,4,16,0,-16.00 🔴,6
+W24,JM TRANSP.,,FM - XD,Pickup Sucess Ontime,> 82.5 %,> 80.5 %,83.76 %,4,16,16,0.00 🟢,0
+W21,JM TRANSP.,,FM - XD,Pickup Sucess Ontime,> 83.9 %,> 81.9 %,86.47 %,4,16,16,0.00 🟢,0
+W21,JM TRANSP.,,FM - XD,Aderência ao Perfil,> 95 %,> 93 %,99.92 %,4,16,16,0.00 🟢,0
+W25,JM TRANSP.,,FM - XD,Aderência ao Perfil,> 95 %,> 93 %,100 %,4,16,16,0.00 🟢,0
+W24,JM TRANSP.,,FM - XD,Aderência ao Perfil,> 95 %,> 93 %,100 %,4,16,16,0.00 🟢,0
+W22,JM TRANSP.,,FM - XD,Aderência ao Perfil,> 95 %,> 93 %,99.9 %,4,16,16,0.00 🟢,0
+W23,JM TRANSP.,,FM - XD,Aderência ao Perfil,> 95 %,> 93 %,100 %,4,16,16,0.00 🟢,0
+W22,JM TRANSP.,,FM - XD,1º Bipe - XD,> 85 %,> 83 %,93.11 %,4,16,16,0.00 🟢,0
+W21,JM TRANSP.,,FM - XD,1º Bipe - XD,> 85 %,> 83 %,93.61 %,4,16,16,0.00 🟢,0
+W25,JM TRANSP.,,FM - XD,1º Bipe - XD,> 85 %,> 83 %,92.13 %,4,16,16,0.00 🟢,0
+W24,JM TRANSP.,,FM - XD,1º Bipe - XD,> 85 %,> 83 %,92.51 %,4,16,16,0.00 🟢,0
+W23,JM TRANSP.,,FM - XD,1º Bipe - XD,> 85 %,> 83 %,92.36 %,4,16,16,0.00 🟢,0
+W22,JM TRANSP.,,FM - XD,Aceite de Scheduling,> 95 %,> 93 %,86.97 %,3,12,0,-12.00 🔴,5
+W23,JM TRANSP.,,FM - XD,Aceite de Scheduling,> 95 %,> 93 %,86.76 %,3,12,0,-12.00 🔴,5
+W25,JM TRANSP.,,FM - XD,Aceite de Scheduling,> 95 %,> 93 %,67.95 %,3,12,0,-12.00 🔴,5
+W24,JM TRANSP.,,FM - XD,Aceite de Scheduling,> 95 %,> 93 %,82.28 %,3,12,0,-12.00 🔴,5
+W21,JM TRANSP.,,FM - XD,Aceite de Scheduling,> 95 %,> 93 %,91.66 %,3,12,0,-12.00 🔴,5
+W22,JM TRANSP.,,FM - XD,Ad. Config XD,> 97 %,> 95 %,101.24 %,3,12,12,0.00 🟢,0
+W21,JM TRANSP.,,FM - XD,Ad. Config XD,> 97 %,> 95 %,82.94 %,3,12,0,-12.00 🔴,5
+W23,JM TRANSP.,,FM - XD,Ad. Config XD,> 97 %,> 95 %,107.85 %,3,12,12,0.00 🟢,0
+W25,JM TRANSP.,,FM - XD,Ad. Config XD,> 97 %,> 95 %,,3,12,0,-12.00 🔴,5
+W24,JM TRANSP.,,FM - XD,Ad. Config XD,> 97 %,> 95 %,3012.14 %,3,12,12,0.00 🟢,0
+W21,JM TRANSP.,,LM,Delivery Success,> 98.2 %,> 97.2 %,96.27 %,7,28,0,-28.00 🔴,1
+W23,JM TRANSP.,,LM,Delivery Success,> 98.2 %,> 97.2 %,96.1 %,7,28,0,-28.00 🔴,1
+W22,JM TRANSP.,,LM,Delivery Success,> 98.2 %,> 97.2 %,96.05 %,7,28,0,-28.00 🔴,1
+W25,JM TRANSP.,,LM,Delivery Success,> 98.2 %,> 97.2 %,93.96 %,7,28,0,-28.00 🔴,1
+W24,JM TRANSP.,,LM,Delivery Success,> 98.2 %,> 97.2 %,96.4 %,7,28,0,-28.00 🔴,1
+W23,JM TRANSP.,,LM,PNR Anulado,> 0 %,,15.79 %,0,0,0,0.00 🟢,0
+W22,JM TRANSP.,,LM,PNR Anulado,> 0 %,,6.57 %,0,0,0,0.00 🟢,0
+W24,JM TRANSP.,,LM,PNR Anulado,> 0 %,,0 %,0,0,0,0.00 🟢,0
+W21,JM TRANSP.,,LM,PNR Anulado,> 0 %,,9.09 %,0,0,0,0.00 🟢,0
+W25,JM TRANSP.,,LM,PNR Anulado,> 0 %,,,0,0,0,0.00 🟢,0
+W25,JM TRANSP.,,LM,% Real x D7 FDS (SVC) SPOT,> 90 %,> 80 %,18.18 %,4,16,0,-16.00 🔴,1
+W21,JM TRANSP.,,LM,% Real x D7 FDS (SVC) SPOT,> 90 %,> 80 %,69.23 %,4,16,0,-16.00 🔴,1
+W23,JM TRANSP.,,LM,% Real x D7 FDS (SVC) SPOT,> 90 %,> 80 %,54.55 %,4,16,0,-16.00 🔴,1
+W22,JM TRANSP.,,LM,% Real x D7 FDS (SVC) SPOT,> 90 %,> 80 %,63.64 %,4,16,0,-16.00 🔴,1
+W24,JM TRANSP.,,LM,% Real x D7 FDS (SVC) SPOT,> 90 %,> 80 %,66.67 %,4,16,0,-16.00 🔴,1
+W21,JM TRANSP.,,LM,Aceite Scheduling Pré Routing,< 5 %,< 7 %,6.09 %,4,16,8,-8.00 🔴,0
+W23,JM TRANSP.,,LM,Aceite Scheduling Pré Routing,< 5 %,< 7 %,5.03 %,4,16,8,-8.00 🔴,0
+W24,JM TRANSP.,,LM,Aceite Scheduling Pré Routing,< 5 %,< 7 %,3.78 %,4,16,16,0.00 🟢,0
+W25,JM TRANSP.,,LM,Aceite Scheduling Pré Routing,< 5 %,< 7 %,1.48 %,4,16,16,0.00 🟢,0
+W22,JM TRANSP.,,LM,Aceite Scheduling Pré Routing,< 5 %,< 7 %,6.13 %,4,16,8,-8.00 🔴,0
+W23,JM TRANSP.,,LM,SDD - % ER,> 95 %,> 93 %,91.83 %,5,20,0,-20.00 🔴,1
+W25,JM TRANSP.,,LM,SDD - % ER,> 95 %,> 93 %,54.64 %,5,20,0,-20.00 🔴,1
+W24,JM TRANSP.,,LM,SDD - % ER,> 95 %,> 93 %,95.76 %,5,20,20,0.00 🟢,0
+W22,JM TRANSP.,,LM,SDD - % ER,> 95 %,> 93 %,82.41 %,5,20,0,-20.00 🔴,1
+W21,JM TRANSP.,,LM,SDD - % ER,> 95 %,> 93 %,76.23 %,5,20,0,-20.00 🔴,1
+W25,JM TRANSP.,,LM,% Utilização Frota Fixa (LM),> 95 %,> 93 %,74.29 %,5,20,0,-20.00 🔴,1
+W24,JM TRANSP.,,LM,% Utilização Frota Fixa (LM),> 95 %,> 93 %,84.79 %,5,20,0,-20.00 🔴,1
+W22,JM TRANSP.,,LM,% Utilização Frota Fixa (LM),> 95 %,> 93 %,87.38 %,5,20,0,-20.00 🔴,1
+W21,JM TRANSP.,,LM,% Utilização Frota Fixa (LM),> 95 %,> 93 %,87.56 %,5,20,0,-20.00 🔴,1
+W23,JM TRANSP.,,LM,% Utilização Frota Fixa (LM),> 95 %,> 93 %,89.46 %,5,20,0,-20.00 🔴,1
+W21,JM TRANSP.,,XPT,Delivery Success XPT,> 98.2 %,> 97.2 %,94.19 %,8,32,0,-32.00 🔴,1
+W22,JM TRANSP.,,XPT,Delivery Success XPT,> 98.2 %,> 97.2 %,95.72 %,8,32,0,-32.00 🔴,1
+W23,JM TRANSP.,,XPT,Delivery Success XPT,> 98.2 %,> 97.2 %,95.13 %,8,32,0,-32.00 🔴,1
+W25,JM TRANSP.,,XPT,Delivery Success XPT,> 98.2 %,> 97.2 %,89.24 %,8,32,0,-32.00 🔴,1
+W24,JM TRANSP.,,XPT,Delivery Success XPT,> 98.2 %,> 97.2 %,95.21 %,8,32,0,-32.00 🔴,1
+W23,JM TRANSP.,,XPT,% Real x D7 FDS (XPT) SPOT,> 90 %,> 80 %,100 %,6,24,24,0.00 🟢,0
+W22,JM TRANSP.,,XPT,% Real x D7 FDS (XPT) SPOT,> 90 %,> 80 %,100 %,6,24,24,0.00 🟢,0
+W24,JM TRANSP.,,XPT,% Real x D7 FDS (XPT) SPOT,> 90 %,> 80 %,100 %,6,24,24,0.00 🟢,0
+W21,JM TRANSP.,,XPT,% Real x D7 FDS (XPT) SPOT,> 90 %,> 80 %,75 %,6,24,0,-24.00 🔴,1
+W25,JM TRANSP.,,XPT,% Real x D7 FDS (XPT) SPOT,> 90 %,> 80 %,0 %,6,24,0,-24.00 🔴,1
+W25,JM TRANSP.,,XPT,% Real x D7 Semana (XPT) SPOT,> 90 %,> 80 %,20 %,5,20,0,-20.00 🔴,1
+W21,JM TRANSP.,,XPT,% Real x D7 Semana (XPT) SPOT,> 90 %,> 80 %,100 %,5,20,20,0.00 🟢,0
+W23,JM TRANSP.,,XPT,% Real x D7 Semana (XPT) SPOT,> 90 %,> 80 %,75 %,5,20,0,-20.00 🔴,1
+W22,JM TRANSP.,,XPT,% Real x D7 Semana (XPT) SPOT,> 90 %,> 80 %,100 %,5,20,20,0.00 🟢,0
+W24,JM TRANSP.,,XPT,% Real x D7 Semana (XPT) SPOT,> 90 %,> 80 %,100 %,5,20,20,0.00 🟢,0
+W21,JM TRANSP.,,XPT,Telemetria MM XPT,> 72 %,> 70 %,67.09 %,6,24,0,-24.00 🔴,1
+W25,JM TRANSP.,,XPT,Telemetria MM XPT,> 72 %,> 70 %,,6,24,0,-24.00 🔴,1
+W24,JM TRANSP.,,XPT,Telemetria MM XPT,> 72 %,> 70 %,,6,24,0,-24.00 🔴,1
+W22,JM TRANSP.,,XPT,Telemetria MM XPT,> 72 %,> 70 %,70.23 %,6,24,12,-12.00 🔴,0
+W23,JM TRANSP.,,XPT,Telemetria MM XPT,> 72 %,> 70 %,70.9 %,6,24,12,-12.00 🔴,0
+W25,JM TRANSP.,,XPT,BPP XPT,< 0 %,,0 %,0,0,0,0.00 🟢,0
+W24,JM TRANSP.,,XPT,BPP XPT,< 0 %,,2.68 %,0,0,0,0.00 🟢,0
+W23,JM TRANSP.,,XPT,BPP XPT,< 0 %,,2.08 %,0,0,0,0.00 🟢,0
+W21,JM TRANSP.,,XPT,BPP XPT,< 0 %,,1.2 %,0,0,0,0.00 🟢,0
+W22,JM TRANSP.,,XPT,BPP XPT,< 0 %,,0.66 %,0,0,0,0.00 🟢,0
+W22,JM TRANSP.,,SRM,Notificações Extrajudicial,< 0,< 0,,-3,-12,0,0.00 🟢,
+W25,JM TRANSP.,,SRM,Notificações Extrajudicial,< 0,< 0,,-3,-12,0,0.00 🟢,
+W24,JM TRANSP.,,SRM,Notificações Extrajudicial,< 0,< 0,,-3,-12,0,0.00 🟢,
+W23,JM TRANSP.,,SRM,Notificações Extrajudicial,< 0,< 0,,-3,-12,0,0.00 🟢,
+W21,JM TRANSP.,,SRM,Notificações Extrajudicial,< 0,< 0,,-3,-12,0,0.00 🟢,
+W23,JM TRANSP.,,SRM,Bloqueio de Drivers,< 1 %,,0.14 %,-3,-12,0,0.00 🟢,
+W22,JM TRANSP.,,SRM,Bloqueio de Drivers,< 1 %,,0.07 %,-3,-12,0,0.00 🟢,
+W24,JM TRANSP.,,SRM,Bloqueio de Drivers,< 1 %,,0.28 %,-3,-12,0,0.00 🟢,
+W25,JM TRANSP.,,SRM,Bloqueio de Drivers,< 1 %,,0.08 %,-3,-12,0,0.00 🟢,
+W21,JM TRANSP.,,SRM,Bloqueio de Drivers,< 1 %,,0.36 %,-3,-12,0,0.00 🟢,
+W25,JM TRANSP.,,SRM,Auditorias Supplier Program,> 80 %,> 70 %,91.13 %,-4,-16,0,0.00 🟢,
+W22,JM TRANSP.,,SRM,Auditorias Supplier Program,> 80 %,> 70 %,91.13 %,-4,-16,0,0.00 🟢,
+W24,JM TRANSP.,,SRM,Auditorias Supplier Program,> 80 %,> 70 %,91.13 %,-4,-16,0,0.00 🟢,
+W23,JM TRANSP.,,SRM,Auditorias Supplier Program,> 80 %,> 70 %,91.13 %,-4,-16,0,0.00 🟢,
+W21,JM TRANSP.,,SRM,Auditorias Supplier Program,> 80 %,> 70 %,91.13 %,-4,-16,0,0.00 🟢,
+W25,JM TRANSP.,,SRM,KPI BONUS,> 90 %,> 80 %,82.97 %,1,0,2,2.00 🟢,
+W22,JM TRANSP.,,SRM,KPI BONUS,> 90 %,> 80 %,81.8 %,1,0,2,2.00 🟢,
+W21,JM TRANSP.,,SRM,KPI BONUS,> 90 %,> 80 %,82.46 %,1,0,2,2.00 🟢,
+W23,JM TRANSP.,,SRM,KPI BONUS,> 90 %,> 80 %,83.23 %,1,0,2,2.00 🟢,
+W24,JM TRANSP.,,SRM,KPI BONUS,> 90 %,> 80 %,81.55 %,1,0,2,2.00 🟢,

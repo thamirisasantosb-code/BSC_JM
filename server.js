@@ -1,0 +1,326 @@
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const path = require('path');
+const pptxgen = require('pptxgenjs');
+const { generateExcel } = require('./gerar_visao_executiva');
+
+const app = express();
+const PORT = 3000;
+const ACTIONS_FILE = path.join(__dirname, 'actions.json');
+
+// Middleware
+app.use(cors({ exposedHeaders: ['Last-Modified'] }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(express.static(__dirname));
+
+// Ensure actions.json exists
+if (!fs.existsSync(ACTIONS_FILE)) {
+    fs.writeFileSync(ACTIONS_FILE, JSON.stringify({}, null, 2), 'utf8');
+}
+
+const USERS_FILE = path.join(__dirname, 'users.json');
+
+// Ensure users.json exists
+if (!fs.existsSync(USERS_FILE)) {
+    const defaultUsers = [
+        {
+            "id": "1",
+            "email": "thamiris.santos@jmdistribuicao.com.br",
+            "password": "JM@2026",
+            "role": "Master",
+            "status": "Aprovado",
+            "createdAt": new Date().toISOString()
+        }
+    ];
+    fs.writeFileSync(USERS_FILE, JSON.stringify(defaultUsers, null, 2), 'utf8');
+}
+
+const MANUAL_DATA_FILE = path.join(__dirname, 'manual_data.json');
+
+// Ensure manual_data.json exists
+if (!fs.existsSync(MANUAL_DATA_FILE)) {
+    fs.writeFileSync(MANUAL_DATA_FILE, JSON.stringify({}, null, 2), 'utf8');
+}
+
+// GET all actions
+app.get('/api/actions', (req, res) => {
+    try {
+        const data = fs.readFileSync(ACTIONS_FILE, 'utf8');
+        res.json(JSON.parse(data));
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao ler ações' });
+    }
+});
+
+// GET manual data
+app.get('/api/manual-data', (req, res) => {
+    try {
+        const data = fs.readFileSync(MANUAL_DATA_FILE, 'utf8');
+        res.json(JSON.parse(data));
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao ler manual data' });
+    }
+});
+
+// POST manual data
+app.post('/api/manual-data', (req, res) => {
+    try {
+        const { operation, indicator, week, value } = req.body;
+        const data = JSON.parse(fs.readFileSync(MANUAL_DATA_FILE, 'utf8'));
+        
+        if (!data[operation]) data[operation] = {};
+        if (!data[operation][indicator]) data[operation][indicator] = {};
+        
+        data[operation][indicator][week] = value;
+        
+        fs.writeFileSync(MANUAL_DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+        res.status(200).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao salvar manual data' });
+    }
+});
+
+// POST new action
+app.post('/api/actions', (req, res) => {
+    try {
+        const { operation, action, userEmail } = req.body;
+        const data = JSON.parse(fs.readFileSync(ACTIONS_FILE, 'utf8'));
+        
+        if (!data[operation]) {
+            data[operation] = [];
+        }
+        
+        action.id = Date.now().toString();
+        action.createdAt = new Date().toISOString();
+        action.history = [{
+            date: action.createdAt,
+            user: userEmail || 'Sistema',
+            change: 'Ação Criada'
+        }];
+        
+        data[operation].push(action);
+        
+        fs.writeFileSync(ACTIONS_FILE, JSON.stringify(data, null, 2), 'utf8');
+        res.status(201).json(action);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao salvar ação' });
+    }
+});
+
+// DELETE an action
+app.delete('/api/actions/:operation/:id', (req, res) => {
+    try {
+        const { operation, id } = req.params;
+        const data = JSON.parse(fs.readFileSync(ACTIONS_FILE, 'utf8'));
+        
+        if (data[operation]) {
+            data[operation] = data[operation].filter(a => a.id !== id);
+            fs.writeFileSync(ACTIONS_FILE, JSON.stringify(data, null, 2), 'utf8');
+        }
+        
+        res.status(200).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao deletar ação' });
+    }
+});
+
+// PUT (update) an action
+app.put('/api/actions/:operation/:id', (req, res) => {
+    try {
+        const { operation, id } = req.params;
+        const { userEmail, changeDescription, ...updatedAction } = req.body;
+        const data = JSON.parse(fs.readFileSync(ACTIONS_FILE, 'utf8'));
+        
+        if (data[operation]) {
+            const index = data[operation].findIndex(a => a.id === id);
+            if (index !== -1) {
+                const oldAction = data[operation][index];
+                if (!oldAction.history) oldAction.history = [];
+                
+                oldAction.history.push({
+                    date: new Date().toISOString(),
+                    user: userEmail || 'Sistema',
+                    change: changeDescription || 'Ação Atualizada'
+                });
+                
+                // Merge old with new
+                data[operation][index] = { ...oldAction, ...updatedAction, history: oldAction.history };
+                fs.writeFileSync(ACTIONS_FILE, JSON.stringify(data, null, 2), 'utf8');
+                return res.status(200).json(data[operation][index]);
+            }
+        }
+        
+        res.status(404).json({ error: 'Ação não encontrada' });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao atualizar ação' });
+    }
+});
+
+// ======================= AUTH & USERS ======================= //
+
+// Login
+app.post('/api/login', (req, res) => {
+    try {
+        const email = (req.body.email || '').trim().toLowerCase();
+        const password = (req.body.password || '').trim();
+        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        const user = users.find(u => u.email.trim().toLowerCase() === email && u.password.trim() === password);
+        
+        if (!user) {
+            return res.status(401).json({ error: 'Email ou senha inválidos' });
+        }
+        if (user.status !== 'Aprovado') {
+            return res.status(403).json({ error: 'Seu acesso ainda está pendente de aprovação.' });
+        }
+        
+        // Return user data (omit password)
+        res.status(200).json({
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            status: user.status
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro no servidor' });
+    }
+});
+
+// Register
+app.post('/api/register', (req, res) => {
+    try {
+        const email = (req.body.email || '').trim().toLowerCase();
+        const password = (req.body.password || '').trim();
+        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        
+        if (users.find(u => u.email.trim().toLowerCase() === email)) {
+            return res.status(400).json({ error: 'Email já cadastrado' });
+        }
+        
+        const newUser = {
+            id: Date.now().toString(),
+            email,
+            password,
+            role: 'Nenhuma',
+            status: 'Pendente',
+            createdAt: new Date().toISOString()
+        };
+        
+        users.push(newUser);
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+        
+        res.status(201).json({ success: true, message: 'Cadastro realizado. Aguarde aprovação.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao registrar' });
+    }
+});
+
+// Get Users (Master only - assumed checked by frontend for now, or just pass email to verify)
+app.get('/api/users', (req, res) => {
+    try {
+        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        // Return without passwords
+        const safeUsers = users.map(u => ({ id: u.id, email: u.email, role: u.role, status: u.status, createdAt: u.createdAt }));
+        res.status(200).json(safeUsers);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao buscar usuários' });
+    }
+});
+
+// Update User (Role/Status)
+app.put('/api/users/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const { role, status } = req.body;
+        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        
+        const index = users.findIndex(u => u.id === id);
+        if (index === -1) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+        
+        if (role) users[index].role = role;
+        if (status) users[index].status = status;
+        
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+        res.status(200).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao atualizar usuário' });
+    }
+});
+
+// ========================================================== //
+
+// POST Generate PPT
+app.post('/api/generate-ppt', async (req, res) => {
+    try {
+        const { screenshotBase64, meetingData } = req.body;
+        const pres = new pptxgen();
+
+        // Slide 1: Screenshot
+        if (screenshotBase64) {
+            const slide1 = pres.addSlide();
+            slide1.addText('Resultado do Dashboard', { x: 0.5, y: 0.5, fontSize: 24, bold: true, color: '003366' });
+            
+            // Clean base64 string
+            const base64Data = screenshotBase64.replace(/^data:image\/\w+;base64,/, "");
+            slide1.addImage({ data: 'image/png;base64,' + base64Data, x: 0.5, y: 1.2, w: 9, h: 4.5, sizing: { type: 'contain', w: 9, h: 4.5 } });
+        }
+
+        // Action Slides
+        const actionsData = JSON.parse(fs.readFileSync(ACTIONS_FILE, 'utf8'));
+        for (const [operation, actions] of Object.entries(actionsData)) {
+            if (actions.length > 0) {
+                const slide = pres.addSlide();
+                slide.addText(`Ações: ${operation}`, { x: 0.5, y: 0.5, fontSize: 24, bold: true, color: '003366' });
+                
+                const tableRows = [
+                    [{ text: 'Indicador', options: { bold: true, fill: '003366', color: 'FFFFFF' } },
+                     { text: 'Tarefa', options: { bold: true, fill: '003366', color: 'FFFFFF' } },
+                     { text: 'Responsável', options: { bold: true, fill: '003366', color: 'FFFFFF' } },
+                     { text: 'Prazo', options: { bold: true, fill: '003366', color: 'FFFFFF' } },
+                     { text: 'Status', options: { bold: true, fill: '003366', color: 'FFFFFF' } }]
+                ];
+
+                actions.forEach(a => {
+                    tableRows.push([
+                        { text: a.indicator || 'Geral' },
+                        { text: a.task },
+                        { text: a.owner },
+                        { text: a.deadline },
+                        { text: a.status }
+                    ]);
+                });
+
+                slide.addTable(tableRows, { x: 0.5, y: 1.2, w: 9 });
+            }
+        }
+
+        const fileName = `Reuniao_Gerot_${Date.now()}.pptx`;
+        const filePath = path.join(__dirname, fileName);
+        
+        await pres.writeFile({ fileName: filePath });
+        
+        res.status(200).json({ success: true, downloadUrl: `/${fileName}` });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao gerar PPT' });
+    }
+});
+
+// GET Generate Excel Master
+app.get('/api/export-excel', async (req, res) => {
+    try {
+        const filePath = await generateExcel();
+        // Return download URL pointing to static file
+        res.status(200).json({ success: true, downloadUrl: `/${filePath}` });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao gerar Excel' });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+});

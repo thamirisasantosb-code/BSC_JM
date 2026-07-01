@@ -1,0 +1,24 @@
+{
+  "First Mile": {
+    "Ad. Config XD": {
+      "W25": ""
+    }
+  },
+  "Last Mile": {
+    "Telemetria MM XPT": {
+      "W24": "54 %",
+      "W25": "58,38 %"
+    },
+    "Delivery Success XPT": {
+      "W25": "94,75 %"
+    },
+    "% Real x D7 FDS (XPT) SPOT": {
+      "W25": "0 %"
+    }
+  },
+  "Safety": {
+    "Telemetria Scorecard": {
+      "W24": ""
+    }
+  }
+}

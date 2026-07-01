@@ -1,0 +1,10 @@
+[
+  {
+    "id": "1",
+    "email": "thamiris.santos@jmdistribuicao.com.br",
+    "password": "JM@2026",
+    "role": "Master",
+    "status": "Aprovado",
+    "createdAt": "2026-07-01T00:00:00.000Z"
+  }
+]

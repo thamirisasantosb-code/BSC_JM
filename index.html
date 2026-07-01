@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // Prevenir que o usuário abra dando 2 cliques no arquivo (file:///)
+        // Redireciona automaticamente para o servidor local
+        if (window.location.protocol === 'file:') {
+            window.location.href = 'http://localhost:3000';
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Gerot</title>
+    <link rel="stylesheet" href="style.css?v=22">
+</head>
+<body>
+    <div class="dashboard-container">
+        
+        <header class="excel-header">
+            <div class="header-left">
+                <div class="jm-td-logo">
+                    <span class="jm-text">JM</span>
+                    <span class="td-box">TD</span>
+                </div>
+            </div>
+            <div class="header-title" style="font-size: 20px; font-weight: bold; color: #fff;">BCS - JM</div>
+            <div class="header-buttons">
+                <button id="btn-users-mgmt" onclick="openUsersModal()" style="display: none; background: #4CAF50; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 8px;">👥 Usuários</button>
+                <button id="btn-profile" style="background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; margin-right: 8px;">👤 Perfil</button>
+                <button id="btn-logout" onclick="logoutRole()" style="background: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 8px;">🚪 Sair</button>
+                <button class="btn-highlight" onclick="window.toggleManualHighlight()" style="background: #E8A838; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 8px;">🔍 Destacar Manuais</button>
+                <button class="btn-print" onclick="downloadScreenshot()">📸 Print</button>
+                <button class="btn-export" onclick="exportToExcel()">📊 Excel</button>
+            </div>
+        </header>
+
+        <div class="date-section-container">
+            <div class="date-card">
+                <div class="date-label">Data e Hora da última atualização da base</div>
+                <div class="date-value" id="last-update">17 de jun. de 2026, 05:18:12</div>
+            </div>
+        </div>
+
+        <div class="excel-grid">
+            <div class="col-left">
+                <div class="section-title title-fm">First Mile</div>
+                <table class="excel-table table-fm" id="table-first-mile">
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th>Objetivo</th>
+                            <th class="dyn-w1">--</th>
+                            <th class="dyn-w2">--</th>
+                            <th class="dyn-w3">--</th>
+                            <th class="dyn-w4">--</th>
+                            <th class="dyn-w5">--</th>
+                            <th class="dyn-w6">--</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="col-right">
+                <div class="section-title title-lm">Last Mile</div>
+                <table class="excel-table table-lm" id="table-last-mile">
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th>Objetivo</th>
+                            <th class="dyn-w1">--</th>
+                            <th class="dyn-w2">--</th>
+                            <th class="dyn-w3">--</th>
+                            <th class="dyn-w4">--</th>
+                            <th class="dyn-w5">--</th>
+                            <th class="dyn-w6">--</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="excel-grid">
+            <div class="col-left">
+                <div class="section-title title-sf">Safety</div>
+                <table class="excel-table table-sf" id="table-safety">
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th>Objetivo</th>
+                            <th class="dyn-w1">--</th>
+                            <th class="dyn-w2">--</th>
+                            <th class="dyn-w3">--</th>
+                            <th class="dyn-w4">--</th>
+                            <th class="dyn-w5">--</th>
+                            <th class="dyn-w6">--</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-right">
+                <!-- Vazio, Line Haul removido -->
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; margin-top: 20px; padding: 0 10px;">
+            <div style="font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #0A246A;">Ações / Tarefas</div>
+            <button id="btn-toggle-tasks" onclick="toggleTasksTable()" style="background-color: #0A246A; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 3px; font-weight: bold;">Minimizar</button>
+        </div>
+        <div id="tasks-container">
+            <table class="tasks-table">
+                <thead>
+                    <tr>
+                        <th style="font-weight: bold;">Operação</th>
+                        <th style="font-weight: normal;">Indicador</th>
+                        <th style="font-weight: normal;">Ação / Tarefa</th>
+                        <th style="font-weight: normal;">Responsável</th>
+                        <th style="font-weight: normal;">Prazo</th>
+                        <th style="font-weight: normal;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="table-tasks">
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="text-align: right; margin-top: 15px; font-size: 13px; color: #666; font-family: Arial, sans-serif; padding-right: 10px; padding-bottom: 30px;">
+            Print gerado em: <span id="current-access-date" style="font-weight: bold;">--</span>
+        </div>
+    </div>
+    
+    <!-- Modal Gestão de Usuários -->
+    <div id="users-modal" class="modal" style="display:none; z-index: 10000;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header" style="background-color: #4CAF50;">
+                <h2 style="margin:0;">Gestão de Usuários</h2>
+                <span class="close" onclick="closeUsersModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table class="tasks-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr style="background-color: #eee; text-align: left;">
+                            <th style="padding: 8px; border: 1px solid #ccc;">Email</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Data de Criação</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Milha / Acesso</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Status</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts externos e bibliotecas -->
+    <!-- Modal Ações -->
+    <div id="action-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Cadastrar/Editar Ação</h2>
+                <span class="close" onclick="closeActionModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="action-form">
+                    <input type="hidden" id="action-id">
+                    <input type="hidden" id="action-is-auto" value="false">
+                    
+                    <label>Indicador:</label>
+                    <select id="action-indicator"></select>
+                    
+                    <label>Ação / Tarefa:</label>
+                    <textarea id="action-task" placeholder="Descreva a tarefa..." rows="4" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: Arial; resize: vertical; margin-bottom: 4px; width: 100%; box-sizing: border-box;"></textarea>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label>Milha Responsável:</label>
+                            <select id="action-mile">
+                                <option value="First Mile">First Mile</option>
+                                <option value="Last Mile">Last Mile</option>
+                                <option value="Line Haul">Line Haul</option>
+                                <option value="Safety">Safety</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Responsável:</label>
+                            <input type="text" id="action-owner" placeholder="Nome da pessoa" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label>Data de Início:</label>
+                            <input type="date" id="action-start-date">
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Data de Fim (Prazo):</label>
+                            <input type="date" id="action-deadline">
+                        </div>
+                    </div>
+                    
+                    <label>Status:</label>
+                    <select id="action-status">
+                        <option value="Em andamento">Em andamento</option>
+                        <option value="Crítico">Crítico</option>
+                        <option value="Atenção">Atenção</option>
+                        <option value="Atrasado">Atrasado</option>
+                        <option value="Concluído">Concluído</option>
+                    </select>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn-save" onclick="saveAction()" style="flex: 1;">Salvar Ação</button>
+                        <button class="btn-success-action" onclick="completeAction()" style="flex: 1; background-color: #00B050; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; padding: 10px;">Concluído com Sucesso</button>
+                        <button id="btn-delete-action" onclick="deleteCurrentAction()" style="flex: 1; background-color: #D32F2F; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; padding: 10px; display: none;">Excluir Ação</button>
+                    </div>
+
+                    <div id="action-history-section" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
+                        <h4 style="margin: 0 0 10px 0; color: #333;">Histórico de Atualizações</h4>
+                        <div id="action-history-list" style="max-height: 150px; overflow-y: auto; font-size: 12px; color: #555;">
+                            <!-- History items injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js?v=53"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</body>
+</html>

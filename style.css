@@ -1,0 +1,357 @@
+:root {
+    --fm-color: #0A246A;
+    --fm-bg: #E8F0FE; /* Pale blue for First Mile headers in Excel */
+    --lm-color: #2CA02C;
+    --lm-bg: #E2EFDA; /* Pale green for Last Mile */
+    --lh-color: #ED7D31;
+    --lh-bg: #FCE4D6; /* Pale orange for Line Haul */
+    --sf-color: #7030A0;
+    --sf-bg: #E6E0EC; /* Pale purple for Safety */
+    --border-color: #d9d9d9;
+    --dark-blue: #0A246A;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Calibri', 'Arial', sans-serif;
+    background-color: #f0f2f5;
+    color: #000;
+    padding: 20px 10px;
+}
+
+.dashboard-container {
+    max-width: 1800px;
+    margin: 0 auto;
+    background: #f4f6f9;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    padding: 10px 10px 20px 10px;
+}
+
+/* Header bar like Excel */
+.excel-header {
+    background-color: var(--dark-blue);
+    color: #ffffff;
+    text-align: center;
+    padding: 12px;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-left {
+    position: absolute;
+    left: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.jm-td-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255, 255, 255, 0.4);
+    background: transparent;
+    position: relative;
+}
+
+.jm-td-logo::before {
+    content: '';
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.jm-text {
+    color: white;
+    font-weight: 900;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    z-index: 2;
+    letter-spacing: -1px;
+}
+
+.td-box {
+    background-color: #FFB800;
+    color: #0A246A;
+    font-weight: 900;
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin-left: -3px;
+    z-index: 3;
+}
+
+/* Keep buttons floated to the right in the blue bar */
+.header-buttons {
+    position: absolute;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lume-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-right: 10px;
+    letter-spacing: 0.5px;
+}
+
+.header-buttons button {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.header-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-export { background-color: #217346; }
+.btn-print { background-color: #0078D4; }
+
+/* Grid Layout for Excel blocks */
+.excel-grid {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+.col-left { flex: 1; }
+.col-right { flex: 1; }
+
+/* Section Titles (First Mile, etc) */
+.section-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.title-fm { color: #4F81BD; }
+.title-lm { color: var(--lm-color); }
+.title-lh { color: var(--lh-color); }
+.title-sf { color: var(--sf-color); }
+
+/* Excel Tables */
+.excel-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    margin-bottom: 25px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid #eaeaea;
+}
+
+.excel-table th {
+    font-weight: 400;
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 1px solid #eaeaea;
+    border-right: 1px solid #eaeaea;
+}
+
+.excel-table td {
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 1px solid #eaeaea;
+    border-right: 1px solid #eaeaea;
+    color: #333;
+}
+
+.excel-table th:last-child, .excel-table td:last-child {
+    border-right: none;
+}
+
+.excel-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+    color: #111;
+}
+
+/* Pale headers with thin colored top border for each section */
+.table-fm th { background-color: var(--fm-bg); color: #2C5282; border-top: 3px solid #3182CE; }
+.table-lm th { background-color: var(--lm-bg); color: #276749; border-top: 3px solid #38A169; }
+.table-lh th { background-color: var(--lh-bg); color: #9C4221; border-top: 3px solid #DD6B20; }
+.table-sf th { background-color: var(--sf-bg); color: #553C9A; border-top: 3px solid #805AD5; }
+
+.excel-table tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* Date and Time text */
+.date-section-container {
+    text-align: right;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    padding-right: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.date-card {
+    background: #fff;
+    border: 1px solid #d1d1d1;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 6px 12px;
+    text-align: left;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.date-label {
+    font-size: 10px;
+    color: #555;
+    margin-bottom: 2px;
+}
+
+.date-value {
+    font-size: 15px;
+    color: #000;
+}
+
+/* Bottom Tasks Table */
+.tasks-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid #eaeaea;
+}
+
+.tasks-table th {
+    background-color: var(--dark-blue);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 12px;
+    text-align: left;
+}
+
+.tasks-table th:first-child { width: 20%; }
+.tasks-table th:last-child { width: 15%; text-align: center; }
+
+.tasks-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eaeaea;
+    border-right: 1px solid #eaeaea;
+    color: #333;
+}
+
+.tasks-table td:last-child {
+    text-align: center;
+    border-right: none;
+}
+
+.tasks-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* Modals and Utilities */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 4px;
+    width: 80%;
+    max-width: 800px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    background-color: var(--dark-blue);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.close { color: white; cursor: pointer; font-size: 24px; }
+.modal-body { padding: 20px; }
+
+.action-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.action-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 4px;
+}
+
+.action-form input, .action-form select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.btn-save { background: var(--dark-blue); color: white; padding: 8px 16px; border: none; cursor: pointer; }
+.btn-delete { background: red; color: white; padding: 4px 8px; border: none; cursor: pointer; }
+
+/* Status Text Colors for Tasks Table */
+.status-red { color: #FF0000; font-weight: bold; }
+.status-green { color: #00B050; font-weight: bold; }
+.status-yellow { color: #FFC000; font-weight: bold; }
+
+/* Text colors for main tables */
+.text-red { color: #FF0000 !important; }
+.text-red-val { color: #FF0000 !important; font-weight: bold !important; }
+.text-green { color: #00B050 !important; }
+.text-green-val { color: #00B050 !important; font-weight: bold !important; }
+
+.tasks-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+body.highlight-manual td[data-manual="true"] {
+    background-color: #FFF2CC !important;
+    border: 2px solid #F6B26B !important;
+    color: #000 !important;
+    transition: all 0.3s ease;
+}
