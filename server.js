@@ -7,20 +7,27 @@ const pptxgen = require('pptxgenjs');
 const { generateExcel } = require('./gerar_visao_executiva');
 
 const app = express();
-const PORT = 3000;
-const ACTIONS_FILE = path.join(__dirname, 'actions.json');
+const PORT = process.env.PORT || 3000;
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+
+const ACTIONS_FILE = path.join(DATA_DIR, 'actions.json');
 
 // Middleware
 app.use(cors({ exposedHeaders: ['Last-Modified'] }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.static(__dirname));
 
+// Ensure DATA_DIR exists if custom
+if (DATA_DIR !== __dirname && !fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
 // Ensure actions.json exists
 if (!fs.existsSync(ACTIONS_FILE)) {
     fs.writeFileSync(ACTIONS_FILE, JSON.stringify({}, null, 2), 'utf8');
 }
 
-const USERS_FILE = path.join(__dirname, 'users.json');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 // Ensure users.json exists
 if (!fs.existsSync(USERS_FILE)) {
@@ -37,7 +44,7 @@ if (!fs.existsSync(USERS_FILE)) {
     fs.writeFileSync(USERS_FILE, JSON.stringify(defaultUsers, null, 2), 'utf8');
 }
 
-const MANUAL_DATA_FILE = path.join(__dirname, 'manual_data.json');
+const MANUAL_DATA_FILE = path.join(DATA_DIR, 'manual_data.json');
 
 // Ensure manual_data.json exists
 if (!fs.existsSync(MANUAL_DATA_FILE)) {
