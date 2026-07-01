@@ -16,14 +16,14 @@ function applyRoleRestrictions() {
     const btnProfile = document.getElementById('btn-profile');
     if (btnProfile) {
         const shortEmail = window.userEmail ? window.userEmail.split('@')[0] : window.userRole;
-        btnProfile.innerHTML = `👤 ${shortEmail}`;
+        btnProfile.innerHTML = `👤 ${shortEmail} ▾`;
     }
 
     const btnUsers = document.getElementById('btn-users-mgmt');
     const isMaster = window.userRole === 'Master';
     
     if (btnUsers) {
-        btnUsers.style.display = isMaster ? 'inline-block' : 'none';
+        btnUsers.style.display = isMaster ? 'block' : 'none';
     }
 
     // Esconder/mostrar painéis baseado na role
