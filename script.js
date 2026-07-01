@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Promise.all([
         fetch('Base_Indicadores_BSC.csv?t=' + new Date().getTime()),
         fetch('Indicadores_Manuais.xlsx?t=' + new Date().getTime()),
-        fetch('http://localhost:3000/api/manual-data').catch(() => ({ ok: false }))
+        fetch('/api/manual-data').catch(() => ({ ok: false }))
     ])
     .then(async ([csvResponse, excelResponse, apiManualResponse]) => {
         if (!csvResponse.ok) throw new Error("Erro ao carregar CSV local");
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         };
                         const opName = opNameMap[tableId] || 'Outros';
 
-                        fetch('http://localhost:3000/api/manual-data', {
+                        fetch('/api/manual-data', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ operation: opName, indicator: item.kpi, week: weekVal, value: newVal || '' })
@@ -604,7 +604,7 @@ window.onclick = function(event) {
 // Fetch Actions
 async function loadActions() {
     try {
-        const response = await fetch('http://localhost:3000/api/actions');
+        const response = await fetch('/api/actions');
         if (response.ok) {
             allActions = await response.json();
             populateGlobalTasks();
@@ -708,8 +708,8 @@ async function saveAction() {
     
     const method = id ? 'PUT' : 'POST';
     const url = id 
-        ? `http://localhost:3000/api/actions/${encodeURIComponent(currentOperation)}/${id}`
-        : `http://localhost:3000/api/actions`;
+        ? `/api/actions/${encodeURIComponent(currentOperation)}/${id}`
+        : `/api/actions`;
 
     // Append audit info
     if (id) {
@@ -756,7 +756,7 @@ async function deleteCurrentAction() {
     if (!confirm('Deseja realmente excluir esta ação?')) return;
     
     try {
-        const response = await fetch(`http://localhost:3000/api/actions/${encodeURIComponent(currentOperation)}/${id}`, {
+        const response = await fetch(`/api/actions/${encodeURIComponent(currentOperation)}/${id}`, {
             method: 'DELETE'
         });
         if (response.ok) {
@@ -931,7 +931,7 @@ async function deleteAction(id) {
     if (!confirm('Deseja realmente excluir esta ação?')) return;
     
     try {
-        const response = await fetch(`http://localhost:3000/api/actions/${encodeURIComponent(currentOperation)}/${id}`, {
+        const response = await fetch(`/api/actions/${encodeURIComponent(currentOperation)}/${id}`, {
             method: 'DELETE'
         });
         if (response.ok) {
@@ -1053,12 +1053,12 @@ async function downloadScreenshot() {
 
 // Export to Excel
 function exportToExcel() {
-    fetch('http://localhost:3000/api/export-excel')
+    fetch('/api/export-excel')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const a = document.createElement('a');
-                a.href = `http://localhost:3000${data.downloadUrl}`;
+                a.href = data.downloadUrl;
                 a.download = data.downloadUrl.replace('/', '');
                 document.body.appendChild(a);
                 a.click();
@@ -1095,7 +1095,7 @@ async function loadUsers() {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>';
     
     try {
-        const res = await fetch('http://localhost:3000/api/users');
+        const res = await fetch('/api/users');
         const users = await res.json();
         
         tbody.innerHTML = '';
@@ -1152,7 +1152,7 @@ async function loadUsers() {
 
 async function updateUser(id, payload) {
     try {
-        const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+        const res = await fetch(`/api/users/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
