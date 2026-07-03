@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fechamento Mensal · BSC JM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=31">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .page-header-container {
+            margin: 20px 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title-wrap h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--brand-primary);
+            letter-spacing: -.5px;
+        }
+        .page-title-wrap p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .badge-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-status.atingido {
+            background: #DCFCE7;
+            color: #15803D;
+            border: 1px solid #BBF7D0;
+        }
+        .badge-status.abaixo {
+            background: #FEE2E2;
+            color: #B91C1C;
+            border: 1px solid #FECACA;
+        }
+        .badge-status.sem-ref {
+            background: #F1F5F9;
+            color: #64748B;
+            border: 1px solid #E2E8F0;
+        }
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            color: var(--text-secondary);
+            gap: 16px;
+        }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid var(--border);
+            border-top-color: var(--brand-accent);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header excel-header">
+    <div class="header-left">
+        <div class="jm-td-logo">
+            <span class="jm-text">JM</span>
+            <span class="td-box">TD</span>
+        </div>
+        <span style="color:rgba(255,255,255,.3)">|</span>
+        <span class="header-title" style="font-size:16px; font-weight:700;">Fechamento Mensal Consolidadado</span>
+    </div>
+    <div class="header-actions header-buttons">
+        <a href="index.html" class="btn-header" style="background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:white; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; text-decoration:none;">← Voltar ao Painel</a>
+    </div>
+</header>
+
+<div class="dashboard-container" id="dashboard-content">
+    
+    <!-- LOADING SCREEN -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="spinner"></div>
+        <p style="font-weight:600;">Carregando fechamento consolidado...</p>
+    </div>
+
+    <!-- MAIN GRID (populated via JS) -->
+    <div id="consolidated-tables" style="display:none;">
+        <div class="page-header-container">
+            <div class="page-title-wrap">
+                <h1>📅 Visão Mensal Consolidada</h1>
+                <p>Histórico completo de indicadores por mês</p>
+            </div>
+        </div>
+
+        <div class="date-section-container">
+            <div class="date-card">
+                <span style="font-size:16px;">📊</span>
+                <div>
+                    <div class="date-label">Base consolidada</div>
+                    <div class="date-value" id="total-indicators-count">0 Indicadores</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- First Mile Table Section -->
+        <div class="tasks-section-wrapper" id="section-fm">
+            <div class="section-title title-fm">🚛 First Mile</div>
+            <table class="excel-table table-fm" id="table-fm">
+                <thead>
+                    <tr id="header-row-fm">
+                        <th style="text-align:left; padding-left:14px; width:30%">Indicador</th>
+                        <th style="width:12%">Objetivo</th>
+                        <!-- Month headers inserted dynamically -->
+                        <th style="width:10%">Média</th>
+                        <th style="width:12%">Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Last Mile Table Section -->
+        <div class="tasks-section-wrapper" id="section-lm">
+            <div class="section-title title-lm">📦 Last Mile</div>
+            <table class="excel-table table-lm" id="table-lm">
+                <thead>
+                    <tr id="header-row-lm">
+                        <th style="text-align:left; padding-left:14px; width:30%">Indicador</th>
+                        <th style="width:12%">Objetivo</th>
+                        <!-- Month headers inserted dynamically -->
+                        <th style="width:10%">Média</th>
+                        <th style="width:12%">Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Safety Table Section -->
+        <div class="tasks-section-wrapper" id="section-safety">
+            <div class="section-title title-sf">🛡️ Safety</div>
+            <table class="excel-table table-sf" id="table-safety">
+                <thead>
+                    <tr id="header-row-safety">
+                        <th style="text-align:left; padding-left:14px; width:30%">Indicador</th>
+                        <th style="width:12%">Objetivo</th>
+                        <!-- Month headers inserted dynamically -->
+                        <th style="width:10%">Média</th>
+                        <th style="width:12%">Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Trend Chart Section -->
+        <div class="chart-card" style="margin: 0 20px 32px; background:#fff; border-radius:10px; padding:20px; box-shadow: var(--shadow-md); border:1px solid var(--border);">
+            <div style="font-weight:700; font-size:13px; color:var(--brand-primary); text-transform:uppercase; margin-bottom:15px; letter-spacing:.5px;">📈 Tendência de Atingimento Mensal (%)</div>
+            <div style="position:relative; height:320px;">
+                <canvas id="monthlyTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── CONFIG & MAPPINGS ────────────────────────────────────────────────────────
+const MILHA_GROUPS = {
+    'FM - FULL': 'First Mile',
+    'FM - XD':   'First Mile',
+    'LM':        'Last Mile',
+    'XPT':       'Last Mile',
+    'SAFETY':    'Safety',
+    'SRM':       'Safety'
+};
+
+let allMonths = [];
+let pivotData = [];
+
+// ── INITIAL DATA LOADING ──────────────────────────────────────────────────────
+async function loadConsolidatedData() {
+    try {
+        const resp = await fetch('/api/fechamento-mensal');
+        if (!resp.ok) throw new Error('Erro ao carregar dados consolidados');
+        const json = await resp.json();
+        
+        allMonths = json.months || [];
+        const rawByMonth = json.data || {};
+
+        if (allMonths.length === 0) {
+            document.getElementById('loading-screen').innerHTML = 
+                '<p style="color:var(--text-secondary);">Nenhum dado mensal disponível na pasta Bannco de Dados.</p>';
+            return;
+        }
+
+        // Pivot data by KPI
+        const pivotMap = new Map();
+
+        allMonths.forEach(month => {
+            const rows = rawByMonth[month] || [];
+            rows.forEach(r => {
+                const kpiName = r.kpi.trim();
+                if (!pivotMap.has(kpiName)) {
+                    pivotMap.set(kpiName, {
+                        kpi: kpiName,
+                        milha: r.milha,
+                        meta: r.meta,
+                        resultados: {}
+                    });
+                }
+                pivotMap.get(kpiName).resultados[month] = r.resultado;
+            });
+        });
+
+        pivotData = Array.from(pivotMap.values());
+        document.getElementById('total-indicators-count').textContent = `${pivotData.length} Indicadores`;
+
+        // Render everything
+        renderTables();
+        renderTrendChart();
+
+        // Switch visible view
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('consolidated-tables').style.display = 'block';
+
+    } catch (err) {
+        document.getElementById('loading-screen').innerHTML = 
+            `<p style="color:var(--red); font-weight:700;">⚠️ Erro: ${err.message}</p>`;
+    }
+}
+
+// ── RENDER TABLES ─────────────────────────────────────────────────────────────
+function renderTables() {
+    // 1. Build table headers with dynamically generated months
+    ['fm', 'lm', 'safety'].forEach(section => {
+        const headerRow = document.getElementById(`header-row-${section}`);
+        // Insert months before the last two columns (Média and Status)
+        const mediaTh = headerRow.cells[headerRow.cells.length - 2];
+        allMonths.forEach(m => {
+            const th = document.createElement('th');
+            th.textContent = m;
+            th.style.width = `${40 / allMonths.length}%`;
+            headerRow.insertBefore(th, mediaTh);
+        });
+    });
+
+    // 2. Separate indicators into their respective groups
+    const fmRows = pivotData.filter(d => MILHA_GROUPS[d.milha] === 'First Mile');
+    const lmRows = pivotData.filter(d => MILHA_GROUPS[d.milha] === 'Last Mile');
+    const sfRows = pivotData.filter(d => MILHA_GROUPS[d.milha] === 'Safety');
+
+    populateGroupTable('table-fm', fmRows);
+    populateGroupTable('table-lm', lmRows);
+    populateGroupTable('table-safety', sfRows);
+}
+
+function populateGroupTable(tableId, rows) {
+    const tbody = document.querySelector(`#${tableId} tbody`);
+    tbody.innerHTML = '';
+
+    rows.forEach(r => {
+        const tr = document.createElement('tr');
+
+        // KPI Name
+        const tdName = document.createElement('td');
+        tdName.className = 'kpi-name';
+        tdName.textContent = r.kpi;
+        tr.appendChild(tdName);
+
+        // Meta (Objetivo)
+        const cleanMeta = r.meta ? r.meta.replace(/\s*[🟢🔴]/g, '').trim() : '-';
+        const tdMeta = document.createElement('td');
+        tdMeta.style.fontWeight = '500';
+        tdMeta.textContent = cleanMeta;
+        tr.appendChild(tdMeta);
+
+        const metaVal = parseFloat(cleanMeta.replace(/[><%]/g, '').replace(',', '.'));
+        const isLowerBetter = cleanMeta.includes('<');
+
+        // Results for each month
+        let sum = 0;
+        let count = 0;
+        let latestResult = null;
+        let latestMonth = null;
+
+        allMonths.forEach(m => {
+            const tdRes = document.createElement('td');
+            const resRaw = r.resultados[m];
+            const cleanRes = resRaw ? resRaw.replace(/\s*[🟢🔴]/g, '').trim() : '';
+
+            if (cleanRes && cleanRes !== '-') {
+                tdRes.textContent = cleanRes;
+                const resVal = parseFloat(cleanRes.replace(/[><%]/g, '').replace(',', '.'));
+                
+                if (!isNaN(resVal)) {
+                    sum += resVal;
+                    count++;
+                    latestResult = resVal;
+                    latestMonth = m;
+
+                    // Color code
+                    if (!isNaN(metaVal)) {
+                        const ok = isLowerBetter ? (resVal <= metaVal) : (resVal >= metaVal);
+                        tdRes.className = ok ? 'text-green-val' : 'text-red-val';
+                    }
+                }
+            } else {
+                tdRes.textContent = '-';
+            }
+            tr.appendChild(tdRes);
+        });
+
+        // Média Column
+        const tdAvg = document.createElement('td');
+        tdAvg.style.fontWeight = '700';
+        if (count > 0) {
+            const avg = sum / count;
+            tdAvg.textContent = cleanMeta.includes('%') ? `${avg.toFixed(2).replace('.', ',')}%` : avg.toFixed(2).replace('.', ',');
+        } else {
+            tdAvg.textContent = '-';
+        }
+        tr.appendChild(tdAvg);
+
+        // Status Column (based on latest month available)
+        const tdStatus = document.createElement('td');
+        if (latestResult !== null && !isNaN(metaVal)) {
+            const ok = isLowerBetter ? (latestResult <= metaVal) : (latestResult >= metaVal);
+            tdStatus.innerHTML = ok 
+                ? '<span class="badge-status atingido">✅ Atingido</span>'
+                : '<span class="badge-status abaixo">❌ Abaixo</span>';
+        } else {
+            tdStatus.innerHTML = '<span class="badge-status sem-ref">– Sem Ref</span>';
+        }
+        tr.appendChild(tdStatus);
+
+        tbody.appendChild(tr);
+    });
+}
+
+// ── TREND CHART ──────────────────────────────────────────────────────────────
+function renderTrendChart() {
+    // Calculate compliance rate per group per month
+    const groups = ['First Mile', 'Last Mile', 'Safety'];
+    const datasets = groups.map((group, idx) => {
+        const colors = ['#2563EB', '#16A34A', '#7C3AED'];
+        const groupKpis = pivotData.filter(d => MILHA_GROUPS[d.milha] === group);
+        
+        const data = allMonths.map(m => {
+            let hits = 0;
+            let total = 0;
+
+            groupKpis.forEach(r => {
+                const resRaw = r.resultados[m];
+                const metaRaw = r.meta;
+                if (!resRaw || !metaRaw || resRaw === '-' || metaRaw === '-') return;
+
+                const resVal = parseFloat(resRaw.replace(/[%><\s🟢🔴]/g, '').replace(',', '.'));
+                const metaVal = parseFloat(metaRaw.replace(/[%><\s🟢🔴]/g, '').replace(',', '.'));
+
+                if (!isNaN(resVal) && !isNaN(metaVal)) {
+                    const isLower = metaRaw.includes('<');
+                    const ok = isLower ? resVal <= metaVal : resVal >= metaVal;
+                    if (ok) hits++;
+                    total++;
+                }
+            });
+
+            return total > 0 ? Math.round((hits / total) * 100) : null;
+        });
+
+        return {
+            label: group,
+            data: data,
+            borderColor: colors[idx],
+            backgroundColor: 'transparent',
+            borderWidth: 3,
+            tension: 0.25,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            spanGaps: true
+        };
+    });
+
+    const ctx = document.getElementById('monthlyTrendChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: allMonths,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12, weight: 600 } } },
+                tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y}%` } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11, weight: 600 } } },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { font: { family: 'Inter', size: 11 }, callback: v => v + '%' },
+                    grid: { color: '#E2E8F0' }
+                }
+            }
+        }
+    });
+}
+
+loadConsolidatedData();
+</script>
+</body>
+</html>

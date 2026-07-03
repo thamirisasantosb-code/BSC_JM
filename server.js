@@ -15,6 +15,68 @@ const ACTIONS_FILE = path.join(DATA_DIR, 'actions.json');
 // Middleware
 app.use(cors({ exposedHeaders: ['Last-Modified'] }));
 app.use(bodyParser.json({ limit: '50mb' }));
+
+// Custom route to serve CSV from Bannco de Dados folder
+app.get('/Base_Indicadores_BSC.csv', (req, res) => {
+    const csvFilePath = 'C:\\Users\\thamires.santos\\OneDrive - JM DISTRIBUIÇÃO\\Projeto\\BSC\\Bannco de Dados\\Base_Indicadores_BSC.csv';
+    res.sendFile(csvFilePath);
+});
+
+// API: Fechamento Mensal - lê todos os CSVs da pasta Bannco de Dados
+app.get('/api/fechamento-mensal', (req, res) => {
+    const dbDir = 'C:\\Users\\thamires.santos\\OneDrive - JM DISTRIBUIÇÃO\\Projeto\\BSC\\Bannco de Dados';
+    const MONTHLY_LABELS = ['Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'];
+
+    try {
+        const files = fs.readdirSync(dbDir).filter(f => f.endsWith('.csv'));
+        const allRows = [];
+
+        files.forEach(file => {
+            const content = fs.readFileSync(path.join(dbDir, file), 'utf8');
+            const lines = content.split('\n').slice(1); // skip header
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const cols = line.split(',').map(c => c.trim());
+                const periodo = cols[0];
+                if (!periodo || !MONTHLY_LABELS.includes(periodo)) return;
+
+                const milha = cols[3] || '';
+                const kpi = cols[4] || '';
+                const meta4 = cols[5] || '';
+                const resultado = cols[7] || '';
+
+                if (!kpi) return;
+
+                allRows.push({ periodo, milha, kpi, meta: meta4, resultado });
+            });
+        });
+
+        // Deduplicate: same periodo+kpi - keep first
+        const seen = new Set();
+        const deduped = allRows.filter(r => {
+            const key = `${r.periodo}|${r.kpi}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+
+        // Group by month
+        const byMonth = {};
+        deduped.forEach(r => {
+            if (!byMonth[r.periodo]) byMonth[r.periodo] = [];
+            byMonth[r.periodo].push(r);
+        });
+
+        // Order months correctly
+        const orderedMonths = MONTHLY_LABELS.filter(m => byMonth[m]);
+
+        res.json({ months: orderedMonths, data: byMonth });
+    } catch (err) {
+        console.error('Erro ao ler dados de fechamento:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.use(express.static(__dirname));
 
 // Ensure DATA_DIR exists if custom

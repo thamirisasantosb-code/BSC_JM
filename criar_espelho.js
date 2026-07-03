@@ -15,7 +15,8 @@ async function createMirror() {
         { header: 'W23', key: 'W23', width: 10 },
         { header: 'W24', key: 'W24', width: 10 },
         { header: 'W25', key: 'W25', width: 10 },
-        { header: 'W26', key: 'W26', width: 10 }
+        { header: 'W26', key: 'W26', width: 10 },
+        { header: 'W27', key: 'W27', width: 10 }
     ];
 
     // Estilizar o cabeçalho
@@ -108,7 +109,8 @@ async function createMirror() {
                 W23: dataForKpi['W23'] || '',
                 W24: dataForKpi['W24'] || '',
                 W25: dataForKpi['W25'] || '',
-                W26: dataForKpi['W26'] || ''
+                W26: dataForKpi['W26'] || '',
+                W27: dataForKpi['W27'] || ''
             });
         }
     }

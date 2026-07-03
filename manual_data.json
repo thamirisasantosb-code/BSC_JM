@@ -1,7 +1,8 @@
 {
   "First Mile": {
     "Ad. Config XD": {
-      "W25": ""
+      "W25": "",
+      "W24": "-"
     }
   },
   "Last Mile": {
@@ -10,7 +11,8 @@
       "W25": "58,38 %"
     },
     "Delivery Success XPT": {
-      "W25": "94,75 %"
+      "W25": "94,75 %",
+      "W26": "95.01 %"
     },
     "% Real x D7 FDS (XPT) SPOT": {
       "W25": "0 %"

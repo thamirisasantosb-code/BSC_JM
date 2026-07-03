@@ -8,47 +8,169 @@
         if (window.location.protocol === 'file:') {
             window.location.href = 'http://localhost:3000';
         }
+
+        function toggleMediaColumn() {
+            document.body.classList.toggle('show-media');
+            const btn = document.getElementById('btn-toggle-media');
+            if (document.body.classList.contains('show-media')) {
+                btn.textContent = '[-] Média';
+                btn.style.backgroundColor = '#d32f2f';
+            } else {
+                btn.textContent = '[+] Média';
+                btn.style.backgroundColor = '#107c41';
+            }
+        }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Gerot</title>
-    <link rel="stylesheet" href="style.css?v=22">
+    <title>BSC Dashboard · JM Distribuição</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=30">
     <style>
-        .profile-dropdown {
-            position: relative;
-            display: inline-block;
-            margin-right: 8px;
-        }
+        .col-media { display: none !important; }
+        body.show-media .col-media { display: table-cell !important; }
+
+        /* Profile dropdown */
+        .profile-dropdown { position: relative; display: inline-block; margin-right: 8px; }
         .profile-dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 100;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 5px;
+            display: none; position: absolute; right: 0;
+            background-color: #f9f9f9; min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,.2);
+            z-index: 100; border-radius: 4px; overflow: hidden; margin-top: 5px;
         }
         .profile-dropdown-content button {
-            color: #333;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            text-align: left;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
+            color: #333; padding: 12px 16px; display: block; width: 100%;
+            text-align: left; border: none; background: none;
+            cursor: pointer; font-weight: bold; font-size: 14px;
         }
-        .profile-dropdown-content button:hover {
-            background-color: #e0e0e0;
+        .profile-dropdown-content button:hover { background-color: #e0e0e0; }
+        .profile-dropdown:hover .profile-dropdown-content { display: block; }
+
+        /* Fechamento dropdown */
+        .fechamento-dropdown { position: relative; display: inline-block; margin-right: 8px; }
+        .fechamento-dropdown-btn {
+            background: #6366F1; color: white; border: none;
+            padding: 6px 12px; border-radius: 4px;
+            font-weight: bold; cursor: pointer; font-size: 13px;
+            display: inline-flex; align-items: center; gap: 6px;
         }
-        .profile-dropdown:hover .profile-dropdown-content {
-            display: block;
+        .fechamento-dropdown-btn:hover { background: #4F46E5; }
+        .fechamento-dropdown-menu {
+            display: none; position: absolute; right: 0; top: calc(100% + 4px);
+            background: #fff; border-radius: 8px; min-width: 170px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.18);
+            z-index: 200; overflow: hidden; border: 1px solid #E0E7FF;
         }
+        .fechamento-dropdown:hover .fechamento-dropdown-menu { display: block; }
+        .fechamento-dropdown-menu a {
+            display: block; padding: 10px 16px;
+            color: #3730A3; font-size: 13px; font-weight: 600;
+            text-decoration: none; transition: background .15s;
+        }
+        .fechamento-dropdown-menu a:hover { background: #EEF2FF; }
+        .fechamento-dropdown-menu .menu-header {
+            padding: 8px 16px 6px; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: #9CA3AF; border-bottom: 1px solid #E0E7FF;
+        }
+        .fechamento-dropdown-menu .menu-loading {
+            padding: 12px 16px; font-size: 12px; color: #9CA3AF;
+        }
+
+        /* KPI Detail Modal */
+        #kpi-detail-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(10,36,106,.45); z-index: 9000;
+            backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+        }
+        #kpi-detail-modal.open { display: flex; }
+        .kpi-modal-box {
+            background: #fff; border-radius: 14px;
+            width: min(960px, 97vw); max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+            display: flex; flex-direction: column;
+        }
+        .kpi-modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 24px; border-bottom: 1px solid #E5E7EB;
+            background: linear-gradient(135deg,#0A246A,#1a3a8a); border-radius: 14px 14px 0 0;
+        }
+        .kpi-modal-header h2 { font-size: 16px; font-weight: 800; color: #fff; margin: 0; }
+        .kpi-modal-header .kpi-modal-meta { font-size: 12px; color: rgba(255,255,255,.7); margin-top: 2px; }
+        .kpi-modal-close {
+            background: rgba(255,255,255,.15); border: none; color: #fff;
+            width: 30px; height: 30px; border-radius: 50%;
+            font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .kpi-modal-close:hover { background: rgba(255,255,255,.3); }
+        .kpi-modal-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 22px; }
+        .kpi-chart-wrapper { position: relative; height: 260px; }
+        .kpi-actions-section h3 {
+            font-size: 13px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .7px; color: #6B7280; margin-bottom: 12px;
+        }
+        .kpi-action-card {
+            border: 1px solid #E5E7EB; border-radius: 10px;
+            padding: 14px 16px; margin-bottom: 10px;
+            display: grid; grid-template-columns: 1fr auto;
+            gap: 6px; transition: box-shadow .2s;
+        }
+        .kpi-action-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+        .kpi-action-task { font-size: 13px; font-weight: 600; color: #1E293B; }
+        .kpi-action-meta { font-size: 12px; color: #64748B; margin-top: 4px; }
+        .kpi-action-badge {
+            display: inline-block; padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; white-space: nowrap; align-self: start;
+        }
+        .kpi-action-badge.em-andamento { background:#DBEAFE; color:#1D4ED8; }
+        .kpi-action-badge.atencao      { background:#FEF3C7; color:#92400E; }
+        .kpi-action-badge.critico      { background:#FEE2E2; color:#991B1B; }
+        .kpi-action-badge.atrasado     { background:#FEE2E2; color:#991B1B; }
+        .kpi-action-badge.concluido    { background:#DCFCE7; color:#15803D; }
+        .kpi-no-actions { text-align:center; padding: 20px; color: #9CA3AF; font-size: 13px; }
+
+        /* Monthly breakdown table */
+        .kpi-month-table {
+            width: 100%; border-collapse: collapse; font-size: 12.5px;
+            border-radius: 10px; overflow: hidden;
+        }
+        .kpi-month-table th {
+            background: #F1F5F9; color: #64748B;
+            font-size: 10.5px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .7px;
+            padding: 9px 14px; text-align: left;
+            border-bottom: 2px solid #E2E8F0;
+        }
+        .kpi-month-table th:not(:first-child) { text-align: center; }
+        .kpi-month-table td {
+            padding: 9px 14px; border-bottom: 1px solid #F1F5F9;
+            vertical-align: middle;
+        }
+        .kpi-month-table tr:last-child td { border-bottom: none; }
+        .kpi-month-table tr:hover td { background: #F8FAFC; }
+        .kpi-month-table td:not(:first-child) { text-align: center; }
+        .kpi-month-table .month-name {
+            font-weight: 700; color: #1E293B; font-size: 13px;
+        }
+        .kpi-month-table .result-ok  { color: #16A34A; font-weight: 700; }
+        .kpi-month-table .result-bad { color: #DC2626; font-weight: 700; }
+        .kpi-month-table .result-na  { color: #94A3B8; }
+        .kpi-month-bar-wrap { position: relative; height: 180px; margin-top: 4px; }
+        .kpi-month-loading { text-align:center; padding:20px; color:#94A3B8; font-size:13px; }
+        .kpi-tabs {
+            display: flex; gap: 0; border-bottom: 2px solid #E2E8F0;
+            margin-bottom: 16px;
+        }
+        .kpi-tab {
+            padding: 8px 18px; font-size: 12.5px; font-weight: 600;
+            color: #64748B; cursor: pointer; border-bottom: 2px solid transparent;
+            margin-bottom: -2px; transition: all .15s; background: none; border-top: none;
+            border-left: none; border-right: none;
+        }
+        .kpi-tab:hover { color: #2563EB; }
+        .kpi-tab.active { color: #2563EB; border-bottom-color: #2563EB; }
     </style>
 </head>
 <body>
@@ -71,6 +193,8 @@
                     </div>
                 </div>
                 <button class="btn-highlight" onclick="window.toggleManualHighlight()" style="background: #E8A838; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 8px;">🔍 Destacar Manuais</button>
+                <button class="btn-toggle-media" id="btn-toggle-media" onclick="toggleMediaColumn()" style="background: #107c41; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 8px;">[+] Média</button>
+                <button class="btn-fechamento" onclick="window.open('fechamento_mensal.html','_blank')" style="background:#6366F1; color:white; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; margin-right:8px;">📅 Fechamento Mensal</button>
                 <button class="btn-print" onclick="downloadScreenshot()">📸 Print</button>
                 <button class="btn-export" onclick="exportToExcel()">📊 Excel</button>
             </div>
@@ -78,14 +202,17 @@
 
         <div class="date-section-container">
             <div class="date-card">
-                <div class="date-label">Data e Hora da última atualização da base</div>
-                <div class="date-value" id="last-update">17 de jun. de 2026, 05:18:12</div>
+                <span style="font-size:16px;">🕐</span>
+                <div>
+                    <div class="date-label">Última atualização da base</div>
+                    <div class="date-value" id="last-update">–</div>
+                </div>
             </div>
         </div>
 
         <div class="excel-grid">
             <div class="col-left">
-                <div class="section-title title-fm">First Mile</div>
+                <div class="section-title title-fm">🚛 First Mile</div>
                 <table class="excel-table table-fm" id="table-first-mile">
                     <thead>
                         <tr>
@@ -97,6 +224,7 @@
                             <th class="dyn-w4">--</th>
                             <th class="dyn-w5">--</th>
                             <th class="dyn-w6">--</th>
+                            <th class="col-media">Média</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -107,7 +235,7 @@
             </div>
             
             <div class="col-right">
-                <div class="section-title title-lm">Last Mile</div>
+                <div class="section-title title-lm">📦 Last Mile</div>
                 <table class="excel-table table-lm" id="table-last-mile">
                     <thead>
                         <tr>
@@ -119,6 +247,7 @@
                             <th class="dyn-w4">--</th>
                             <th class="dyn-w5">--</th>
                             <th class="dyn-w6">--</th>
+                            <th class="col-media">Média</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -131,7 +260,7 @@
 
         <div class="excel-grid">
             <div class="col-left">
-                <div class="section-title title-sf">Safety</div>
+                <div class="section-title title-sf">🛡️ Safety</div>
                 <table class="excel-table table-sf" id="table-safety">
                     <thead>
                         <tr>
@@ -143,6 +272,7 @@
                             <th class="dyn-w4">--</th>
                             <th class="dyn-w5">--</th>
                             <th class="dyn-w6">--</th>
+                            <th class="col-media">Média</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -205,37 +335,39 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-
-    <!-- Scripts externos e bibliotecas -->
-    <!-- Modal Ações -->
+      <!-- Modal Ações -->
     <div id="action-modal" class="modal" style="display:none;">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 1050px; width: 95%;">
             <div class="modal-header">
                 <h2 id="modal-title">Cadastrar/Editar Ação</h2>
                 <span class="close" onclick="closeActionModal()">&times;</span>
             </div>
-            <div class="modal-body">
-                <div class="action-form">
+            <div class="modal-body" style="display: flex; gap: 24px; padding: 22px 24px; align-items: stretch;">
+                <div class="action-form" style="flex: 1.2; display: flex; flex-direction: column; gap: 8px; min-width: 0;">
                     <input type="hidden" id="action-id">
                     <input type="hidden" id="action-is-auto" value="false">
                     
                     <label>Indicador:</label>
-                    <select id="action-indicator"></select>
+                    <select id="action-indicator" onchange="window.updateActionModalIndicatorDetail()"></select>
                     
                     <label>Ação / Tarefa:</label>
                     <textarea id="action-task" placeholder="Descreva a tarefa..." rows="4" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: Arial; resize: vertical; margin-bottom: 4px; width: 100%; box-sizing: border-box;"></textarea>
                     
                     <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1;">
+                        <div style="flex: 1; position: relative;">
                             <label>Milha Responsável:</label>
-                            <select id="action-mile">
-                                <option value="First Mile">First Mile</option>
-                                <option value="Last Mile">Last Mile</option>
-                                <option value="Line Haul">Line Haul</option>
-                                <option value="Safety">Safety</option>
-                            </select>
+                            <div class="custom-multiselect">
+                                <div class="select-box" onclick="toggleMileDropdown(event)">
+                                    <span id="selected-miles-text">Selecione as milhas</span>
+                                    <span class="arrow">▼</span>
+                                </div>
+                                <div id="mile-checkboxes" class="checkboxes-dropdown" style="display: none;">
+                                    <label><input type="checkbox" value="First Mile" onchange="updateSelectedMilesText()"> First Mile</label>
+                                    <label><input type="checkbox" value="Last Mile" onchange="updateSelectedMilesText()"> Last Mile</label>
+                                    <label><input type="checkbox" value="Line Haul" onchange="updateSelectedMilesText()"> Line Haul</label>
+                                    <label><input type="checkbox" value="Safety" onchange="updateSelectedMilesText()"> Safety</label>
+                                </div>
+                            </div>
                         </div>
                         <div style="flex: 1;">
                             <label>Responsável:</label>
@@ -276,13 +408,515 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Indicator Detail Side Pane -->
+                <div id="action-modal-indicator-detail" style="flex: 1.3; border-left: 1px solid #E2E8F0; padding-left: 24px; display: none; flex-direction: column; gap: 16px; min-width: 0;">
+                    <div>
+                        <h3 id="action-detail-kpi-name" style="font-size: 14px; font-weight: 700; color: #0A246A; margin: 0 0 4px 0; text-transform: uppercase;">Indicador</h3>
+                        <div id="action-detail-kpi-meta" style="font-size: 12px; color: #64748B; font-weight: 600;">Meta: -</div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">📈 Evolução do Indicador (Semanas)</h4>
+                        <div style="position: relative; height: 160px;">
+                            <canvas id="action-detail-trend-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">📅 Desempenho por Mês</h4>
+                        <div id="action-detail-month-table-wrap" style="max-height: 160px; overflow-y: auto;">
+                            <div class="kpi-month-loading">Carregando dados mensais...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI DETAIL MODAL -->
+    <div id="kpi-detail-modal">
+        <div class="kpi-modal-box">
+            <div class="kpi-modal-header">
+                <div>
+                    <h2 id="kpi-modal-name">Indicador</h2>
+                    <div class="kpi-modal-meta" id="kpi-modal-meta"></div>
+                </div>
+                <button class="kpi-modal-close" onclick="closeKpiDetailModal()">✕</button>
+            </div>
+            <div class="kpi-modal-body">
+                <div>
+                    <div class="kpi-actions-section" style="margin-bottom:8px">
+                        <h3>📈 Evolução do Indicador (Semanas)</h3>
+                    </div>
+                    <div class="kpi-chart-wrapper"><canvas id="kpi-trend-chart"></canvas></div>
+                </div>
+
+                <!-- Monthly breakdown -->
+                <div class="kpi-actions-section">
+                    <h3>📅 Desempenho por Mês</h3>
+                    <div class="kpi-tabs">
+                        <button class="kpi-tab active" id="kpi-tab-table" onclick="kpiSwitchTab('table')">Tabela</button>
+                        <button class="kpi-tab" id="kpi-tab-chart" onclick="kpiSwitchTab('chart')">Gráfico</button>
+                    </div>
+                    <div id="kpi-month-table-wrap"><div class="kpi-month-loading">⏳ Carregando dados mensais...</div></div>
+                    <div id="kpi-month-chart-wrap" style="display:none">
+                        <div class="kpi-month-bar-wrap"><canvas id="kpi-month-bar-chart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="kpi-actions-section">
+                    <h3>📋 Ações e Prazos</h3>
+                    <div id="kpi-actions-list"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="script.js?v=53"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="script.js?v=55"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+
+
+    // ── KPI DETAIL MODAL ─────────────────────────────────────────────────────
+    let _kpiChart = null;
+
+    window.openKpiDetailModal = function(kpiLabel, kpiKey, weeksData, allActionsData) {
+        const modal = document.getElementById('kpi-detail-modal');
+        modal.classList.add('open');
+        document.getElementById('kpi-modal-name').textContent = kpiLabel;
+
+        // ── CHART ──
+        if (_kpiChart) { _kpiChart.destroy(); _kpiChart = null; }
+
+        const labels  = weeksData.map(d => d.week);
+        const values  = weeksData.map(d => d.value);
+        const metaVal = weeksData.length > 0 ? weeksData[0].meta : null;
+
+        // Trend line via least squares
+        function trendLine(vals) {
+            const n = vals.length;
+            if (n < 2) return vals;
+            let sx=0, sy=0, sxy=0, sx2=0;
+            vals.forEach((y,i) => { sx+=i; sy+=y; sxy+=i*y; sx2+=i*i; });
+            const m = (n*sxy - sx*sy) / (n*sx2 - sx*sx);
+            const b = (sy - m*sx) / n;
+            return vals.map((_,i) => parseFloat((m*i + b).toFixed(2)));
+        }
+
+        const validVals = values.filter(v => v !== null && !isNaN(v));
+        const metaLine = metaVal !== null ? labels.map(() => metaVal) : null;
+        const trend = validVals.length >= 2 ? trendLine(values.map(v => v ?? 0)) : null;
+
+        const ctx = document.getElementById('kpi-trend-chart').getContext('2d');
+        const datasets = [
+            {
+                label: kpiLabel,
+                data: values,
+                borderColor: '#2563EB',
+                backgroundColor: 'rgba(37,99,235,.1)',
+                pointBackgroundColor: values.map(v => {
+                    if (v === null) return '#9CA3AF';
+                    if (metaVal === null) return '#2563EB';
+                    return v >= metaVal ? '#16A34A' : '#DC2626';
+                }),
+                pointRadius: 5,
+                tension: 0.35,
+                fill: true,
+                spanGaps: true
+            }
+        ];
+        if (trend) datasets.push({
+            label: 'Tendência',
+            data: trend,
+            borderColor: '#F59E0B',
+            borderDash: [6,4],
+            pointRadius: 0,
+            tension: 0,
+            fill: false,
+            borderWidth: 2
+        });
+        if (metaLine) datasets.push({
+            label: 'Meta',
+            data: metaLine,
+            borderColor: '#6B7280',
+            borderDash: [4,4],
+            pointRadius: 0,
+            fill: false,
+            borderWidth: 1.5
+        });
+
+        _kpiChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } },
+                    tooltip: {
+                        callbacks: {
+                            label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2) + '%' : '-'}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } },
+                    y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }
+                }
+            }
+        });
+
+        // ── ACTIONS ──
+        const actionsContainer = document.getElementById('kpi-actions-list');
+        actionsContainer.innerHTML = '';
+        let found = 0;
+        for (const opName in allActionsData) {
+            const list = allActionsData[opName] || [];
+            list.forEach(a => {
+                const ind = (a.indicator || '').replace('⚠️ ','');
+                if (ind !== kpiLabel && ind !== kpiKey) return;
+                found++;
+                const statusKey = (a.status || 'Em andamento').toLowerCase().replace(/ /g,'-');
+                const deadlineStr = a.deadline ? new Date(a.deadline).toLocaleDateString('pt-BR') : 'Sem prazo';
+                const startStr = a.startDate ? new Date(a.startDate).toLocaleDateString('pt-BR') : '';
+                const card = document.createElement('div');
+                card.className = 'kpi-action-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="kpi-action-task">${a.task || 'Sem descrição'}</div>
+                        <div class="kpi-action-meta">
+                            👤 ${a.owner || 'Não definido'} &nbsp;|&nbsp;
+                            ${startStr ? '🟢 Início: ' + startStr + ' &nbsp;|&nbsp; ' : ''}
+                            📅 Prazo: <strong>${deadlineStr}</strong>
+                            ${a.mile ? ' &nbsp;|&nbsp; 🚛 ' + a.mile : ''}
+                        </div>
+                    </div>
+                    <span class="kpi-action-badge ${statusKey}">${a.status || 'Em andamento'}</span>
+                `;
+                actionsContainer.appendChild(card);
+            });
+        }
+        if (found === 0) {
+            actionsContainer.innerHTML = '<div class="kpi-no-actions">📭 Nenhuma ação cadastrada para este indicador.</div>';
+        }
+
+        // ── MONTHLY DATA ──
+        const monthTableWrap = document.getElementById('kpi-month-table-wrap');
+        const monthChartWrap = document.getElementById('kpi-month-chart-wrap');
+        monthTableWrap.innerHTML = '<div class="kpi-month-loading">⏳ Carregando dados mensais...</div>';
+
+        // Destroy previous month chart
+        if (window._kpiMonthChart) { window._kpiMonthChart.destroy(); window._kpiMonthChart = null; }
+
+        fetch('/api/fechamento-mensal').then(r => r.json()).then(json => {
+            const allMonthData = json.data || {};
+            const MONTHS = json.months || [];
+
+            // Collect rows for this KPI across all months
+            const monthRows = [];
+            MONTHS.forEach(mes => {
+                const rows = allMonthData[mes] || [];
+                const match = rows.find(r => {
+                    const rk = r.kpi.trim().toLowerCase();
+                    const k1 = kpiLabel.trim().toLowerCase();
+                    const k2 = kpiKey.trim().toLowerCase();
+                    return rk === k1 || rk === k2 || rk.includes(k1) || k1.includes(rk);
+                });
+                if (match) monthRows.push({ mes, ...match });
+            });
+
+            if (monthRows.length === 0) {
+                monthTableWrap.innerHTML = '<div class="kpi-month-loading">📭 Sem dados mensais para este indicador.</div>';
+                return;
+            }
+
+            // ── BUILD TABLE ──
+            const tableHTML = `
+                <table class="kpi-month-table">
+                    <thead>
+                        <tr>
+                            <th>📅 Mês</th>
+                            <th>Objetivo</th>
+                            <th>Resultado</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${monthRows.map(r => {
+                            const metaStr = (r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                            const resStr  = (r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                            const metaNum = parseFloat(metaStr.replace(/[%><]/g,'').replace(',','.'));
+                            const resNum  = parseFloat(resStr.replace(/[%><]/g,'').replace(',','.'));
+                            const isLower = metaStr.includes('<');
+                            let statusHtml = '<span style="color:#94A3B8">–</span>';
+                            let resClass = 'result-na';
+                            if (!isNaN(metaNum) && !isNaN(resNum)) {
+                                const ok = isLower ? resNum <= metaNum : resNum >= metaNum;
+                                statusHtml = ok
+                                    ? '<span class="badge atingido" style="background:#DCFCE7;color:#15803D;border:1px solid #BBF7D0;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">✅ Atingido</span>'
+                                    : '<span class="badge abaixo" style="background:#FEE2E2;color:#B91C1C;border:1px solid #FECACA;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">❌ Abaixo</span>';
+                                resClass = ok ? 'result-ok' : 'result-bad';
+                            }
+                            return `<tr>
+                                <td class="month-name">${r.mes}</td>
+                                <td style="color:#64748B">${metaStr}</td>
+                                <td class="${resClass}">${resStr || '-'}</td>
+                                <td>${statusHtml}</td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>`;
+            monthTableWrap.innerHTML = tableHTML;
+
+            // ── BUILD BAR CHART ──
+            const barLabels = monthRows.map(r => r.mes);
+            const barValues = monthRows.map(r => {
+                const v = parseFloat((r.resultado || '').replace(/[%><\s]/g,'').replace(',','.'));
+                return isNaN(v) ? null : v;
+            });
+            const barMeta = monthRows.map(r => {
+                const v = parseFloat((r.meta || '').replace(/[%><\s]/g,'').replace(',','.'));
+                return isNaN(v) ? null : v;
+            });
+
+            const barCtx = document.getElementById('kpi-month-bar-chart').getContext('2d');
+            window._kpiMonthChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: barLabels,
+                    datasets: [
+                        {
+                            label: 'Resultado',
+                            data: barValues,
+                            backgroundColor: barValues.map((v, i) => {
+                                const m = barMeta[i];
+                                if (v === null || m === null) return '#94A3B8';
+                                return v >= m ? 'rgba(22,163,74,.75)' : 'rgba(220,38,38,.75)';
+                            }),
+                            borderRadius: 6,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'Meta',
+                            data: barMeta,
+                            type: 'line',
+                            borderColor: '#F59E0B',
+                            borderDash: [5,4],
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#F59E0B',
+                            fill: false,
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } },
+                        tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y + '%' : '-'}` } }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+                        y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }
+                    }
+                }
+            });
+
+        }).catch(() => {
+            monthTableWrap.innerHTML = '<div class="kpi-month-loading">⚠️ Erro ao carregar dados mensais.</div>';
+        });
+
+    window._actionDetailChart = null;
+
+    window.updateActionModalIndicatorDetail = function() {
+        const select = document.getElementById('action-indicator');
+        const detailPane = document.getElementById('action-modal-indicator-detail');
+        
+        if (!select || !detailPane) return;
+        
+        const selectedKpi = select.value;
+        if (!selectedKpi || selectedKpi === 'Geral') {
+            detailPane.style.display = 'none';
+            return;
+        }
+        
+        detailPane.style.display = 'flex';
+        document.getElementById('action-detail-kpi-name').textContent = selectedKpi;
+
+        // Fetch meta and weekly values for selectedKpi
+        if (!window.globalLast6Weeks || !window.getKpiHistoricalData) return;
+
+        let metaText = '-';
+        let metaVal = null;
+        const weeksData = window.globalLast6Weeks.map(wk => {
+            const d = window.getKpiHistoricalData(selectedKpi, wk);
+            if (d && d['Meta 4 Pontos']) {
+                metaText = d['Meta 4 Pontos'].replace(/[><\s]/g,'');
+                metaVal = parseFloat(metaText.replace('%','').replace(',','.'));
+            }
+            const txt = d ? (d['Resultado Final'] || null) : null;
+            const numVal = txt ? parseFloat(txt.replace(/[%><\s]/g, '').replace(',', '.')) : null;
+            return { week: wk, value: isNaN(numVal) ? null : numVal };
+        });
+
+        document.getElementById('action-detail-kpi-meta').textContent = metaText !== '-' ? `Meta: ${metaText}` : 'Meta: -';
+
+        // Render Weekly Line Chart
+        if (window._actionDetailChart) {
+            window._actionDetailChart.destroy();
+            window._actionDetailChart = null;
+        }
+
+        const labels = weeksData.map(d => d.week);
+        const values = weeksData.map(d => d.value);
+
+        // Trend line via least squares
+        function getTrend(vals) {
+            const n = vals.length;
+            if (n < 2) return vals;
+            let sx=0, sy=0, sxy=0, sx2=0;
+            vals.forEach((y,i) => { sx+=i; sy+=y; sxy+=i*y; sx2+=i*i; });
+            const m = (n*sxy - sx*sy) / (n*sx2 - sx*sx);
+            const b = (sy - m*sx) / n;
+            return vals.map((_,i) => parseFloat((m*i + b).toFixed(2)));
+        }
+
+        const validVals = values.filter(v => v !== null && !isNaN(v));
+        const trend = validVals.length >= 2 ? getTrend(values.map(v => v ?? 0)) : null;
+
+        const ctx = document.getElementById('action-detail-trend-chart').getContext('2d');
+        const datasets = [{
+            label: selectedKpi,
+            data: values,
+            borderColor: '#2563EB',
+            backgroundColor: 'rgba(37,99,235,.07)',
+            pointBackgroundColor: values.map(v => {
+                if (v === null) return '#9CA3AF';
+                if (metaVal === null) return '#2563EB';
+                return v >= metaVal ? '#16A34A' : '#DC2626';
+            }),
+            pointRadius: 4,
+            tension: 0.3,
+            fill: true,
+            spanGaps: true
+        }];
+
+        if (trend) {
+            datasets.push({
+                label: 'Tendência',
+                data: trend,
+                borderColor: '#F59E0B',
+                borderDash: [5,3],
+                pointRadius: 0,
+                fill: false,
+                borderWidth: 1.5
+            });
+        }
+
+        window._actionDetailChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: c => ` ${c.parsed.y !== null ? c.parsed.y.toFixed(2) + '%' : '-'}` } }
+                },
+                scales: {
+                    x: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 10 } } },
+                    y: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 9 } } }
+                }
+            }
+        });
+
+        // Fetch Monthly details
+        const monthTableWrap = document.getElementById('action-detail-month-table-wrap');
+        monthTableWrap.innerHTML = '<div class="kpi-month-loading">⏳ Carregando...</div>';
+
+        fetch('/api/fechamento-mensal').then(r => r.json()).then(json => {
+            const allMonthData = json.data || {};
+            const MONTHS = json.months || [];
+
+            const monthRows = [];
+            MONTHS.forEach(mes => {
+                const rows = allMonthData[mes] || [];
+                const match = rows.find(r => {
+                    const rk = r.kpi.trim().toLowerCase();
+                    const sk = selectedKpi.trim().toLowerCase();
+                    return rk === sk || rk.includes(sk) || sk.includes(rk);
+                });
+                if (match) monthRows.push({ mes, ...match });
+            });
+
+            if (monthRows.length === 0) {
+                monthTableWrap.innerHTML = '<div style="text-align:center; padding:12px; color:#94A3B8; font-size:12px;">📭 Sem histórico mensal.</div>';
+                return;
+            }
+
+            monthTableWrap.innerHTML = `
+                <table class="kpi-month-table" style="width:100%;">
+                    <thead>
+                        <tr style="background:#F8FAFC;">
+                            <th style="padding:6px 10px; font-size:9.5px;">Mês</th>
+                            <th style="padding:6px 10px; font-size:9.5px;">Obj.</th>
+                            <th style="padding:6px 10px; font-size:9.5px;">Result.</th>
+                            <th style="padding:6px 10px; font-size:9.5px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${monthRows.map(r => {
+                            const mStr = (r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                            const rStr = (r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                            const mV = parseFloat(mStr.replace(/[%><]/g,'').replace(',','.'));
+                            const rV = parseFloat(rStr.replace(/[%><]/g,'').replace(',','.'));
+                            const isLower = mStr.includes('<');
+                            let statusText = '–';
+                            let col = '#64748B';
+                            if (!isNaN(mV) && !isNaN(rV)) {
+                                const ok = isLower ? rV <= mV : rV >= mV;
+                                statusText = ok ? 'Atingido' : 'Abaixo';
+                                col = ok ? '#16A34A' : '#DC2626';
+                            }
+                            return `<tr style="border-bottom: 1px solid #F1F5F9;">
+                                <td style="padding:6px 10px; font-weight:600; color:#1E293B;">${r.mes}</td>
+                                <td style="padding:6px 10px; color:#64748B;">${mStr}</td>
+                                <td style="padding:6px 10px; font-weight:700; color:${col};">${rStr}</td>
+                                <td style="padding:6px 10px; font-weight:700; color:${col}; font-size:11px;">${statusText}</td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>`;
+        }).catch(() => {
+            monthTableWrap.innerHTML = '<div style="text-align:center; padding:12px; color:#DC2626; font-size:11px;">⚠️ Erro.</div>';
+        });
+    };
+
+    window.kpiSwitchTab = function(tab) {
+        document.getElementById('kpi-tab-table').classList.toggle('active', tab === 'table');
+        document.getElementById('kpi-tab-chart').classList.toggle('active', tab === 'chart');
+        document.getElementById('kpi-month-table-wrap').style.display = tab === 'table' ? '' : 'none';
+        document.getElementById('kpi-month-chart-wrap').style.display = tab === 'chart' ? '' : 'none';
+    };
+
+    window.closeKpiDetailModal = function() {
+        document.getElementById('kpi-detail-modal').classList.remove('open');
+    };
+
+    document.addEventListener('click', e => {
+        const modal = document.getElementById('kpi-detail-modal');
+        if (e.target === modal) window.closeKpiDetailModal();
+    });
+    </script>
 </body>
 </html>

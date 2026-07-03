@@ -1,3 +1,4 @@
+var allActions = {};
 window.userRole = localStorage.getItem('bsc_user_role');
 window.userEmail = localStorage.getItem('bsc_user_email');
 
@@ -88,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { kpi: 'Aderência Treinamentos Safety Driver', label: 'Aderência Treinamentos Safety Driver', meta: '97%' }
         ]
     };
+    window.dashboardStructure = structure;
 
     // Carregar CSV e Excel automaticamente
     Promise.all([
@@ -173,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const combinedData = [...csvData, ...manualData];
+        window.dashboardCombinedData = combinedData;
         processData(combinedData);
     })
     .catch(err => {
@@ -250,19 +253,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         globalLast6Weeks = sortedPeriodos.slice(-6);
+        window.globalLast6Weeks = globalLast6Weeks;
         
-        const latestWeek = sortedPeriodos[sortedPeriodos.length - 1];
-        let closedWeek = latestWeek;
-        if (latestWeek === 'W27') {
-            closedWeek = 'W26';
-        }
+        window.getKpiNameByLabel = function(label) {
+            if (!window.dashboardStructure) return label;
+            const all = [
+                ...window.dashboardStructure.firstMile,
+                ...window.dashboardStructure.lastMile,
+                ...window.dashboardStructure.safety
+            ];
+            const match = all.find(item => item.label === label || item.kpi === label);
+            return match ? match.kpi : label;
+        };
+
+        window.getKpiHistoricalData = function(kpiName, week) {
+            if (!window.dashboardCombinedData) return null;
+            const dbKpiName = window.getKpiNameByLabel(kpiName);
+            return [...window.dashboardCombinedData].reverse().find(d => d['KPI'] === dbKpiName && d['Período'] === week);
+        };
+        
+        window.latestWeek = sortedPeriodos[sortedPeriodos.length - 1];
+        window.closedWeek = sortedPeriodos.length > 1 ? sortedPeriodos[sortedPeriodos.length - 2] : window.latestWeek;
+        
+        const latestWeek = window.latestWeek;
+        const closedWeek = window.closedWeek;
         
         statusCurrentWeek = latestWeek;
         statusPrevWeek = sortedPeriodos[sortedPeriodos.length - 2];
-        if (latestWeek === 'W27') {
-            statusCurrentWeek = 'W26';
-            statusPrevWeek = 'W25';
-        }
         
         const w6th = globalLast6Weeks[5];
         if (!w6th) {
@@ -271,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.dyn-w6').forEach(th => th.style.display = '');
         }
         
-        const formatHeader = (wk) => wk === 'W27' ? 'W27 (Prévia)' : (wk || '--');
+        const formatHeader = (wk) => wk === latestWeek ? `${wk} (Prévia)` : (wk || '--');
         document.querySelectorAll('.dyn-w1').forEach(th => th.textContent = formatHeader(globalLast6Weeks[0]));
         document.querySelectorAll('.dyn-w2').forEach(th => th.textContent = formatHeader(globalLast6Weeks[1]));
         document.querySelectorAll('.dyn-w3').forEach(th => th.textContent = formatHeader(globalLast6Weeks[2]));
@@ -293,6 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateTable(tableId, structureList, allData) {
         const tbody = document.querySelector(`#${tableId} tbody`);
         tbody.innerHTML = '';
+
+        const latestWeek = window.latestWeek;
+        const closedWeek = window.closedWeek;
 
         const w1 = globalLast6Weeks[0];
         const w2 = globalLast6Weeks[1];
@@ -339,30 +359,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             metaVal = parseFloat(metaText.replace('%', '').trim());
 
-            const currentWeekData = getKpiData(statusCurrentWeek);
-            const prevWeekData = getKpiData(statusPrevWeek);
-
-            let currentWeekText = currentWeekData ? (currentWeekData['Resultado Final'] || '-') : '-';
-            let prevWeekText = prevWeekData ? (prevWeekData['Resultado Final'] || '-') : '-';
-
-            let currentVal = parseFloat(currentWeekText.replace('%', '').trim());
-            let prevVal = parseFloat(prevWeekText.replace('%', '').trim());
-
-            if (!isNaN(currentVal) && !isNaN(prevVal)) {
-                let melhorou = isLowerBetter ? (currentVal < prevVal) : (currentVal > prevVal);
-                let manteve = currentVal === prevVal;
-
-                if (melhorou) {
-                    statusText = '🟢 Progrediu';
-                    statusClass = 'text-green';
-                } else if (manteve) {
-                    statusText = '🟡 Manteve';
-                    statusClass = 'text-yellow';
-                } else {
-                    statusText = '🔴 Piorou';
-                    statusClass = 'text-red-val';
+            // 1. Calcular a média das semanas fechadas (desconsiderando a prévia/latestWeek)
+            let sumAverage = 0;
+            let countAverage = 0;
+            globalLast6Weeks.forEach(wk => {
+                if (wk !== latestWeek) {
+                    const pData = getKpiData(wk);
+                    const pText = pData ? (pData['Resultado Final'] || '-') : '-';
+                    const pVal = parseFloat(pText.replace(/[><%]/g, '').trim().replace(',', '.'));
+                    if (!isNaN(pVal)) {
+                        sumAverage += pVal;
+                        countAverage++;
+                    }
                 }
-            } else if (!isNaN(currentVal)) {
+            });
+            let avgVal = countAverage > 0 ? (sumAverage / countAverage) : null;
+            let avgStr = '-';
+            if (avgVal !== null) {
+                if (metaText.includes('%')) {
+                    avgStr = `${avgVal.toFixed(2).replace('.', ',')}%`;
+                } else {
+                    avgStr = avgVal.toFixed(2).replace('.', ',');
+                }
+            }
+
+            // 2. Status com base na semana fechada (closedWeek, ex: W26) contra o objetivo
+            const closedData = getKpiData(closedWeek);
+            const closedText = closedData ? (closedData['Resultado Final'] || '-') : '-';
+            const closedVal = parseFloat(closedText.replace(/[><%]/g, '').trim().replace(',', '.'));
+
+            if (!isNaN(closedVal)) {
+                let atingiuMeta = false;
+                if (!isNaN(metaVal)) {
+                    atingiuMeta = isLowerBetter ? (closedVal <= metaVal) : (closedVal >= metaVal);
+                }
+
+                if (atingiuMeta) {
+                    statusText = 'Atingido';
+                    statusClass = 'text-green-val'; // Verde
+                } else {
+                    statusText = 'Abaixo';
+                    statusClass = 'text-red-val'; // Vermelho
+                }
+            } else {
                 statusText = '🟡 S/ Ref';
                 statusClass = 'text-yellow';
             }
@@ -500,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tdStatus.style.fontWeight = '700';
 
             tdKpi.style.cursor = 'pointer';
-            tdKpi.title = "Clique para abrir uma Ação/Tarefa";
+            tdKpi.title = "Clique para ver gráfico e ações deste indicador";
             tdKpi.style.color = '#0078D4';
             tdKpi.style.textDecoration = 'underline';
             
@@ -511,31 +550,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     'table-safety': 'Safety'
                 };
                 const opName = opNameMap[tableId] || 'Outros';
-                
                 let existingAction = null;
                 if (allActions && allActions[opName]) {
                     existingAction = allActions[opName].find(m => m.indicator === item.label || m.indicator === `⚠️ ${item.label}`);
                 }
-                
                 if (existingAction) {
-                    openActionModalForEdit({
-                        opName: opName,
-                        indicator: item.label,
-                        isAuto: false,
-                        rawAction: existingAction
-                    });
+                    openActionModalForEdit({ opName, indicator: item.label, isAuto: false, rawAction: existingAction });
                 } else {
-                    if (window.userRole !== 'Master') {
-                        alert('Apenas o usuário Master pode criar novas ações.');
-                        return;
-                    }
-                    openActionModalForEdit({
-                        opName: opName,
-                        indicator: item.label,
-                        isAuto: true
-                    });
+                    if (window.userRole !== 'Master') { alert('Apenas o usuário Master pode criar novas ações.'); return; }
+                    openActionModalForEdit({ opName, indicator: item.label, isAuto: true });
                 }
             });
+
+
+            const tdMedia = document.createElement('td');
+            tdMedia.textContent = avgStr;
+            tdMedia.style.fontWeight = '700';
+            tdMedia.classList.add('col-media');
 
             tr.appendChild(tdKpi);
             tr.appendChild(tdMeta);
@@ -545,6 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.appendChild(tdW4);
             tr.appendChild(tdW5);
             tr.appendChild(tdW6);
+            tr.appendChild(tdMedia);
             tr.appendChild(tdStatus);
             
             tbody.appendChild(tr);
@@ -552,12 +584,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCentralPanel() {
-        document.getElementById('last-update').textContent = `1 de jul. de 2026, 02:06:34`;
+        if (window.csvLastModifiedDate) {
+            const dateStr = window.csvLastModifiedDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
+            const timeStr = window.csvLastModifiedDate.toLocaleTimeString('pt-BR');
+            document.getElementById('last-update').textContent = `${dateStr}, ${timeStr}`;
+        } else {
+            document.getElementById('last-update').textContent = `1 de jul. de 2026, 02:06:34`;
+        }
     }
 });
 
 let currentOperation = '';
-let allActions = {};
 
 // Modal
 function openActionModal(opName) {
@@ -586,12 +623,19 @@ function openActionModal(opName) {
     }
     
     document.getElementById('action-modal').style.display = 'block';
+    if (typeof window.updateActionModalIndicatorDetail === 'function') {
+        window.updateActionModalIndicatorDetail();
+    }
     loadActions();
 }
 
 function closeActionModal() {
     document.getElementById('action-modal').style.display = 'none';
     currentOperation = '';
+    if (window._actionDetailChart) {
+        window._actionDetailChart.destroy();
+        window._actionDetailChart = null;
+    }
 }
 
 window.onclick = function(event) {
@@ -623,11 +667,18 @@ function openActionModalForEdit(actionData) {
     document.getElementById('action-is-auto').value = 'false';
     document.getElementById('action-indicator').innerHTML = '<option value="Geral">Geral</option>';
     document.getElementById('action-task').value = '';
-    document.getElementById('action-mile').value = actionData.opName || 'First Mile';
     document.getElementById('action-owner').value = '';
     document.getElementById('action-start-date').value = '';
     document.getElementById('action-deadline').value = '';
     document.getElementById('action-status').value = 'Em andamento';
+    
+    // Default to the operation name for new action
+    const targetMile = actionData.opName || 'First Mile';
+    const initialCheckboxes = document.querySelectorAll('#mile-checkboxes input[type="checkbox"]');
+    initialCheckboxes.forEach(cb => {
+        cb.checked = (cb.value === targetMile);
+    });
+    updateSelectedMilesText();
     
     if (actionData.isAuto) {
         document.getElementById('action-indicator').innerHTML = `<option value="${actionData.indicator}">${actionData.indicator}</option>`;
@@ -643,8 +694,15 @@ function openActionModalForEdit(actionData) {
         document.getElementById('action-indicator').innerHTML = `<option value="${indName}">${indName}</option>`;
         
         document.getElementById('action-task').value = raw.task || '';
-        document.getElementById('action-mile').value = raw.mile || actionData.opName || 'First Mile';
         document.getElementById('action-owner').value = raw.owner || '';
+        
+        const rawMile = raw.mile || actionData.opName || 'First Mile';
+        const selectedMiles = typeof rawMile === 'string' ? rawMile.split(',').map(s => s.trim()) : (Array.isArray(rawMile) ? rawMile : []);
+        const editCheckboxes = document.querySelectorAll('#mile-checkboxes input[type="checkbox"]');
+        editCheckboxes.forEach(cb => {
+            cb.checked = selectedMiles.includes(cb.value);
+        });
+        updateSelectedMilesText();
         
         if (raw.startDate) document.getElementById('action-start-date').value = raw.startDate.split('T')[0];
         if (raw.deadline) document.getElementById('action-deadline').value = raw.deadline.split('T')[0];
@@ -677,13 +735,16 @@ function openActionModalForEdit(actionData) {
     
     // The rest of the fields remain enabled so the user can modify the task.
     document.getElementById('action-task').disabled = false;
-    document.getElementById('action-mile').disabled = false;
+    setMileMultiselectDisabled(false);
     document.getElementById('action-owner').disabled = false;
     document.getElementById('action-start-date').disabled = false;
     document.getElementById('action-deadline').disabled = false;
     document.getElementById('action-status').disabled = false;
     
     document.getElementById('action-modal').style.display = 'block';
+    if (typeof window.updateActionModalIndicatorDetail === 'function') {
+        window.updateActionModalIndicatorDetail();
+    }
 }
 
 // Save Action (POST ou PUT)
@@ -691,10 +752,14 @@ async function saveAction() {
     const id = document.getElementById('action-id').value;
     const isAuto = document.getElementById('action-is-auto').value === 'true';
     
+    const selectedMiles = Array.from(document.querySelectorAll('#mile-checkboxes input[type="checkbox"]:checked'))
+                               .map(cb => cb.value)
+                               .join(', ');
+    
     const actionData = {
         indicator: document.getElementById('action-indicator').value,
         task: document.getElementById('action-task').value,
-        mile: document.getElementById('action-mile').value,
+        mile: selectedMiles || currentOperation || 'First Mile',
         owner: document.getElementById('action-owner').value,
         startDate: document.getElementById('action-start-date').value,
         deadline: document.getElementById('action-deadline').value,
@@ -797,6 +862,7 @@ function populateGlobalTasks() {
                     task: a.task,
                     status: a.status,
                     deadline: a.deadline,
+                    mile: a.operation,
                     isAuto: true,
                     rawAction: null 
                 });
@@ -813,6 +879,7 @@ function populateGlobalTasks() {
                 status: a.status,
                 deadline: a.deadline,
                 owner: a.owner,
+                mile: a.mile,
                 isAuto: false,
                 rawAction: a 
             });
@@ -830,7 +897,7 @@ function populateGlobalTasks() {
         const tr = document.createElement('tr');
         
         const tdOp = document.createElement('td');
-        tdOp.innerHTML = `<span style="font-weight: bold; color: #0A246A;">${a.opName}</span>`;
+        tdOp.innerHTML = `<span style="font-weight: bold; color: #0A246A;">${a.mile || a.opName}</span>`;
         
         const tdInd = document.createElement('td');
         tdInd.textContent = a.indicator ? a.indicator.replace('⚠️ ', '') : '-';
@@ -1168,3 +1235,68 @@ async function updateUser(id, payload) {
     }
 }
 // ================================================== //
+
+// ================= MULTISELECT MILHAS ================= //
+window.toggleMileDropdown = function(event) {
+    event.stopPropagation();
+    const dropdown = document.getElementById('mile-checkboxes');
+    if (dropdown.style.display === 'none' || !dropdown.style.display) {
+        dropdown.style.display = 'flex';
+    } else {
+        dropdown.style.display = 'none';
+    }
+};
+
+window.updateSelectedMilesText = function() {
+    const checked = Array.from(document.querySelectorAll('#mile-checkboxes input[type="checkbox"]:checked'))
+                         .map(cb => cb.value);
+    const textSpan = document.getElementById('selected-miles-text');
+    if (checked.length === 0) {
+        textSpan.textContent = 'Selecione as milhas';
+    } else {
+        textSpan.textContent = checked.join(', ');
+    }
+};
+
+window.setMileMultiselectDisabled = function(disabled) {
+    const selectBox = document.querySelector('.custom-multiselect .select-box');
+    const checkboxes = document.querySelectorAll('#mile-checkboxes input[type="checkbox"]');
+    if (selectBox) {
+        if (disabled) {
+            selectBox.style.pointerEvents = 'none';
+            selectBox.style.backgroundColor = '#f5f5f5';
+            selectBox.style.color = '#888';
+        } else {
+            selectBox.style.pointerEvents = 'auto';
+            selectBox.style.backgroundColor = '#fff';
+            selectBox.style.color = '#333';
+        }
+    }
+    checkboxes.forEach(cb => {
+        cb.disabled = disabled;
+    });
+};
+
+// Fechar o dropdown de milhas ao clicar fora dele
+document.addEventListener('click', (event) => {
+    const dropdown = document.getElementById('mile-checkboxes');
+    if (dropdown && dropdown.style.display === 'flex') {
+        const multiselect = document.querySelector('.custom-multiselect');
+        if (multiselect && !multiselect.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    }
+});
+
+window.toggleMediaColumn = function() {
+    document.body.classList.toggle('show-media');
+    const btn = document.getElementById('btn-toggle-media');
+    if (document.body.classList.contains('show-media')) {
+        btn.textContent = '[-] Média';
+        btn.style.backgroundColor = '#d32f2f'; // Vermelho para recolher
+    } else {
+        btn.textContent = '[+] Média';
+        btn.style.backgroundColor = '#107c41'; // Verde para expandir
+    }
+};
+// ====================================================== //

@@ -1,5 +1,79 @@
 {
   "First Mile": [],
-  "Last Mile": [],
-  "Safety": []
+  "Last Mile": [
+    {
+      "indicator": "% Utilização Frota Fixa (LM)",
+      "task": "Apresentar evolução do indicador ainda pendente,realizar alinhamento com o Claudio (Manutenção)sobre os carros ofendendo o indicador",
+      "mile": "Last Mile",
+      "owner": "Marcos Sousa",
+      "startDate": "2026-06-10",
+      "deadline": "2026-07-02",
+      "status": "Atenção",
+      "userEmail": "thamiris.santos@jmdistribuicao.com.br",
+      "id": "1783013967961",
+      "createdAt": "2026-07-02T17:39:27.961Z",
+      "history": [
+        {
+          "date": "2026-07-02T17:39:27.961Z",
+          "user": "thamiris.santos@jmdistribuicao.com.br",
+          "change": "Ação Criada"
+        },
+        {
+          "date": "2026-07-02T18:09:13.435Z",
+          "user": "thamiris.santos@jmdistribuicao.com.br",
+          "change": "Atualizou a Ação/Tarefa"
+        },
+        {
+          "date": "2026-07-02T18:09:29.401Z",
+          "user": "thamiris.santos@jmdistribuicao.com.br",
+          "change": "Atualizou a Ação/Tarefa"
+        }
+      ]
+    },
+    {
+      "indicator": "Telemetria MM XPT",
+      "task": "Acompanhamento diario com a operação(APP e GEROT)",
+      "mile": "Last Mile",
+      "owner": "Marcos Sousa",
+      "startDate": "2026-06-10",
+      "deadline": "2026-07-02",
+      "status": "Atenção",
+      "userEmail": "thamiris.santos@jmdistribuicao.com.br",
+      "id": "1783015720955",
+      "createdAt": "2026-07-02T18:08:40.955Z",
+      "history": [
+        {
+          "date": "2026-07-02T18:08:40.955Z",
+          "user": "thamiris.santos@jmdistribuicao.com.br",
+          "change": "Ação Criada"
+        }
+      ]
+    }
+  ],
+  "Safety": [
+    {
+      "indicator": "Aderência Treinamentos Safety Driver",
+      "task": "A ação era trazer o indicador com a aderência atingida até 29/06 , não o feito\nAinda estamos sem bater o indicador ",
+      "mile": "Line Haul",
+      "owner": "Ricardo",
+      "startDate": "2026-06-10",
+      "deadline": "2026-07-02",
+      "status": "Atrasado",
+      "userEmail": "thamiris.santos@jmdistribuicao.com.br",
+      "id": "1783016560186",
+      "createdAt": "2026-07-02T18:22:40.186Z",
+      "history": [
+        {
+          "date": "2026-07-02T18:22:40.186Z",
+          "user": "thamiris.santos@jmdistribuicao.com.br",
+          "change": "Ação Criada"
+        },
+        {
+          "date": "2026-07-02T18:29:48.456Z",
+          "user": "thamiris.santos@jmdistribuicao.com.br",
+          "change": "Atualizou a Ação/Tarefa"
+        }
+      ]
+    }
+  ]
 }
