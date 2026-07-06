@@ -650,8 +650,8 @@
                     </thead>
                     <tbody>
                         ${monthRows.map(r => {
-                            const metaStr = (r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
-                            const resStr  = (r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                            const metaStr = String(r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                            const rStr  = String(r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
                             const metaNum = parseFloat(metaStr.replace(/[%><]/g,'').replace(',','.'));
                             const resNum  = parseFloat(resStr.replace(/[%><]/g,'').replace(',','.'));
                             const isLower = metaStr.includes('<');
@@ -678,11 +678,11 @@
             // ── BUILD BAR CHART ──
             const barLabels = monthRows.map(r => r.mes);
             const barValues = monthRows.map(r => {
-                const v = parseFloat((r.resultado || '').replace(/[%><\s]/g,'').replace(',','.'));
+                const v = parseFloat(String(r.resultado || '').replace(/[%><\s]/g,'').replace(',','.'));
                 return isNaN(v) ? null : v;
             });
             const barMeta = monthRows.map(r => {
-                const v = parseFloat((r.meta || '').replace(/[%><\s]/g,'').replace(',','.'));
+                const v = parseFloat(String(r.meta || '').replace(/[%><\s]/g,'').replace(',','.'));
                 return isNaN(v) ? null : v;
             });
 
@@ -758,12 +758,12 @@
         let metaVal = null;
         const weeksData = window.globalLast6Weeks.map(wk => {
             const d = window.getKpiHistoricalData(selectedKpi, wk);
-            if (d && d['Meta 4 Pontos']) {
-                metaText = d['Meta 4 Pontos'].replace(/[><\s]/g,'');
+            if (d && d['Meta 4 Pontos'] !== undefined && d['Meta 4 Pontos'] !== null) {
+                metaText = String(d['Meta 4 Pontos']).replace(/[><\s]/g,'');
                 metaVal = parseFloat(metaText.replace('%','').replace(',','.'));
             }
-            const txt = d ? (d['Resultado Final'] || null) : null;
-            const numVal = txt ? parseFloat(txt.replace(/[%><\s]/g, '').replace(',', '.')) : null;
+            const txt = d ? (d['Resultado Final'] !== undefined && d['Resultado Final'] !== null ? d['Resultado Final'] : null) : null;
+            const numVal = (txt !== null && txt !== undefined) ? parseFloat(String(txt).replace(/[%><\s]/g, '').replace(',', '.')) : null;
             return { week: wk, value: isNaN(numVal) ? null : numVal };
         });
 
@@ -874,8 +874,8 @@
                     </thead>
                     <tbody>
                         ${monthRows.map(r => {
-                            const mStr = (r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
-                            const rStr = (r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                            const mStr = String(r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                            const rStr = String(r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
                             const mV = parseFloat(mStr.replace(/[%><]/g,'').replace(',','.'));
                             const rV = parseFloat(rStr.replace(/[%><]/g,'').replace(',','.'));
                             const isLower = mStr.includes('<');
