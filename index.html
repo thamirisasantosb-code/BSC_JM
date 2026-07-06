@@ -25,7 +25,7 @@
     <title>BSC Dashboard · JM Distribuição</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=30">
+    <link rel="stylesheet" href="style.css?v=31">
     <style>
         .col-media { display: none !important; }
         body.show-media .col-media { display: table-cell !important; }
@@ -171,9 +171,144 @@
         }
         .kpi-tab:hover { color: #2563EB; }
         .kpi-tab.active { color: #2563EB; border-bottom-color: #2563EB; }
+
+        /* ── Toast Notifications ── */
+        #toast-container {
+            position: fixed; bottom: 28px; right: 28px;
+            z-index: 99999; display: flex; flex-direction: column;
+            gap: 10px; pointer-events: none;
+        }
+        .toast {
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 18px; border-radius: 10px;
+            font-family: 'Inter', sans-serif; font-size: 13.5px;
+            font-weight: 500; color: #fff; min-width: 280px; max-width: 420px;
+            box-shadow: 0 8px 28px rgba(0,0,0,.22);
+            animation: toastIn .3s cubic-bezier(.34,1.56,.64,1);
+            pointer-events: auto;
+            backdrop-filter: blur(8px);
+        }
+        .toast.toast-success { background: linear-gradient(135deg,#16A34A,#15803D); }
+        .toast.toast-error   { background: linear-gradient(135deg,#DC2626,#B91C1C); }
+        .toast.toast-info    { background: linear-gradient(135deg,#2563EB,#1D4ED8); }
+        .toast.toast-warning { background: linear-gradient(135deg,#D97706,#B45309); }
+        .toast-icon { font-size: 18px; flex-shrink: 0; }
+        .toast-msg  { flex: 1; line-height: 1.4; }
+        .toast-close {
+            background: rgba(255,255,255,.2); border: none; color: #fff;
+            width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+            font-size: 13px; flex-shrink: 0; display: flex;
+            align-items: center; justify-content: center;
+            transition: background .15s;
+        }
+        .toast-close:hover { background: rgba(255,255,255,.35); }
+        .toast.toast-out { animation: toastOut .25s ease forwards; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(32px) scale(.95); }
+            to   { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(40px); }
+        }
+
+        /* ── Confirm Dialog Modal ── */
+        #confirm-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(10,36,106,.5); z-index: 99998;
+            backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+        }
+        #confirm-modal.open { display: flex; }
+        .confirm-box {
+            background: #fff; border-radius: 14px;
+            padding: 32px 30px 24px; max-width: 400px; width: 92vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,.28);
+            animation: slideUp .25s ease;
+            text-align: center;
+        }
+        .confirm-icon { font-size: 40px; margin-bottom: 12px; }
+        .confirm-title {
+            font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 8px;
+        }
+        .confirm-msg {
+            font-size: 13.5px; color: #475569; margin-bottom: 22px; line-height: 1.5;
+        }
+        .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+        .confirm-btn {
+            padding: 10px 28px; border: none; border-radius: 8px;
+            font-size: 13.5px; font-weight: 700; cursor: pointer;
+            transition: all .18s;
+        }
+        .confirm-btn-cancel {
+            background: #F1F5F9; color: #475569;
+        }
+        .confirm-btn-cancel:hover { background: #E2E8F0; }
+        .confirm-btn-danger {
+            background: linear-gradient(135deg,#DC2626,#B91C1C); color: #fff;
+            box-shadow: 0 4px 14px rgba(220,38,38,.35);
+        }
+        .confirm-btn-danger:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+        /* ── Filter Bar (Tasks) ── */
+        #tasks-filter-bar {
+            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+            margin: 8px 10px 10px;
+        }
+        .tasks-filter-input {
+            padding: 7px 12px; border: 1.5px solid #CBD5E1;
+            border-radius: 7px; font-size: 12.5px; font-family: 'Inter', sans-serif;
+            color: #1E293B; background: #fff; outline: none;
+            transition: border-color .18s, box-shadow .18s;
+            min-width: 140px;
+        }
+        .tasks-filter-input:focus {
+            border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+        }
+        #tasks-search { flex: 1; min-width: 180px; }
+        .tasks-filter-count {
+            margin-left: auto; font-size: 11.5px; color: #94A3B8;
+            font-weight: 500; white-space: nowrap;
+        }
+
+        /* ── Skeleton Loading ── */
+        .skeleton-row td {
+            padding: 18px 12px !important;
+            text-align: center;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .skeleton-line {
+            height: 14px;
+            background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.4s infinite ease-in-out;
+            border-radius: 4px;
+            width: 85%;
+            margin: 0 auto;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Confirm Dialog Modal -->
+    <div id="confirm-modal">
+        <div class="confirm-box">
+            <div class="confirm-icon" id="confirm-icon">⚠️</div>
+            <div class="confirm-title" id="confirm-title">Confirmar ação</div>
+            <div class="confirm-msg" id="confirm-msg">Tem certeza que deseja continuar?</div>
+            <div class="confirm-actions">
+                <button class="confirm-btn confirm-btn-cancel" id="confirm-cancel">Cancelar</button>
+                <button class="confirm-btn confirm-btn-danger" id="confirm-ok">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="dashboard-container">
         
         <header class="excel-header">
@@ -229,7 +364,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Preenchido via JS -->
+                        <tr class="skeleton-row"><td colspan="10"><div class="skeleton-line"></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -252,7 +387,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Preenchido via JS -->
+                        <tr class="skeleton-row"><td colspan="10"><div class="skeleton-line"></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -277,6 +412,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr class="skeleton-row"><td colspan="10"><div class="skeleton-line"></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -288,9 +424,31 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; margin-top: 20px; padding: 0 10px;">
             <div style="font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #0A246A;">Ações / Tarefas</div>
-            <button id="btn-toggle-tasks" onclick="toggleTasksTable()" style="background-color: #0A246A; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 3px; font-weight: bold;">Minimizar</button>
+            <div style="display: flex; gap: 8px;">
+                <button id="btn-add-action-global" onclick="window.openGlobalActionModal()" style="background-color: #107c41; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 3px; font-weight: bold;">➕ Nova Ação</button>
+                <button id="btn-toggle-tasks" onclick="toggleTasksTable()" style="background-color: #0A246A; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 3px; font-weight: bold;">Minimizar</button>
+            </div>
         </div>
         <div id="tasks-container">
+            <!-- Filter Bar -->
+            <div id="tasks-filter-bar">
+                <input class="tasks-filter-input" id="tasks-search" type="text" placeholder="🔍 Buscar ação, responsável..." oninput="filterTasksTable()">
+                <select class="tasks-filter-input" id="filter-op" onchange="filterTasksTable()" style="min-width:130px;">
+                    <option value="">Todas Operações</option>
+                    <option value="First Mile">First Mile</option>
+                    <option value="Last Mile">Last Mile</option>
+                    <option value="Safety">Safety</option>
+                </select>
+                <select class="tasks-filter-input" id="filter-status" onchange="filterTasksTable()" style="min-width:130px;">
+                    <option value="">Todos os Status</option>
+                    <option value="Em andamento">Em andamento</option>
+                    <option value="Atrasado">Atrasado</option>
+                    <option value="Crítico">Crítico</option>
+                    <option value="Atenção">Atenção</option>
+                    <option value="Concluído">Concluído</option>
+                </select>
+                <span class="tasks-filter-count" id="tasks-count"></span>
+            </div>
             <table class="tasks-table">
                 <thead>
                     <tr>
@@ -303,6 +461,7 @@
                     </tr>
                 </thead>
                 <tbody id="table-tasks">
+                    <tr class="skeleton-row"><td colspan="6"><div class="skeleton-line"></div></td></tr>
                 </tbody>
             </table>
         </div>
@@ -341,28 +500,37 @@
     <!-- Modal Ações -->
     <div id="action-modal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width: 1050px; width: 95%;">
-            <div class="modal-header">
-                <h2 id="modal-title">Cadastrar/Editar Ação</h2>
+            <div class="modal-header" style="padding: 12px 20px;">
+                <h2 id="modal-title" style="margin: 0; font-size: 15px;">Cadastrar/Editar Ação</h2>
                 <span class="close" onclick="closeActionModal()">&times;</span>
             </div>
-            <div class="modal-body" style="display: flex; gap: 24px; padding: 22px 24px; align-items: stretch;">
-                <div class="action-form" style="flex: 1.2; display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; padding: 16px 20px; align-items: stretch;">
+                
+                <!-- 1. DETALHE (FORM) - Ultra Compacto Horizontal -->
+                <div class="action-form" style="display: flex; flex-direction: column; gap: 10px; min-width: 0;">
                     <input type="hidden" id="action-id">
                     <input type="hidden" id="action-is-auto" value="false">
                     
-                    <label>Indicador:</label>
-                    <select id="action-indicator" onchange="window.updateActionModalIndicatorDetail()"></select>
+                    <!-- Form Row 1 -->
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Indicador:</label>
+                            <select id="action-indicator" onchange="window.updateActionModalIndicatorDetail()" style="width: 100%; box-sizing: border-box; height: 32px; padding: 0 10px; font-size: 12px; border: 1.5px solid var(--border-strong); border-radius: 6px;"></select>
+                        </div>
+                        <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Ação / Tarefa:</label>
+                            <input type="text" id="action-task" placeholder="Descreva a ação..." style="width: 100%; box-sizing: border-box; height: 32px; padding: 0 10px; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none;">
+                        </div>
+                    </div>
                     
-                    <label>Ação / Tarefa:</label>
-                    <textarea id="action-task" placeholder="Descreva a tarefa..." rows="4" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: Arial; resize: vertical; margin-bottom: 4px; width: 100%; box-sizing: border-box;"></textarea>
-                    
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1; position: relative;">
-                            <label>Milha Responsável:</label>
+                    <!-- Form Row 2 -->
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1; position: relative; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Milha:</label>
                             <div class="custom-multiselect">
-                                <div class="select-box" onclick="toggleMileDropdown(event)">
-                                    <span id="selected-miles-text">Selecione as milhas</span>
-                                    <span class="arrow">▼</span>
+                                <div class="select-box" onclick="toggleMileDropdown(event)" style="padding: 0 10px; height: 32px; display: flex; align-items: center; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px;">
+                                    <span id="selected-miles-text" style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Selecione...</span>
+                                    <span class="arrow" style="font-size: 10px;">▼</span>
                                 </div>
                                 <div id="mile-checkboxes" class="checkboxes-dropdown" style="display: none;">
                                     <label><input type="checkbox" value="First Mile" onchange="updateSelectedMilesText()"> First Mile</label>
@@ -372,66 +540,74 @@
                                 </div>
                             </div>
                         </div>
-                        <div style="flex: 1;">
-                            <label>Responsável:</label>
-                            <input type="text" id="action-owner" placeholder="Nome da pessoa" style="width: 100%; box-sizing: border-box;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Responsável:</label>
+                            <input type="text" id="action-owner" placeholder="Nome" style="width: 100%; box-sizing: border-box; padding: 0 10px; height: 32px; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none;">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Início:</label>
+                            <input type="date" id="action-start-date" style="width: 100%; box-sizing: border-box; padding: 0 10px; height: 32px; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none;">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Prazo:</label>
+                            <input type="date" id="action-deadline" style="width: 100%; box-sizing: border-box; padding: 0 10px; height: 32px; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none;">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Status:</label>
+                            <select id="action-status" style="width: 100%; box-sizing: border-box; padding: 0 10px; height: 32px; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none;">
+                                <option value="Em andamento">Em andamento</option>
+                                <option value="Crítico">Crítico</option>
+                                <option value="Atenção">Atenção</option>
+                                <option value="Atrasado">Atrasado</option>
+                                <option value="Concluído">Concluído</option>
+                            </select>
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1;">
-                            <label>Data de Início:</label>
-                            <input type="date" id="action-start-date">
-                        </div>
-                        <div style="flex: 1;">
-                            <label>Data de Fim (Prazo):</label>
-                            <input type="date" id="action-deadline">
-                        </div>
-                    </div>
-                    
-                    <label>Status:</label>
-                    <select id="action-status">
-                        <option value="Em andamento">Em andamento</option>
-                        <option value="Crítico">Crítico</option>
-                        <option value="Atenção">Atenção</option>
-                        <option value="Atrasado">Atrasado</option>
-                        <option value="Concluído">Concluído</option>
-                    </select>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button class="btn-save" onclick="saveAction()" style="flex: 1;">Salvar Ação</button>
-                        <button class="btn-success-action" onclick="completeAction()" style="flex: 1; background-color: #00B050; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; padding: 10px;">Concluído com Sucesso</button>
-                        <button id="btn-delete-action" onclick="deleteCurrentAction()" style="flex: 1; background-color: #D32F2F; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; padding: 10px; display: none;">Excluir Ação</button>
-                    </div>
-
-                    <div id="action-history-section" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
-                        <h4 style="margin: 0 0 10px 0; color: #333;">Histórico de Atualizações</h4>
-                        <div id="action-history-list" style="max-height: 150px; overflow-y: auto; font-size: 12px; color: #555;">
-                            <!-- History items injected via JS -->
-                        </div>
+                    <!-- Form Row 3: Buttons -->
+                    <div style="display: flex; gap: 12px; margin-top: 4px;">
+                        <button class="btn-save" onclick="saveAction()" style="flex: 1; height: 34px; font-size: 12px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: all var(--t);">Salvar Ação</button>
+                        <button class="btn-success-action" onclick="completeAction()" style="flex: 1; height: 34px; font-size: 12px; font-weight: 700; background-color: #107c41; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all var(--t);">Concluir com Sucesso</button>
+                        <button id="btn-delete-action" onclick="deleteCurrentAction()" style="flex: 1; height: 34px; font-size: 12px; font-weight: 700; background-color: #D32F2F; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all var(--t); display: none;">Excluir</button>
                     </div>
                 </div>
 
-                <!-- Indicator Detail Side Pane -->
-                <div id="action-modal-indicator-detail" style="flex: 1.3; border-left: 1px solid #E2E8F0; padding-left: 24px; display: none; flex-direction: column; gap: 16px; min-width: 0;">
-                    <div>
-                        <h3 id="action-detail-kpi-name" style="font-size: 14px; font-weight: 700; color: #0A246A; margin: 0 0 4px 0; text-transform: uppercase;">Indicador</h3>
-                        <div id="action-detail-kpi-meta" style="font-size: 12px; color: #64748B; font-weight: 600;">Meta: -</div>
-                    </div>
+                <div id="action-modal-indicator-detail" style="display: none; flex-direction: column; gap: 12px; border-top: 1px solid #E2E8F0; padding-top: 12px; min-width: 0;">
                     
-                    <div>
-                        <h4 style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">📈 Evolução do Indicador (Semanas)</h4>
-                        <div style="position: relative; height: 160px;">
-                            <canvas id="action-detail-trend-chart"></canvas>
+                    <!-- 2. INDICADOR (CHART) -->
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 id="action-detail-kpi-name" style="font-size: 12px; font-weight: 700; color: #0A246A; margin: 0; text-transform: uppercase;">Indicador</h3>
+                            <div id="action-detail-kpi-meta" style="font-size: 11px; color: #1E293B; background: #E2E8F0; padding: 2px 8px; border-radius: 10px; font-weight: 700;">Meta: -</div>
+                        </div>
+                        
+                        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
+                            <div style="position: relative; height: 110px;">
+                                <canvas id="action-detail-trend-chart"></canvas>
+                            </div>
                         </div>
                     </div>
 
-                    <div>
-                        <h4 style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">📅 Desempenho por Mês</h4>
-                        <div id="action-detail-month-table-wrap" style="max-height: 160px; overflow-y: auto;">
-                            <div class="kpi-month-loading">Carregando dados mensais...</div>
+                    <!-- 3. TABELA DESEMPENHO (With Horizontal Layout if possible, else Vertical) -->
+                    <div style="display: flex; gap: 12px; align-items: flex-start;">
+                        
+                        <!-- Table -->
+                        <div style="flex: 2; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
+                            <h4 style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; margin: 0 0 8px 0; flex-shrink: 0;">📅 Desempenho por Mês</h4>
+                            <div id="action-detail-month-table-wrap" style="height: auto; overflow: visible;">
+                                <div class="kpi-month-loading">Carregando...</div>
+                            </div>
+                        </div>
+                        
+                        <!-- History -->
+                        <div style="flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; box-shadow: var(--shadow-sm);">
+                            <h4 style="margin: 0 0 8px 0; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Histórico de Ação</h4>
+                            <div id="action-history-list" style="max-height: 100px; overflow-y: auto; font-size: 11px; color: #475569;">
+                                <em>Nenhum histórico...</em>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -445,7 +621,10 @@
                     <h2 id="kpi-modal-name">Indicador</h2>
                     <div class="kpi-modal-meta" id="kpi-modal-meta"></div>
                 </div>
-                <button class="kpi-modal-close" onclick="closeKpiDetailModal()">✕</button>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button id="kpi-modal-add-action-btn" onclick="window.openActionFromKpiModal()" style="background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.4); color:#fff; padding:6px 14px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:5px;">➕ Nova Ação</button>
+                    <button class="kpi-modal-close" onclick="closeKpiDetailModal()">✕</button>
+                </div>
             </div>
             <div class="kpi-modal-body">
                 <div>
@@ -459,11 +638,12 @@
                 <div class="kpi-actions-section">
                     <h3>📅 Desempenho por Mês</h3>
                     <div class="kpi-tabs">
-                        <button class="kpi-tab active" id="kpi-tab-table" onclick="kpiSwitchTab('table')">Tabela</button>
-                        <button class="kpi-tab" id="kpi-tab-chart" onclick="kpiSwitchTab('chart')">Gráfico</button>
+                        <button class="kpi-tab" id="kpi-tab-table" onclick="kpiSwitchTab('table')">Tabela</button>
+                        <button class="kpi-tab active" id="kpi-tab-chart" onclick="kpiSwitchTab('chart')">Gráfico</button>
                     </div>
-                    <div id="kpi-month-table-wrap"><div class="kpi-month-loading">⏳ Carregando dados mensais...</div></div>
-                    <div id="kpi-month-chart-wrap" style="display:none">
+                    <div id="kpi-month-status" style="display:none; text-align:center; padding:20px; color:#64748B; font-weight:500;"></div>
+                    <div id="kpi-month-table-wrap" style="display:none"></div>
+                    <div id="kpi-month-chart-wrap">
                         <div class="kpi-month-bar-wrap"><canvas id="kpi-month-bar-chart"></canvas></div>
                     </div>
                 </div>
@@ -479,25 +659,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="script.js?v=55"></script>
+    <script src="script.js?v=58"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
 
 
     // ── KPI DETAIL MODAL ─────────────────────────────────────────────────────
     let _kpiChart = null;
+    let _currentKpiLabel = '';
+    let _currentKpiKey = '';
+    let _currentKpiAllActions = {};
 
     window.openKpiDetailModal = function(kpiLabel, kpiKey, weeksData, allActionsData) {
         const modal = document.getElementById('kpi-detail-modal');
         modal.classList.add('open');
         document.getElementById('kpi-modal-name').textContent = kpiLabel;
 
+        // Ativar a aba de gráfico de desempenho por mês por padrão
+        if (typeof window.kpiSwitchTab === 'function') {
+            window.kpiSwitchTab('chart');
+        }
+
+        // Armazenar contexto atual para o botão "Nova Ação"
+        _currentKpiLabel = kpiLabel;
+        _currentKpiKey = kpiKey;
+        _currentKpiAllActions = allActionsData;
+
         // ── CHART ──
         if (_kpiChart) { _kpiChart.destroy(); _kpiChart = null; }
 
         const labels  = weeksData.map(d => d.week);
         const values  = weeksData.map(d => d.value);
-        const metaVal = weeksData.length > 0 ? weeksData[0].meta : null;
+        // Pegar a meta do dado com valor não nulo
+        const metaVal = (weeksData.find(d => d.meta !== null && !isNaN(d.meta)) || {}).meta ?? null;
+
+        // Exibir meta no cabeçalho
+        const metaEl = document.getElementById('kpi-modal-meta');
+        metaEl.textContent = metaVal !== null ? `Meta: ${metaVal}%` : '';
 
         // Trend line via least squares
         function trendLine(vals) {
@@ -618,7 +816,14 @@
         // ── MONTHLY DATA ──
         const monthTableWrap = document.getElementById('kpi-month-table-wrap');
         const monthChartWrap = document.getElementById('kpi-month-chart-wrap');
-        monthTableWrap.innerHTML = '<div class="kpi-month-loading">⏳ Carregando dados mensais...</div>';
+        const monthStatusEl = document.getElementById('kpi-month-status');
+
+        if (monthStatusEl) {
+            monthStatusEl.style.display = 'block';
+            monthStatusEl.innerHTML = '⏳ Carregando dados mensais...';
+        }
+        monthTableWrap.style.display = 'none';
+        monthChartWrap.style.display = 'none';
 
         // Destroy previous month chart
         if (window._kpiMonthChart) { window._kpiMonthChart.destroy(); window._kpiMonthChart = null; }
@@ -627,23 +832,36 @@
             const allMonthData = json.data || {};
             const MONTHS = json.months || [];
 
+            const cleanName = (name) => name ? name.replace('⚠️', '').replace(/\s+/g, ' ').trim().toLowerCase() : '';
+            const k1 = cleanName(kpiLabel);
+            const k2 = cleanName(kpiKey);
+
             // Collect rows for this KPI across all months
             const monthRows = [];
             MONTHS.forEach(mes => {
                 const rows = allMonthData[mes] || [];
                 const match = rows.find(r => {
-                    const rk = r.kpi.trim().toLowerCase();
-                    const k1 = kpiLabel.trim().toLowerCase();
-                    const k2 = kpiKey.trim().toLowerCase();
+                    const rk = cleanName(r.kpi);
                     return rk === k1 || rk === k2 || rk.includes(k1) || k1.includes(rk);
                 });
                 if (match) monthRows.push({ mes, ...match });
             });
 
             if (monthRows.length === 0) {
-                monthTableWrap.innerHTML = '<div class="kpi-month-loading">📭 Sem dados mensais para este indicador.</div>';
+                if (monthStatusEl) {
+                    monthStatusEl.style.display = 'block';
+                    monthStatusEl.innerHTML = '📭 Sem dados mensais para este indicador.';
+                }
                 return;
             }
+
+            // Hide status container as we have data
+            if (monthStatusEl) monthStatusEl.style.display = 'none';
+
+            // Show active tab
+            const activeTab = document.getElementById('kpi-tab-table').classList.contains('active') ? 'table' : 'chart';
+            monthTableWrap.style.display = activeTab === 'table' ? '' : 'none';
+            monthChartWrap.style.display = activeTab === 'chart' ? '' : 'none';
 
             // ── BUILD TABLE ──
             const tableHTML = `
@@ -661,7 +879,7 @@
                             const metaStr = String(r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
                             const rStr  = String(r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
                             const metaNum = parseFloat(metaStr.replace(/[%><]/g,'').replace(',','.'));
-                            const resNum  = parseFloat(resStr.replace(/[%><]/g,'').replace(',','.'));
+                            const resNum  = parseFloat(rStr.replace(/[%><]/g,'').replace(',','.'));
                             const isLower = metaStr.includes('<');
                             let statusHtml = '<span style="color:#94A3B8">–</span>';
                             let resClass = 'result-na';
@@ -675,7 +893,7 @@
                             return `<tr>
                                 <td class="month-name">${r.mes}</td>
                                 <td style="color:#64748B">${metaStr}</td>
-                                <td class="${resClass}">${resStr || '-'}</td>
+                                <td class="${resClass}">${rStr || '-'}</td>
                                 <td>${statusHtml}</td>
                             </tr>`;
                         }).join('')}
@@ -686,11 +904,11 @@
             // ── BUILD BAR CHART ──
             const barLabels = monthRows.map(r => r.mes);
             const barValues = monthRows.map(r => {
-                const v = parseFloat(String(r.resultado || '').replace(/[%><\s]/g,'').replace(',','.'));
+                const v = parseFloat(String(r.resultado || '').replace(/[%><\s🟢🔴]/g,'').replace(',','.'));
                 return isNaN(v) ? null : v;
             });
             const barMeta = monthRows.map(r => {
-                const v = parseFloat(String(r.meta || '').replace(/[%><\s]/g,'').replace(',','.'));
+                const v = parseFloat(String(r.meta || '').replace(/[%><\s🟢🔴]/g,'').replace(',','.'));
                 return isNaN(v) ? null : v;
             });
 
@@ -734,7 +952,7 @@
                                 tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y + '%' : '-'}` } }
                             },
                             scales: {
-                                x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+                                x: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } },
                                 y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }
                             }
                         }
@@ -746,197 +964,59 @@
                 console.error("Erro ao renderizar gráfico de barras mensal:", barChartErr);
             }
 
-        }).catch(() => {
-            monthTableWrap.innerHTML = '<div class="kpi-month-loading">⚠️ Erro ao carregar dados mensais.</div>';
-        });
-
-    window._actionDetailChart = null;
-
-    window.updateActionModalIndicatorDetail = function() {
-        const select = document.getElementById('action-indicator');
-        const detailPane = document.getElementById('action-modal-indicator-detail');
-        
-        if (!select || !detailPane) return;
-        
-        const selectedKpi = select.value;
-        if (!selectedKpi || selectedKpi === 'Geral') {
-            detailPane.style.display = 'none';
-            return;
-        }
-        
-        detailPane.style.display = 'flex';
-        document.getElementById('action-detail-kpi-name').textContent = selectedKpi;
-
-        // Fetch meta and weekly values for selectedKpi
-        if (!window.globalLast6Weeks || !window.getKpiHistoricalData) return;
-
-        let metaText = '-';
-        let metaVal = null;
-        const weeksData = window.globalLast6Weeks.map(wk => {
-            const d = window.getKpiHistoricalData(selectedKpi, wk);
-            if (d && d['Meta 4 Pontos'] !== undefined && d['Meta 4 Pontos'] !== null) {
-                metaText = String(d['Meta 4 Pontos']).replace(/[><\s]/g,'');
-                metaVal = parseFloat(metaText.replace('%','').replace(',','.'));
-            }
-            const txt = d ? (d['Resultado Final'] !== undefined && d['Resultado Final'] !== null ? d['Resultado Final'] : null) : null;
-            const numVal = (txt !== null && txt !== undefined) ? parseFloat(String(txt).replace(/[%><\s]/g, '').replace(',', '.')) : null;
-            return { week: wk, value: isNaN(numVal) ? null : numVal };
-        });
-
-        document.getElementById('action-detail-kpi-meta').textContent = metaText !== '-' ? `Meta: ${metaText}` : 'Meta: -';
-
-        // Render Weekly Line Chart
-        try {
-            if (typeof Chart !== 'undefined') {
-                if (window._actionDetailChart) {
-                    window._actionDetailChart.destroy();
-                    window._actionDetailChart = null;
-                }
-
-                const labels = weeksData.map(d => d.week);
-                const values = weeksData.map(d => d.value);
-
-                // Trend line via least squares
-                function getTrend(vals) {
-                    const n = vals.length;
-                    if (n < 2) return vals;
-                    let sx=0, sy=0, sxy=0, sx2=0;
-                    vals.forEach((y,i) => { sx+=i; sy+=y; sxy+=i*y; sx2+=i*i; });
-                    const m = (n*sxy - sx*sy) / (n*sx2 - sx*sx);
-                    const b = (sy - m*sx) / n;
-                    return vals.map((_,i) => parseFloat((m*i + b).toFixed(2)));
-                }
-
-                const validVals = values.filter(v => v !== null && !isNaN(v));
-                const trend = validVals.length >= 2 ? getTrend(values.map(v => v ?? 0)) : null;
-
-                const ctx = document.getElementById('action-detail-trend-chart').getContext('2d');
-                const datasets = [{
-                    label: selectedKpi,
-                    data: values,
-                    borderColor: '#2563EB',
-                    backgroundColor: 'rgba(37,99,235,.07)',
-                    pointBackgroundColor: values.map(v => {
-                        if (v === null) return '#9CA3AF';
-                        if (metaVal === null) return '#2563EB';
-                        return v >= metaVal ? '#16A34A' : '#DC2626';
-                    }),
-                    pointRadius: 4,
-                    tension: 0.3,
-                    fill: true,
-                    spanGaps: true
-                }];
-
-                if (trend) {
-                    datasets.push({
-                        label: 'Tendência',
-                        data: trend,
-                        borderColor: '#F59E0B',
-                        borderDash: [5,3],
-                        pointRadius: 0,
-                        fill: false,
-                        borderWidth: 1.5
-                    });
-                }
-
-                window._actionDetailChart = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels, datasets },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: c => ` ${c.parsed.y !== null ? c.parsed.y.toFixed(2) + '%' : '-'}` } }
-                        },
-                        scales: {
-                            x: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 10 } } },
-                            y: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 9 } } }
-                        }
-                    }
-                });
-            } else {
-                console.warn("Chart.js is not loaded.");
-                const trendChartCanvas = document.getElementById('action-detail-trend-chart');
-                if (trendChartCanvas && trendChartCanvas.parentElement) {
-                    trendChartCanvas.parentElement.innerHTML = '<div style="text-align:center; padding: 20px; color:#94A3B8; font-size:11px;">⚠️ Gráfico semanal indisponível.</div>';
-                }
-            }
-        } catch (chartErr) {
-            console.error("Erro ao renderizar gráfico semanal:", chartErr);
-        }
-
-        // Fetch Monthly details
-        const monthTableWrap = document.getElementById('action-detail-month-table-wrap');
-        monthTableWrap.innerHTML = '<div class="kpi-month-loading">⏳ Carregando...</div>';
-
-        fetch('/api/fechamento-mensal').then(r => r.json()).then(json => {
-            const allMonthData = json.data || {};
-            const MONTHS = json.months || [];
-
-            const monthRows = [];
-            MONTHS.forEach(mes => {
-                const rows = allMonthData[mes] || [];
-                const match = rows.find(r => {
-                    const rk = r.kpi.trim().toLowerCase();
-                    const sk = selectedKpi.trim().toLowerCase();
-                    return rk === sk || rk.includes(sk) || sk.includes(rk);
-                });
-                if (match) monthRows.push({ mes, ...match });
-            });
-
-            if (monthRows.length === 0) {
-                monthTableWrap.innerHTML = '<div style="text-align:center; padding:12px; color:#94A3B8; font-size:12px;">📭 Sem histórico mensal.</div>';
-                return;
-            }
-
-            monthTableWrap.innerHTML = `
-                <table class="kpi-month-table" style="width:100%;">
-                    <thead>
-                        <tr style="background:#F8FAFC;">
-                            <th style="padding:6px 10px; font-size:9.5px;">Mês</th>
-                            <th style="padding:6px 10px; font-size:9.5px;">Obj.</th>
-                            <th style="padding:6px 10px; font-size:9.5px;">Result.</th>
-                            <th style="padding:6px 10px; font-size:9.5px;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${monthRows.map(r => {
-                            const mStr = String(r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
-                            const rStr = String(r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
-                            const mV = parseFloat(mStr.replace(/[%><]/g,'').replace(',','.'));
-                            const rV = parseFloat(rStr.replace(/[%><]/g,'').replace(',','.'));
-                            const isLower = mStr.includes('<');
-                            let statusText = '–';
-                            let col = '#64748B';
-                            if (!isNaN(mV) && !isNaN(rV)) {
-                                const ok = isLower ? rV <= mV : rV >= mV;
-                                statusText = ok ? 'Atingido' : 'Abaixo';
-                                col = ok ? '#16A34A' : '#DC2626';
-                            }
-                            return `<tr style="border-bottom: 1px solid #F1F5F9;">
-                                <td style="padding:6px 10px; font-weight:600; color:#1E293B;">${r.mes}</td>
-                                <td style="padding:6px 10px; color:#64748B;">${mStr}</td>
-                                <td style="padding:6px 10px; font-weight:700; color:${col};">${rStr}</td>
-                                <td style="padding:6px 10px; font-weight:700; color:${col}; font-size:11px;">${statusText}</td>
-                            </tr>`;
-                        }).join('')}
-                    </tbody>
-                </table>`;
-        }).catch(() => {
-            monthTableWrap.innerHTML = '<div style="text-align:center; padding:12px; color:#DC2626; font-size:11px;">⚠️ Erro.</div>';
+        }).catch((err) => {
+            console.error(err);
+            monthTableWrap.innerHTML = '<div style="text-align:center; padding:12px; color:#DC2626; font-size:11px;">⚠️ Erro ao carregar histórico mensal.</div>';
         });
     };
 
     window.kpiSwitchTab = function(tab) {
         document.getElementById('kpi-tab-table').classList.toggle('active', tab === 'table');
         document.getElementById('kpi-tab-chart').classList.toggle('active', tab === 'chart');
+        
+        const statusEl = document.getElementById('kpi-month-status');
+        if (statusEl && statusEl.style.display !== 'none') {
+            document.getElementById('kpi-month-table-wrap').style.display = 'none';
+            document.getElementById('kpi-month-chart-wrap').style.display = 'none';
+            return;
+        }
+        
         document.getElementById('kpi-month-table-wrap').style.display = tab === 'table' ? '' : 'none';
         document.getElementById('kpi-month-chart-wrap').style.display = tab === 'chart' ? '' : 'none';
     };
 
     window.closeKpiDetailModal = function() {
         document.getElementById('kpi-detail-modal').classList.remove('open');
+    };
+
+    // Abrir modal de nova ação a partir do modal de KPI
+    window.openActionFromKpiModal = function() {
+        if (!_currentKpiLabel) return;
+        window.closeKpiDetailModal();
+
+        // Determinar operação com base no nome do KPI armazenado
+        const opName = (typeof window.getOpNameForKpi === 'function')
+            ? window.getOpNameForKpi(_currentKpiLabel)
+            : 'First Mile';
+
+        // Verificar se já existe ação para este KPI
+        let existingAction = null;
+        for (const op in _currentKpiAllActions) {
+            const found = (_currentKpiAllActions[op] || []).find(m =>
+                m.indicator === _currentKpiLabel || m.indicator === `⚠️ ${_currentKpiLabel}`
+            );
+            if (found) { existingAction = found; break; }
+        }
+
+        if (existingAction) {
+            openActionModalForEdit({ opName, indicator: _currentKpiLabel, isAuto: false, rawAction: existingAction });
+        } else {
+            if (window.userRole !== 'Master') {
+                alert('Apenas o usuário Master pode criar novas ações.');
+                return;
+            }
+            openActionModalForEdit({ opName, indicator: _currentKpiLabel, isAuto: true });
+        }
     };
 
     document.addEventListener('click', e => {

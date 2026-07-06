@@ -2,6 +2,110 @@ var allActions = {};
 window.userRole = localStorage.getItem('bsc_user_role');
 window.userEmail = localStorage.getItem('bsc_user_email');
 
+// Interceptar fetch global para injetar token JWT
+const originalFetch = window.fetch;
+window.fetch = function(url, options = {}) {
+    const token = localStorage.getItem('bsc_token');
+    const isApi = typeof url === 'string' && url.includes('/api/');
+    
+    if (isApi) {
+        if (!options.headers) options.headers = {};
+        if (token && !options.headers['Authorization']) {
+            options.headers['Authorization'] = 'Bearer ' + token;
+        }
+        if (!options.headers['Content-Type'] && !(options.body instanceof FormData) && typeof options.body === 'string') {
+            options.headers['Content-Type'] = 'application/json';
+        }
+    }
+    
+    return originalFetch(url, options).then(response => {
+        if (isApi && (response.status === 401 || response.status === 403)) {
+            logoutRole();
+            throw new Error('Sessão expirada. Por favor, faça login novamente.');
+        }
+        return response;
+    });
+};
+
+// ==================== TOAST NOTIFICATIONS ====================
+window.showToast = function(message, type = 'success', duration = 4000) {
+    const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+    const container = document.getElementById('toast-container');
+    if (!container) { console.warn(message); return; }
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+        <span class="toast-msg">${message}</span>
+        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('toast-out');
+        setTimeout(() => toast.remove(), 280);
+    }, duration);
+};
+
+// ==================== CONFIRM MODAL ====================
+window.showConfirm = function({ title = 'Confirmar ação', message = 'Tem certeza?', icon = '⚠️', okLabel = 'Confirmar', cancelLabel = 'Cancelar' }) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('confirm-modal');
+        if (!modal) { resolve(window.confirm(message)); return; }
+        document.getElementById('confirm-icon').textContent = icon;
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-msg').textContent = message;
+        document.getElementById('confirm-ok').textContent = okLabel;
+        document.getElementById('confirm-cancel').textContent = cancelLabel;
+        modal.classList.add('open');
+        const close = (result) => {
+            modal.classList.remove('open');
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            resolve(result);
+        };
+        const okBtn = document.getElementById('confirm-ok');
+        const cancelBtn = document.getElementById('confirm-cancel');
+        const handleOk = () => close(true);
+        const handleCancel = () => close(false);
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+    });
+};
+
+// Fechar modais com tecla Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const actionModal = document.getElementById('action-modal');
+    if (actionModal && actionModal.style.display !== 'none') { closeActionModal(); return; }
+    const confirmModal = document.getElementById('confirm-modal');
+    if (confirmModal && confirmModal.classList.contains('open')) {
+        confirmModal.classList.remove('open'); return;
+    }
+    const kpiModal = document.getElementById('kpi-detail-modal');
+    if (kpiModal && kpiModal.classList.contains('open')) { kpiModal.classList.remove('open'); }
+});
+
+// ==================== FILTER TASKS TABLE ====================
+window.filterTasksTable = function() {
+    const search = (document.getElementById('tasks-search')?.value || '').toLowerCase();
+    const opFilter = (document.getElementById('filter-op')?.value || '').toLowerCase();
+    const statusFilter = (document.getElementById('filter-status')?.value || '').toLowerCase();
+    const rows = document.querySelectorAll('#table-tasks tr');
+    let visible = 0;
+    rows.forEach(tr => {
+        const text = tr.textContent.toLowerCase();
+        const op = (tr.dataset.op || '').toLowerCase();
+        const status = (tr.dataset.status || '').toLowerCase();
+        const matchSearch = !search || text.includes(search);
+        const matchOp = !opFilter || op.includes(opFilter);
+        const matchStatus = !statusFilter || status.includes(statusFilter);
+        const show = matchSearch && matchOp && matchStatus;
+        tr.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    const countEl = document.getElementById('tasks-count');
+    if (countEl) countEl.textContent = `${visible} de ${rows.length} ações`;
+};
+
 function logoutRole() {
     window.userRole = null;
     window.userEmail = null;
@@ -90,6 +194,23 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
     window.dashboardStructure = structure;
+
+    window.getKpiNameByLabel = function(label) {
+        if (!window.dashboardStructure) return label;
+        const all = [
+            ...window.dashboardStructure.firstMile,
+            ...window.dashboardStructure.lastMile,
+            ...window.dashboardStructure.safety
+        ];
+        const match = all.find(item => item.label === label || item.kpi === label);
+        return match ? match.kpi : label;
+    };
+
+    window.getKpiHistoricalData = function(kpiName, week) {
+        if (!window.dashboardIndexedData) return null;
+        const dbKpiName = window.getKpiNameByLabel(kpiName);
+        return window.dashboardIndexedData[dbKpiName]?.[week] || null;
+    };
 
     // Carregar CSV e Excel automaticamente
     Promise.all([
@@ -188,8 +309,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let statusPrevWeek = '';
 
     function isOutOfTarget(item, allData, closedWeek) {
-        // Encontrar a linha correspondente ao mês fechado ('Mai' ou qualquer período que não comece com 'W' e não seja 'W21')
-        const monthData = [...allData].find(d => d['KPI'] === item.kpi && !d['Período'].startsWith('W') && d['Período'] !== 'W21' && d['Período'].trim() !== '');
+        // Encontrar a linha correspondente ao mês fechado usando o índice O(1)
+        const monthData = window.dashboardIndexedMonthData?.[item.kpi];
         
         if (monthData) {
             const gapPont = monthData['GAP Pontuação'] || '';
@@ -204,8 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        // Fallback original caso não tenha linha de mês
-        const closedData = [...allData].reverse().find(d => d['KPI'] === item.kpi && d['Período'] === closedWeek);
+        // Fallback original usando o índice O(1)
+        const closedData = window.dashboardIndexedData?.[item.kpi]?.[closedWeek];
         
         let metaText = '-';
         let isLowerBetter = false;
@@ -237,6 +358,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function processData(data) {
         window.autoTasks = [];
         
+        // Criar índices O(1) para otimizar busca de dados
+        window.dashboardIndexedData = {};
+        window.dashboardIndexedMonthData = {};
+        data.forEach(d => {
+            if (!d || !d['KPI']) return;
+            const kpi = d['KPI'];
+            const p = d['Período'] || '';
+            
+            if (!window.dashboardIndexedData[kpi]) {
+                window.dashboardIndexedData[kpi] = {};
+            }
+            window.dashboardIndexedData[kpi][p] = d;
+
+            if (!p.startsWith('W') && p !== 'W21' && p.trim() !== '') {
+                window.dashboardIndexedMonthData[kpi] = d;
+            }
+        });
+        
         const periodos = new Set();
         data.forEach(row => {
             if (row['Período'] && row['Período'] !== 'W21' && (row['Período'].startsWith('W') || row['Período'] === 'Mai')) {
@@ -254,23 +393,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         globalLast6Weeks = sortedPeriodos.slice(-6);
         window.globalLast6Weeks = globalLast6Weeks;
-        
-        window.getKpiNameByLabel = function(label) {
-            if (!window.dashboardStructure) return label;
-            const all = [
-                ...window.dashboardStructure.firstMile,
-                ...window.dashboardStructure.lastMile,
-                ...window.dashboardStructure.safety
-            ];
-            const match = all.find(item => item.label === label || item.kpi === label);
-            return match ? match.kpi : label;
-        };
-
-        window.getKpiHistoricalData = function(kpiName, week) {
-            if (!window.dashboardCombinedData) return null;
-            const dbKpiName = window.getKpiNameByLabel(kpiName);
-            return [...window.dashboardCombinedData].reverse().find(d => d['KPI'] === dbKpiName && d['Período'] === week);
-        };
         
         window.latestWeek = sortedPeriodos[sortedPeriodos.length - 1];
         window.closedWeek = sortedPeriodos.length > 1 ? sortedPeriodos[sortedPeriodos.length - 2] : window.latestWeek;
@@ -328,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let metaVal = NaN;
             let isLowerBetter = false;
 
-            const getKpiData = (week) => [...allData].reverse().find(d => d['KPI'] === item.kpi && d['Período'] === week);
+            const getKpiData = (week) => window.dashboardIndexedData?.[item.kpi]?.[week];
             
             const w6Data = getKpiData(w6);
             const w5Data = getKpiData(w5);
@@ -344,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let w5Text = w5Data ? (w5Data['Resultado Final'] || '-') : '-';
             let w6Text = w6Data ? (w6Data['Resultado Final'] || '-') : '-';
 
-            const anyData = w6Data || w5Data || w4Data || w3Data || w2Data || w1Data || [...allData].reverse().find(d => d['KPI'] === item.kpi);
+            const anyData = w6Data || w5Data || w4Data || w3Data || w2Data || w1Data || (window.dashboardIndexedData?.[item.kpi] ? Object.values(window.dashboardIndexedData[item.kpi]).pop() : null);
 
             if (anyData && anyData['Meta 4 Pontos']) {
                 metaText = anyData['Meta 4 Pontos'].replace('> ', '').replace('< ', '');
@@ -473,10 +595,28 @@ document.addEventListener('DOMContentLoaded', () => {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ operation: opName, indicator: item.kpi, week: weekVal, value: newVal || '' })
                         }).then(res => {
-                            if (!res.ok) throw new Error('Servidor não encontrou a rota. Você reiniciou o Iniciar_Painel.bat?');
-                            location.reload();
+                            if (!res.ok) throw new Error('Servidor não respondeu corretamente.');
+                            
+                            // Atualizar dados na memória local
+                            let existing = window.dashboardCombinedData.find(d => d['KPI'] === item.kpi && d['Período'] === weekVal);
+                            if (existing) {
+                                existing['Resultado Final'] = newVal;
+                                existing['isManualAPI'] = true;
+                            } else {
+                                window.dashboardCombinedData.push({
+                                    'KPI': item.kpi,
+                                    'Período': weekVal,
+                                    'Meta 4 Pontos': item.meta || '',
+                                    'Resultado Final': newVal,
+                                    'isManualAPI': true
+                                });
+                            }
+                            
+                            // Re-processar e re-renderizar
+                            processData(window.dashboardCombinedData);
+                            showToast('Valor salvo com sucesso!', 'success');
                         }).catch(err => {
-                            alert('Erro ao salvar valor: ' + err.message);
+                            showToast('Erro ao salvar valor: ' + err.message, 'error');
                             td.textContent = currentVal || '-';
                         });
                     };
@@ -544,21 +684,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tdKpi.style.textDecoration = 'underline';
             
             tdKpi.addEventListener('click', () => {
-                const opNameMap = {
-                    'table-first-mile': 'First Mile',
-                    'table-last-mile': 'Last Mile',
-                    'table-safety': 'Safety'
-                };
-                const opName = opNameMap[tableId] || 'Outros';
-                let existingAction = null;
-                if (allActions && allActions[opName]) {
-                    existingAction = allActions[opName].find(m => m.indicator === item.label || m.indicator === `⚠️ ${item.label}`);
-                }
-                if (existingAction) {
-                    openActionModalForEdit({ opName, indicator: item.label, isAuto: false, rawAction: existingAction });
-                } else {
-                    if (window.userRole !== 'Master') { alert('Apenas o usuário Master pode criar novas ações.'); return; }
-                    openActionModalForEdit({ opName, indicator: item.label, isAuto: true });
+                if (typeof window.openActionForKpi === 'function') {
+                    window.openActionForKpi(item.label, item.kpi);
                 }
             });
 
@@ -595,6 +722,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let currentOperation = '';
+
+// Retorna o nome da operação (First Mile, Last Mile, Safety) para um KPI
+window.getOpNameForKpi = function(kpiLabel) {
+    if (!window.dashboardStructure) return 'First Mile';
+    const { firstMile = [], lastMile = [], safety = [] } = window.dashboardStructure;
+    if (firstMile.some(i => i.label === kpiLabel || i.kpi === kpiLabel)) return 'First Mile';
+    if (lastMile.some(i => i.label === kpiLabel || i.kpi === kpiLabel))  return 'Last Mile';
+    if (safety.some(i => i.label === kpiLabel || i.kpi === kpiLabel))    return 'Safety';
+    return 'First Mile'; // fallback
+};
 
 // Modal
 function openActionModal(opName) {
@@ -635,6 +772,10 @@ function closeActionModal() {
     if (window._actionDetailChart) {
         window._actionDetailChart.destroy();
         window._actionDetailChart = null;
+    }
+    if (window._actionDetailMonthChart) {
+        window._actionDetailMonthChart.destroy();
+        window._actionDetailMonthChart = null;
     }
 }
 
@@ -681,7 +822,9 @@ function openActionModalForEdit(actionData) {
     updateSelectedMilesText();
     
     if (actionData.isAuto) {
-        document.getElementById('action-indicator').innerHTML = `<option value="${actionData.indicator}">${actionData.indicator}</option>`;
+        const selectInd = document.getElementById('action-indicator');
+        selectInd.innerHTML = `<option value="${actionData.indicator}">${actionData.indicator}</option>`;
+        selectInd.value = actionData.indicator;
         document.getElementById('action-deadline').value = actionData.deadline || '';
         document.getElementById('action-status').value = 'Em andamento';
         document.getElementById('action-is-auto').value = 'true';
@@ -691,7 +834,9 @@ function openActionModalForEdit(actionData) {
         document.getElementById('action-id').value = raw.id || '';
         
         let indName = raw.indicator ? raw.indicator.replace('⚠️ ', '') : 'Geral';
-        document.getElementById('action-indicator').innerHTML = `<option value="${indName}">${indName}</option>`;
+        const selectInd = document.getElementById('action-indicator');
+        selectInd.innerHTML = `<option value="${indName}">${indName}</option>`;
+        selectInd.value = indName;
         
         document.getElementById('action-task').value = raw.task || '';
         document.getElementById('action-owner').value = raw.owner || '';
@@ -747,6 +892,107 @@ function openActionModalForEdit(actionData) {
     }
 }
 
+window.openActionForKpi = function(kpiLabel, kpiKey) {
+    const opName = (typeof window.getOpNameForKpi === 'function')
+        ? window.getOpNameForKpi(kpiLabel)
+        : 'First Mile';
+
+    // Verificar se já existe ação para este KPI
+    let existingAction = null;
+    if (typeof allActions !== 'undefined') {
+        for (const op in allActions) {
+            const found = (allActions[op] || []).find(m => {
+                const ind = m.indicator ? m.indicator.replace('⚠️ ', '').trim().toLowerCase() : '';
+                const l1 = kpiLabel.replace('⚠️ ', '').trim().toLowerCase();
+                const l2 = kpiKey.replace('⚠️ ', '').trim().toLowerCase();
+                return ind === l1 || ind === l2;
+            });
+            if (found) { existingAction = found; break; }
+        }
+    }
+
+    if (existingAction) {
+        openActionModalForEdit({ opName, indicator: kpiLabel, isAuto: false, rawAction: existingAction });
+    } else {
+        if (window.userRole !== 'Master') {
+            alert('Apenas o usuário Master pode criar novas ações.');
+            return;
+        }
+        openActionModalForEdit({ opName, indicator: kpiLabel, isAuto: true });
+    }
+};
+
+window.openGlobalActionModal = function() {
+    if (window.userRole !== 'Master' && window.userRole !== 'First Mile' && window.userRole !== 'Last Mile' && window.userRole !== 'Safety') {
+        alert('Você não tem permissão para cadastrar ações.');
+        return;
+    }
+    
+    const opName = window.userRole === 'Master' ? 'First Mile' : window.userRole;
+    
+    // Reset form fields
+    document.getElementById('action-id').value = '';
+    document.getElementById('action-is-auto').value = 'false';
+    
+    // Popular indicators dropdown with ALL indicators for that operation or Geral
+    const selectInd = document.getElementById('action-indicator');
+    selectInd.innerHTML = '<option value="Geral">Geral (Sem indicador específico)</option>';
+    
+    // Add all indicators of the current operation
+    if (window.dashboardStructure) {
+        const structureMap = {
+            'First Mile': window.dashboardStructure.firstMile,
+            'Last Mile': window.dashboardStructure.lastMile,
+            'Safety': window.dashboardStructure.safety
+        };
+        const list = structureMap[opName] || [];
+        list.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.kpi;
+            opt.textContent = item.label;
+            selectInd.appendChild(opt);
+        });
+    }
+    
+    document.getElementById('action-task').value = '';
+    document.getElementById('action-owner').value = '';
+    document.getElementById('action-start-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('action-deadline').value = '';
+    document.getElementById('action-status').value = 'Em andamento';
+    
+    // Set checked checkbox for current operation
+    const checkboxes = document.querySelectorAll('#mile-checkboxes input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        cb.checked = (cb.value === opName);
+    });
+    if (typeof updateSelectedMilesText === 'function') {
+        updateSelectedMilesText();
+    }
+    
+    if (document.getElementById('btn-delete-action')) {
+        document.getElementById('btn-delete-action').style.display = 'none';
+    }
+    
+    // Enable fields
+    document.getElementById('action-indicator').disabled = false;
+    document.getElementById('action-task').disabled = false;
+    if (typeof setMileMultiselectDisabled === 'function') {
+        setMileMultiselectDisabled(false);
+    }
+    document.getElementById('action-owner').disabled = false;
+    document.getElementById('action-start-date').disabled = false;
+    document.getElementById('action-deadline').disabled = false;
+    document.getElementById('action-status').disabled = false;
+    
+    currentOperation = opName;
+    document.getElementById('modal-title').textContent = `Nova Ação: ${opName}`;
+    
+    document.getElementById('action-modal').style.display = 'block';
+    if (typeof window.updateActionModalIndicatorDetail === 'function') {
+        window.updateActionModalIndicatorDetail();
+    }
+};
+
 // Save Action (POST ou PUT)
 async function saveAction() {
     const id = document.getElementById('action-id').value;
@@ -767,7 +1013,7 @@ async function saveAction() {
     };
     
     if (!actionData.task) {
-        alert("Descreva a tarefa!");
+        showToast('Descreva a tarefa antes de salvar!', 'warning');
         return;
     }
     
@@ -795,13 +1041,14 @@ async function saveAction() {
         
         if (response.ok) {
             closeActionModal();
-            loadActions(); 
+            loadActions();
+            showToast('Ação salva com sucesso! ✅', 'success');
         } else {
-            alert('Erro ao salvar ação.');
+            showToast('Erro ao salvar ação. Tente novamente.', 'error');
         }
     } catch (err) {
         console.error(err);
-        alert('Erro de conexão ao salvar.');
+        showToast('Erro de conexão ao salvar.', 'error');
     }
 }
 
@@ -814,11 +1061,18 @@ function completeAction() {
 async function deleteCurrentAction() {
     const id = document.getElementById('action-id').value;
     if (!id) {
-        alert("Esta ação ainda não foi salva, portanto não pode ser excluída.");
+        showToast('Esta ação ainda não foi salva e não pode ser excluída.', 'warning');
         return;
     }
     
-    if (!confirm('Deseja realmente excluir esta ação?')) return;
+    const confirmed = await showConfirm({
+        title: 'Excluir Ação',
+        message: 'Esta ação será excluída permanentemente. Não é possível desfazer!',
+        icon: '🗑️',
+        okLabel: 'Sim, excluir',
+        cancelLabel: 'Cancelar'
+    });
+    if (!confirmed) return;
     
     try {
         const response = await fetch(`/api/actions/${encodeURIComponent(currentOperation)}/${id}`, {
@@ -827,12 +1081,13 @@ async function deleteCurrentAction() {
         if (response.ok) {
             closeActionModal();
             loadActions();
+            showToast('Ação excluída com sucesso.', 'success');
         } else {
-            alert('Erro ao excluir ação.');
+            showToast('Erro ao excluir ação. Tente novamente.', 'error');
         }
     } catch (err) {
         console.error(err);
-        alert('Erro de conexão ao excluir.');
+        showToast('Erro de conexão ao excluir.', 'error');
     }
 }
 
@@ -895,12 +1150,28 @@ function populateGlobalTasks() {
     filteredActions.forEach(a => {
         total++;
         const tr = document.createElement('tr');
+        tr.dataset.op = (a.mile || a.opName || '').toLowerCase();
+        tr.dataset.status = (a.status || '').toLowerCase();
         
         const tdOp = document.createElement('td');
         tdOp.innerHTML = `<span style="font-weight: bold; color: #0A246A;">${a.mile || a.opName}</span>`;
         
         const tdInd = document.createElement('td');
-        tdInd.textContent = a.indicator ? a.indicator.replace('⚠️ ', '') : '-';
+        const kpiClean = a.indicator ? a.indicator.replace('⚠️ ', '') : '-';
+        tdInd.textContent = kpiClean;
+        if (a.indicator && kpiClean !== '-' && kpiClean !== 'Geral') {
+            tdInd.style.cursor = 'pointer';
+            tdInd.style.color = '#0078D4';
+            tdInd.style.textDecoration = 'underline';
+            tdInd.title = "Clique para abrir a tela de ação deste indicador";
+            tdInd.addEventListener('click', (e) => {
+                e.stopPropagation(); // Evita abrir o modal de edição da ação
+                if (typeof window.openActionForKpi === 'function') {
+                    const dbKpiName = window.getKpiNameByLabel(kpiClean);
+                    window.openActionForKpi(kpiClean, dbKpiName);
+                }
+            });
+        }
 
         const tdTask = document.createElement('td');
         tdTask.textContent = a.task || '-';
@@ -961,13 +1232,22 @@ function populateGlobalTasks() {
         tr.appendChild(tdStatus);
         
         tr.style.cursor = 'pointer';
-        tr.title = "Dê dois cliques para editar esta tarefa";
-        tr.addEventListener('dblclick', () => {
+        tr.title = "Clique para editar esta tarefa";
+        tr.addEventListener('click', () => {
             openActionModalForEdit(a);
         });
         
         tbody.appendChild(tr);
     });
+    
+    // Atualizar contagem de ações após renderizar
+    const countEl = document.getElementById('tasks-count');
+    if (countEl) countEl.textContent = `${filteredActions.length} ações`;
+    // Re-aplicar filtros se algum estiver ativo
+    const searchVal = document.getElementById('tasks-search')?.value;
+    const opVal = document.getElementById('filter-op')?.value;
+    const statusVal = document.getElementById('filter-status')?.value;
+    if (searchVal || opVal || statusVal) filterTasksTable();
     
     window.totalTasks = total;
     window.delayedTasks = delayed;
@@ -1287,6 +1567,170 @@ document.addEventListener('click', (event) => {
         }
     }
 });
+
+window.updateActionModalIndicatorDetail = function() {
+    const select = document.getElementById('action-indicator');
+    const detailPane = document.getElementById('action-modal-indicator-detail');
+    
+    if (!select || !detailPane) return;
+    
+    const selectedKpi = select.value;
+    if (!selectedKpi || selectedKpi === 'Geral') {
+        detailPane.style.display = 'none';
+        return;
+    }
+    
+    detailPane.style.display = 'flex';
+    document.getElementById('action-detail-kpi-name').textContent = selectedKpi.replace('⚠️ ', '');
+
+    // Fetch Monthly details
+    const monthTableWrap = document.getElementById('action-detail-month-table-wrap');
+    monthTableWrap.innerHTML = '<div class="kpi-month-loading">⏳ Carregando dados mensais...</div>';
+
+    // Clear previous chart
+    if (window._actionDetailChart) {
+        window._actionDetailChart.destroy();
+        window._actionDetailChart = null;
+    }
+
+    fetch('/api/fechamento-mensal').then(r => r.json()).then(json => {
+        const allMonthData = json.data || {};
+        const MONTHS = json.months || [];
+
+        const cleanName = (name) => name ? name.replace('⚠️', '').replace(/\s+/g, ' ').trim().toLowerCase() : '';
+        const sk = cleanName(selectedKpi);
+
+        const monthRows = [];
+        MONTHS.forEach(mes => {
+            const rows = allMonthData[mes] || [];
+            const match = rows.find(r => {
+                const rk = cleanName(r.kpi);
+                return rk === sk || rk.includes(sk) || sk.includes(rk);
+            });
+            if (match) monthRows.push({ mes, ...match });
+        });
+
+        if (monthRows.length === 0) {
+            monthTableWrap.innerHTML = '<div style="text-align:center; padding:12px; color:#94A3B8; font-size:12px;">📭 Sem histórico mensal para este indicador.</div>';
+            document.getElementById('action-detail-kpi-meta').textContent = 'Meta: -';
+            return;
+        }
+
+        // Get Meta text
+        let metaText = '-';
+        const firstWithMeta = monthRows.find(r => r.meta && r.meta !== '-');
+        if (firstWithMeta) {
+            metaText = String(firstWithMeta.meta).replace(/\s*[🟢🔴]/g,'').trim();
+        }
+        document.getElementById('action-detail-kpi-meta').textContent = metaText !== '-' ? `Meta: ${metaText}` : 'Meta: -';
+
+        // Render Table
+        monthTableWrap.innerHTML = `
+            <table class="kpi-month-table" style="width:100%; border-collapse:collapse; font-size:11.5px;">
+                <thead>
+                    <tr style="background:#F8FAFC; border-bottom:1.5px solid #E2E8F0; text-align:left;">
+                        <th style="padding:4px 12px; font-size:9.5px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.5px;">Mês</th>
+                        <th style="padding:4px 12px; font-size:9.5px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.5px;">Objetivo</th>
+                        <th style="padding:4px 12px; font-size:9.5px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.5px;">Resultado</th>
+                        <th style="padding:4px 12px; font-size:9.5px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.5px; text-align:center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${monthRows.map(r => {
+                        const mStr = String(r.meta || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                        const rStr = String(r.resultado || '-').replace(/\s*[🟢🔴]/g,'').trim();
+                        const mV = parseFloat(mStr.replace(/[%><]/g,'').replace(',','.'));
+                        const rV = parseFloat(rStr.replace(/[%><]/g,'').replace(',','.'));
+                        const isLower = mStr.includes('<');
+                        
+                        let statusHtml = '<span style="color:#94A3B8; font-weight:600;">–</span>';
+                        let resColor = '#64748B';
+                        if (!isNaN(mV) && !isNaN(rV)) {
+                            const ok = isLower ? rV <= mV : rV >= mV;
+                            statusHtml = ok
+                                ? '<span style="background:#DEF7EC; color:#03543F; font-size:9.5px; font-weight:700; padding:2px 8px; border-radius:12px; display:inline-block; min-width:60px; text-align:center;">Atingido</span>'
+                                : '<span style="background:#FDE8E8; color:#9B1C1C; font-size:9.5px; font-weight:700; padding:2px 8px; border-radius:12px; display:inline-block; min-width:60px; text-align:center;">Abaixo</span>';
+                            resColor = ok ? '#16A34A' : '#DC2626';
+                        }
+                        
+                        return `<tr style="border-bottom: 1px solid #F1F5F9; transition: background 0.2s;">
+                            <td style="padding:4px 12px; font-weight:600; color:#1E293B;">${r.mes}</td>
+                            <td style="padding:4px 12px; color:#64748B;">${mStr}</td>
+                            <td style="padding:4px 12px; font-weight:700; color:${resColor};">${rStr}</td>
+                            <td style="padding:4px 12px; text-align:center;">${statusHtml}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
+
+        // Render Monthly Line Chart
+        const monthlyLabels = monthRows.map(r => r.mes);
+        const monthlyValues = monthRows.map(r => {
+            const v = parseFloat(String(r.resultado || '').replace(/[%><\s🟢🔴]/g,'').replace(',','.'));
+            return isNaN(v) ? null : v;
+        });
+        const monthlyMetas = monthRows.map(r => {
+            const v = parseFloat(String(r.meta || '').replace(/[%><\s🟢🔴]/g,'').replace(',','.'));
+            return isNaN(v) ? null : v;
+        });
+
+        try {
+            if (typeof Chart !== 'undefined') {
+                const ctx = document.getElementById('action-detail-trend-chart').getContext('2d');
+                window._actionDetailChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: monthlyLabels,
+                        datasets: [
+                            {
+                                label: 'Resultado',
+                                data: monthlyValues,
+                                borderColor: '#2563EB',
+                                backgroundColor: 'rgba(37,99,235,.07)',
+                                pointBackgroundColor: monthlyValues.map((v, i) => {
+                                    if (v === null) return '#9CA3AF';
+                                    const m = monthlyMetas[i];
+                                    if (m === null || isNaN(m)) return '#2563EB';
+                                    return v >= m ? '#16A34A' : '#DC2626';
+                                }),
+                                pointRadius: 5,
+                                tension: 0.25,
+                                fill: true,
+                                spanGaps: true
+                            },
+                            {
+                                label: 'Meta',
+                                data: monthlyMetas,
+                                borderColor: '#F59E0B',
+                                borderDash: [5,5],
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2).replace('.', ',') + '%' : '-'}` } }
+                        },
+                        scales: {
+                            x: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 10 } } },
+                            y: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 9 }, callback: v => v + '%' } }
+                        }
+                    }
+                });
+            }
+        } catch (chartErr) {
+            console.error("Erro ao renderizar gráfico mensal de linha no modal de ação:", chartErr);
+        }
+    }).catch((err) => {
+        console.error("Erro ao buscar histórico mensal no modal de ação:", err);
+        monthTableWrap.innerHTML = '<div style="text-align:center; padding:12px; color:#DC2626; font-size:11px;">⚠️ Erro ao carregar histórico mensal.</div>';
+    });
+};
 
 window.toggleMediaColumn = function() {
     document.body.classList.toggle('show-media');

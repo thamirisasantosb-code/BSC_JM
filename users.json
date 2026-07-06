@@ -2,7 +2,7 @@
   {
     "id": "1",
     "email": "thamiris.santos@jmdistribuicao.com.br",
-    "password": "JM@2026",
+    "password": "$2b$10$uHX2YUU82I0.4Vlw89FTCOJ6oPXmEHa5IRnD0BhjR4hm4KNs4.P6O",
     "role": "Master",
     "status": "Aprovado",
     "createdAt": "2026-07-01T00:00:00.000Z"

@@ -192,6 +192,29 @@
 </div>
 
 <script>
+// Interceptar fetch global para autenticação
+const originalFetch = window.fetch;
+window.fetch = function(url, options = {}) {
+    const token = localStorage.getItem('bsc_token');
+    const isApi = typeof url === 'string' && url.includes('/api/');
+    if (isApi) {
+        if (!options.headers) options.headers = {};
+        if (token && !options.headers['Authorization']) {
+            options.headers['Authorization'] = 'Bearer ' + token;
+        }
+    }
+    return originalFetch(url, options).then(response => {
+        if (isApi && (response.status === 401 || response.status === 403)) {
+            localStorage.removeItem('bsc_token');
+            localStorage.removeItem('bsc_user_role');
+            localStorage.removeItem('bsc_user_email');
+            window.location.href = 'login.html';
+            throw new Error('Sessão expirada. Redirecionando...');
+        }
+        return response;
+    });
+};
+
 // ── CONFIG & MAPPINGS ────────────────────────────────────────────────────────
 const MILHA_GROUPS = {
     'FM - FULL': 'First Mile',

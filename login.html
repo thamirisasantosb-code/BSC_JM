@@ -399,6 +399,7 @@
 
                 if (res.ok) {
                     if (isLogin) {
+                        localStorage.setItem('bsc_token',     data.token);
                         localStorage.setItem('bsc_user_role',  data.role);
                         localStorage.setItem('bsc_user_email', data.email);
                         msgEl.textContent = '✓ Bem-vindo(a)! Redirecionando...';

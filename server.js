@@ -5,12 +5,41 @@ const fs = require('fs');
 const path = require('path');
 const pptxgen = require('pptxgenjs');
 const { generateExcel } = require('./gerar_visao_executiva');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || __dirname;
 
 const ACTIONS_FILE = path.join(DATA_DIR, 'actions.json');
+const JWT_SECRET = process.env.JWT_SECRET || 'BSC_SECRET_JM_2026_PORTAL_KEY';
+
+// Middleware de Autenticação JWT
+const authMiddleware = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ error: 'Token de autenticação não fornecido.' });
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        return res.status(403).json({ error: 'Sua sessão expirou ou o token é inválido.' });
+    }
+};
+
+// Middleware de Autorização de Função (Roles)
+const requireRole = (allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user || !allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({ error: 'Permissão negada. Apenas funções autorizadas.' });
+        }
+        next();
+    };
+};
 
 // Middleware
 app.use(cors({ exposedHeaders: ['Last-Modified'] }));
@@ -18,13 +47,26 @@ app.use(bodyParser.json({ limit: '50mb' }));
 
 // Custom route to serve CSV from Bannco de Dados folder
 app.get('/Base_Indicadores_BSC.csv', (req, res) => {
-    const csvFilePath = 'C:\\Users\\thamires.santos\\OneDrive - JM DISTRIBUIÇÃO\\Projeto\\BSC\\Bannco de Dados\\Base_Indicadores_BSC.csv';
+    const csvFilePath = path.join(DATA_DIR, 'Bannco de Dados', 'Base_Indicadores_BSC.csv');
+    if (!fs.existsSync(csvFilePath)) {
+        return res.status(404).send('Arquivo CSV não encontrado.');
+    }
     res.sendFile(csvFilePath);
 });
 
 // API: Fechamento Mensal - lê todos os CSVs da pasta Bannco de Dados
-app.get('/api/fechamento-mensal', (req, res) => {
-    const dbDir = 'C:\\Users\\thamires.santos\\OneDrive - JM DISTRIBUIÇÃO\\Projeto\\BSC\\Bannco de Dados';
+// Cache em memória para evitar leitura de disco a cada requisição
+let _monthlyCache = null;
+let _monthlyCacheTime = 0;
+const MONTHLY_CACHE_TTL = 2 * 60 * 1000; // 2 minutos
+
+app.get('/api/fechamento-mensal', authMiddleware, (req, res) => {
+    // Servir do cache se ainda válido
+    if (_monthlyCache && Date.now() - _monthlyCacheTime < MONTHLY_CACHE_TTL) {
+        return res.json(_monthlyCache);
+    }
+
+    const dbDir = path.join(DATA_DIR, 'Bannco de Dados');
     const MONTHLY_LABELS = ['Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'];
 
     try {
@@ -70,7 +112,13 @@ app.get('/api/fechamento-mensal', (req, res) => {
         // Order months correctly
         const orderedMonths = MONTHLY_LABELS.filter(m => byMonth[m]);
 
-        res.json({ months: orderedMonths, data: byMonth });
+        const result = { months: orderedMonths, data: byMonth };
+
+        // Armazenar no cache
+        _monthlyCache = result;
+        _monthlyCacheTime = Date.now();
+
+        res.json(result);
     } catch (err) {
         console.error('Erro ao ler dados de fechamento:', err);
         res.status(500).json({ error: err.message });
@@ -108,13 +156,32 @@ if (!fs.existsSync(USERS_FILE)) {
         {
             "id": "1",
             "email": "thamiris.santos@jmdistribuicao.com.br",
-            "password": "JM@2026",
+            "password": bcrypt.hashSync("JM@2026", 10),
             "role": "Master",
             "status": "Aprovado",
             "createdAt": new Date().toISOString()
         }
     ];
     fs.writeFileSync(USERS_FILE, JSON.stringify(defaultUsers, null, 2), 'utf8');
+} else {
+    // Migração de senhas em texto puro para hash bcrypt
+    try {
+        let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        let modified = false;
+        users = users.map(user => {
+            if (user.password && !user.password.startsWith('$2a$') && !user.password.startsWith('$2b$')) {
+                user.password = bcrypt.hashSync(user.password, 10);
+                modified = true;
+            }
+            return user;
+        });
+        if (modified) {
+            fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+            console.log('Migração: Senhas em texto puro atualizadas para hash bcrypt.');
+        }
+    } catch (e) {
+        console.error('Erro na migração de senhas:', e);
+    }
 }
 
 const MANUAL_DATA_FILE = path.join(DATA_DIR, 'manual_data.json');
@@ -125,7 +192,7 @@ if (!fs.existsSync(MANUAL_DATA_FILE)) {
 }
 
 // GET all actions
-app.get('/api/actions', (req, res) => {
+app.get('/api/actions', authMiddleware, (req, res) => {
     try {
         const data = fs.readFileSync(ACTIONS_FILE, 'utf8');
         res.json(JSON.parse(data));
@@ -135,7 +202,7 @@ app.get('/api/actions', (req, res) => {
 });
 
 // GET manual data
-app.get('/api/manual-data', (req, res) => {
+app.get('/api/manual-data', authMiddleware, (req, res) => {
     try {
         const data = fs.readFileSync(MANUAL_DATA_FILE, 'utf8');
         res.json(JSON.parse(data));
@@ -144,8 +211,8 @@ app.get('/api/manual-data', (req, res) => {
     }
 });
 
-// POST manual data
-app.post('/api/manual-data', (req, res) => {
+// POST manual data (Apenas Master)
+app.post('/api/manual-data', authMiddleware, requireRole(['Master']), (req, res) => {
     try {
         const { operation, indicator, week, value } = req.body;
         const data = JSON.parse(fs.readFileSync(MANUAL_DATA_FILE, 'utf8'));
@@ -162,8 +229,8 @@ app.post('/api/manual-data', (req, res) => {
     }
 });
 
-// POST new action
-app.post('/api/actions', (req, res) => {
+// POST new action (Apenas Master)
+app.post('/api/actions', authMiddleware, requireRole(['Master']), (req, res) => {
     try {
         const { operation, action, userEmail } = req.body;
         const data = JSON.parse(fs.readFileSync(ACTIONS_FILE, 'utf8'));
@@ -189,8 +256,8 @@ app.post('/api/actions', (req, res) => {
     }
 });
 
-// DELETE an action
-app.delete('/api/actions/:operation/:id', (req, res) => {
+// DELETE an action (Apenas Master)
+app.delete('/api/actions/:operation/:id', authMiddleware, requireRole(['Master']), (req, res) => {
     try {
         const { operation, id } = req.params;
         const data = JSON.parse(fs.readFileSync(ACTIONS_FILE, 'utf8'));
@@ -207,7 +274,7 @@ app.delete('/api/actions/:operation/:id', (req, res) => {
 });
 
 // PUT (update) an action
-app.put('/api/actions/:operation/:id', (req, res) => {
+app.put('/api/actions/:operation/:id', authMiddleware, (req, res) => {
     try {
         const { operation, id } = req.params;
         const { userEmail, changeDescription, ...updatedAction } = req.body;
@@ -246,18 +313,25 @@ app.post('/api/login', (req, res) => {
         const email = (req.body.email || '').trim().toLowerCase();
         const password = (req.body.password || '').trim();
         const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
-        const user = users.find(u => u.email.trim().toLowerCase() === email && u.password.trim() === password);
         
-        if (!user) {
+        const user = users.find(u => u.email.trim().toLowerCase() === email);
+        
+        if (!user || !bcrypt.compareSync(password, user.password)) {
             return res.status(401).json({ error: 'Email ou senha inválidos' });
         }
         if (user.status !== 'Aprovado') {
             return res.status(403).json({ error: 'Seu acesso ainda está pendente de aprovação.' });
         }
         
-        // Return user data (omit password)
+        // Gerar token JWT válido por 24 horas
+        const token = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        
         res.status(200).json({
-            id: user.id,
+            token,
             email: user.email,
             role: user.role,
             status: user.status
@@ -281,7 +355,7 @@ app.post('/api/register', (req, res) => {
         const newUser = {
             id: Date.now().toString(),
             email,
-            password,
+            password: bcrypt.hashSync(password, 10),
             role: 'Nenhuma',
             status: 'Pendente',
             createdAt: new Date().toISOString()
@@ -296,8 +370,8 @@ app.post('/api/register', (req, res) => {
     }
 });
 
-// Get Users (Master only - assumed checked by frontend for now, or just pass email to verify)
-app.get('/api/users', (req, res) => {
+// Get Users (Apenas Master)
+app.get('/api/users', authMiddleware, requireRole(['Master']), (req, res) => {
     try {
         const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
         // Return without passwords
@@ -308,8 +382,8 @@ app.get('/api/users', (req, res) => {
     }
 });
 
-// Update User (Role/Status)
-app.put('/api/users/:id', (req, res) => {
+// Update User (Role/Status) (Apenas Master)
+app.put('/api/users/:id', authMiddleware, requireRole(['Master']), (req, res) => {
     try {
         const { id } = req.params;
         const { role, status } = req.body;
@@ -333,7 +407,7 @@ app.put('/api/users/:id', (req, res) => {
 // ========================================================== //
 
 // POST Generate PPT
-app.post('/api/generate-ppt', async (req, res) => {
+app.post('/api/generate-ppt', authMiddleware, async (req, res) => {
     try {
         const { screenshotBase64, meetingData } = req.body;
         const pres = new pptxgen();
@@ -390,7 +464,7 @@ app.post('/api/generate-ppt', async (req, res) => {
 });
 
 // GET Generate Excel Master
-app.get('/api/export-excel', async (req, res) => {
+app.get('/api/export-excel', authMiddleware, async (req, res) => {
     try {
         const filePath = await generateExcel();
         // Return download URL pointing to static file
