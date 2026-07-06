@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  bsc-app:
+    build: .
+    container_name: bsc_app
+    ports:
+      - "3000:3000"
+    volumes:
+      - bsc_data:/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATA_DIR=/data
+    restart: unless-stopped
+
+volumes:
+  bsc_data:
