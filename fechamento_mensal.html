@@ -173,6 +173,24 @@
     </div>
 </div>
 
+<!-- Modal de Detalhes do Indicador -->
+<div id="kpi-modal" class="modal" style="display:none; z-index: 9999;">
+    <div class="modal-content" style="max-width: 800px; width: 90%;">
+        <div class="modal-header">
+            <h2 id="kpi-modal-title">Detalhes do Indicador</h2>
+            <span class="close" onclick="closeKpiModal()">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 24px;">
+            <div style="margin-bottom: 20px;">
+                <h3 id="kpi-modal-subtitle" style="font-size: 14px; font-weight: bold; color: #0A246A; margin-bottom: 5px;">Meta: -</h3>
+            </div>
+            <div style="position: relative; height: 350px;">
+                <canvas id="kpiModalChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 // ── CONFIG & MAPPINGS ────────────────────────────────────────────────────────
 const MILHA_GROUPS = {
@@ -275,6 +293,11 @@ function populateGroupTable(tableId, rows) {
         const tdName = document.createElement('td');
         tdName.className = 'kpi-name';
         tdName.textContent = r.kpi;
+        tdName.style.cursor = 'pointer';
+        tdName.style.color = '#2563EB';
+        tdName.style.textDecoration = 'underline';
+        tdName.style.fontWeight = '600';
+        tdName.addEventListener('click', () => openKpiModal(r));
         tr.appendChild(tdName);
 
         // Meta (Objetivo)
@@ -417,6 +440,110 @@ function renderTrendChart() {
         }
     });
 }
+
+let kpiChartInstance = null;
+
+function openKpiModal(r) {
+    document.getElementById('kpi-modal-title').textContent = r.kpi;
+    const cleanMeta = r.meta ? String(r.meta).replace(/\s*[🟢🔴]/g, '').trim() : '-';
+    document.getElementById('kpi-modal-subtitle').textContent = `Meta (Objetivo): ${cleanMeta}`;
+
+    const labels = allMonths;
+    const values = allMonths.map(m => {
+        const resRaw = r.resultados[m];
+        if (!resRaw || resRaw === '-') return null;
+        const v = parseFloat(String(resRaw).replace(/[%><\s🟢🔴]/g, '').replace(',', '.'));
+        return isNaN(v) ? null : v;
+    });
+
+    const metaVal = parseFloat(cleanMeta.replace(/[><%]/g, '').replace(',', '.'));
+    const isPercentage = cleanMeta.includes('%');
+
+    // Destruir gráfico anterior se houver
+    if (kpiChartInstance) {
+        kpiChartInstance.destroy();
+        kpiChartInstance = null;
+    }
+
+    const datasets = [{
+        label: 'Resultado',
+        data: values,
+        borderColor: '#2563EB',
+        backgroundColor: 'rgba(37,99,235,0.07)',
+        borderWidth: 3,
+        tension: 0.25,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        fill: true,
+        spanGaps: true
+    }];
+
+    if (!isNaN(metaVal)) {
+        datasets.push({
+            label: 'Meta',
+            data: labels.map(() => metaVal),
+            borderColor: '#F59E0B',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false
+        });
+    }
+
+    try {
+        if (typeof Chart !== 'undefined') {
+            const ctx = document.getElementById('kpiModalChart').getContext('2d');
+            kpiChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2).replace('.', ',') + (isPercentage ? '%' : '') : '-'}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            ticks: {
+                                callback: v => v + (isPercentage ? '%' : '')
+                            },
+                            grid: { color: '#E2E8F0' }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Erro ao desenhar gráfico do KPI:", err);
+    }
+
+    document.getElementById('kpi-modal').style.display = 'block';
+}
+
+function closeKpiModal() {
+    document.getElementById('kpi-modal').style.display = 'none';
+    if (kpiChartInstance) {
+        kpiChartInstance.destroy();
+        kpiChartInstance = null;
+    }
+}
+
+// Fechar modal ao clicar fora dele
+window.addEventListener('click', (event) => {
+    const modal = document.getElementById('kpi-modal');
+    if (event.target === modal) {
+        closeKpiModal();
+    }
+});
 
 loadConsolidatedData();
 </script>
