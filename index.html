@@ -552,26 +552,34 @@
             borderWidth: 1.5
         });
 
-        _kpiChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels, datasets },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } },
-                    tooltip: {
-                        callbacks: {
-                            label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2) + '%' : '-'}`
+        try {
+            if (typeof Chart !== 'undefined') {
+                _kpiChart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } },
+                            tooltip: {
+                                callbacks: {
+                                    label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2) + '%' : '-'}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } },
+                            y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }
                         }
                     }
-                },
-                scales: {
-                    x: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } },
-                    y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }
-                }
+                });
+            } else {
+                console.warn("Chart.js is not loaded.");
             }
-        });
+        } catch (kpiChartErr) {
+            console.error("Erro ao renderizar gráfico do indicador:", kpiChartErr);
+        }
 
         // ── ACTIONS ──
         const actionsContainer = document.getElementById('kpi-actions-list');
@@ -686,49 +694,57 @@
                 return isNaN(v) ? null : v;
             });
 
-            const barCtx = document.getElementById('kpi-month-bar-chart').getContext('2d');
-            window._kpiMonthChart = new Chart(barCtx, {
-                type: 'bar',
-                data: {
-                    labels: barLabels,
-                    datasets: [
-                        {
-                            label: 'Resultado',
-                            data: barValues,
-                            backgroundColor: barValues.map((v, i) => {
-                                const m = barMeta[i];
-                                if (v === null || m === null) return '#94A3B8';
-                                return v >= m ? 'rgba(22,163,74,.75)' : 'rgba(220,38,38,.75)';
-                            }),
-                            borderRadius: 6,
-                            borderSkipped: false
+            try {
+                if (typeof Chart !== 'undefined') {
+                    const barCtx = document.getElementById('kpi-month-bar-chart').getContext('2d');
+                    window._kpiMonthChart = new Chart(barCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: barLabels,
+                            datasets: [
+                                {
+                                    label: 'Resultado',
+                                    data: barValues,
+                                    backgroundColor: barValues.map((v, i) => {
+                                        const m = barMeta[i];
+                                        if (v === null || m === null) return '#94A3B8';
+                                        return v >= m ? 'rgba(22,163,74,.75)' : 'rgba(220,38,38,.75)';
+                                    }),
+                                    borderRadius: 6,
+                                    borderSkipped: false
+                                },
+                                {
+                                    label: 'Meta',
+                                    data: barMeta,
+                                    type: 'line',
+                                    borderColor: '#F59E0B',
+                                    borderDash: [5,4],
+                                    borderWidth: 2,
+                                    pointRadius: 4,
+                                    pointBackgroundColor: '#F59E0B',
+                                    fill: false,
+                                    tension: 0
+                                }
+                            ]
                         },
-                        {
-                            label: 'Meta',
-                            data: barMeta,
-                            type: 'line',
-                            borderColor: '#F59E0B',
-                            borderDash: [5,4],
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#F59E0B',
-                            fill: false,
-                            tension: 0
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } },
+                                tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y + '%' : '-'}` } }
+                            },
+                            scales: {
+                                x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+                                y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }
+                            }
                         }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } },
-                        tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y + '%' : '-'}` } }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 12 } } },
-                        y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }
-                    }
+                    });
+                } else {
+                    console.warn("Chart.js is not loaded.");
                 }
-            });
+            } catch (barChartErr) {
+                console.error("Erro ao renderizar gráfico de barras mensal:", barChartErr);
+            }
 
         }).catch(() => {
             monthTableWrap.innerHTML = '<div class="kpi-month-loading">⚠️ Erro ao carregar dados mensais.</div>';
@@ -770,73 +786,85 @@
         document.getElementById('action-detail-kpi-meta').textContent = metaText !== '-' ? `Meta: ${metaText}` : 'Meta: -';
 
         // Render Weekly Line Chart
-        if (window._actionDetailChart) {
-            window._actionDetailChart.destroy();
-            window._actionDetailChart = null;
-        }
+        try {
+            if (typeof Chart !== 'undefined') {
+                if (window._actionDetailChart) {
+                    window._actionDetailChart.destroy();
+                    window._actionDetailChart = null;
+                }
 
-        const labels = weeksData.map(d => d.week);
-        const values = weeksData.map(d => d.value);
+                const labels = weeksData.map(d => d.week);
+                const values = weeksData.map(d => d.value);
 
-        // Trend line via least squares
-        function getTrend(vals) {
-            const n = vals.length;
-            if (n < 2) return vals;
-            let sx=0, sy=0, sxy=0, sx2=0;
-            vals.forEach((y,i) => { sx+=i; sy+=y; sxy+=i*y; sx2+=i*i; });
-            const m = (n*sxy - sx*sy) / (n*sx2 - sx*sx);
-            const b = (sy - m*sx) / n;
-            return vals.map((_,i) => parseFloat((m*i + b).toFixed(2)));
-        }
+                // Trend line via least squares
+                function getTrend(vals) {
+                    const n = vals.length;
+                    if (n < 2) return vals;
+                    let sx=0, sy=0, sxy=0, sx2=0;
+                    vals.forEach((y,i) => { sx+=i; sy+=y; sxy+=i*y; sx2+=i*i; });
+                    const m = (n*sxy - sx*sy) / (n*sx2 - sx*sx);
+                    const b = (sy - m*sx) / n;
+                    return vals.map((_,i) => parseFloat((m*i + b).toFixed(2)));
+                }
 
-        const validVals = values.filter(v => v !== null && !isNaN(v));
-        const trend = validVals.length >= 2 ? getTrend(values.map(v => v ?? 0)) : null;
+                const validVals = values.filter(v => v !== null && !isNaN(v));
+                const trend = validVals.length >= 2 ? getTrend(values.map(v => v ?? 0)) : null;
 
-        const ctx = document.getElementById('action-detail-trend-chart').getContext('2d');
-        const datasets = [{
-            label: selectedKpi,
-            data: values,
-            borderColor: '#2563EB',
-            backgroundColor: 'rgba(37,99,235,.07)',
-            pointBackgroundColor: values.map(v => {
-                if (v === null) return '#9CA3AF';
-                if (metaVal === null) return '#2563EB';
-                return v >= metaVal ? '#16A34A' : '#DC2626';
-            }),
-            pointRadius: 4,
-            tension: 0.3,
-            fill: true,
-            spanGaps: true
-        }];
+                const ctx = document.getElementById('action-detail-trend-chart').getContext('2d');
+                const datasets = [{
+                    label: selectedKpi,
+                    data: values,
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37,99,235,.07)',
+                    pointBackgroundColor: values.map(v => {
+                        if (v === null) return '#9CA3AF';
+                        if (metaVal === null) return '#2563EB';
+                        return v >= metaVal ? '#16A34A' : '#DC2626';
+                    }),
+                    pointRadius: 4,
+                    tension: 0.3,
+                    fill: true,
+                    spanGaps: true
+                }];
 
-        if (trend) {
-            datasets.push({
-                label: 'Tendência',
-                data: trend,
-                borderColor: '#F59E0B',
-                borderDash: [5,3],
-                pointRadius: 0,
-                fill: false,
-                borderWidth: 1.5
-            });
-        }
+                if (trend) {
+                    datasets.push({
+                        label: 'Tendência',
+                        data: trend,
+                        borderColor: '#F59E0B',
+                        borderDash: [5,3],
+                        pointRadius: 0,
+                        fill: false,
+                        borderWidth: 1.5
+                    });
+                }
 
-        window._actionDetailChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels, datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: c => ` ${c.parsed.y !== null ? c.parsed.y.toFixed(2) + '%' : '-'}` } }
-                },
-                scales: {
-                    x: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 10 } } },
-                    y: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 9 } } }
+                window._actionDetailChart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: c => ` ${c.parsed.y !== null ? c.parsed.y.toFixed(2) + '%' : '-'}` } }
+                        },
+                        scales: {
+                            x: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 10 } } },
+                            y: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 9 } } }
+                        }
+                    }
+                });
+            } else {
+                console.warn("Chart.js is not loaded.");
+                const trendChartCanvas = document.getElementById('action-detail-trend-chart');
+                if (trendChartCanvas && trendChartCanvas.parentElement) {
+                    trendChartCanvas.parentElement.innerHTML = '<div style="text-align:center; padding: 20px; color:#94A3B8; font-size:11px;">⚠️ Gráfico semanal indisponível.</div>';
                 }
             }
-        });
+        } catch (chartErr) {
+            console.error("Erro ao renderizar gráfico semanal:", chartErr);
+        }
 
         // Fetch Monthly details
         const monthTableWrap = document.getElementById('action-detail-month-table-wrap');
