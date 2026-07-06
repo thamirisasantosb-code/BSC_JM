@@ -77,6 +77,17 @@ app.get('/api/fechamento-mensal', (req, res) => {
     }
 });
 
+// Desabilitar cache para arquivos HTML para garantir que correções de layout e JS sejam recarregadas
+app.use((req, res, next) => {
+    const isHtml = req.path.endsWith('.html') || req.path === '/' || req.path === '/index.html';
+    if (isHtml) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
+
 app.use(express.static(__dirname));
 
 // Ensure DATA_DIR exists if custom
