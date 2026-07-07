@@ -1808,6 +1808,16 @@ window.updateActionModalIndicatorDetail = function() {
                                 tension: 0.25,
                                 fill: true,
                                 spanGaps: true
+                            },
+                            {
+                                label: 'Meta',
+                                data: monthlyMetas,
+                                borderColor: '#F59E0B',
+                                borderDash: [6, 4],
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                fill: false,
+                                spanGaps: true
                             }
                         ]
                     },
@@ -1823,7 +1833,17 @@ window.updateActionModalIndicatorDetail = function() {
                             }
                         },
                         plugins: {
-                            legend: { display: false },
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: { size: 9, weight: 'bold' },
+                                    boxWidth: 20,
+                                    padding: 8,
+                                    usePointStyle: true,
+                                    pointStyle: 'line'
+                                }
+                            },
                             tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2).replace('.', ',') + '%' : '-'}` } }
                         },
                         scales: {
