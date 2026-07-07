@@ -418,7 +418,7 @@
     <div class="grid-2">
         <div class="card">
             <div class="card-hd">
-                <div><h3>Maiores GAPs de Pontos</h3><div class="sub">KPIs que mais impactaram negativamente o scorecard</div></div>
+                <div><h3 id="gaps-title">Maiores GAPs de Pontos</h3><div class="sub">KPIs que mais impactaram negativamente o scorecard</div></div>
                 <span class="badge" style="background:var(--redBg);color:var(--red);">⚠ Crítico</span>
             </div>
             <div class="cw"><canvas id="c-gaps"></canvas></div>
@@ -936,10 +936,15 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
     });
 
     // ── GAPS BAR CHART ─────────────────────────────────────────────
+    document.getElementById('gaps-title').textContent = `Maiores GAPs de Pontos (${lastMonth})`;
     let gaps = [];
     (lastData.kpis||[]).forEach(k=>{
-        if(!k.green && k.ptsMax>0){
-            gaps.push({label:`${(MILHA_CFG[k.milha]||{label:k.milha}).label} – ${k.kpi}`.substring(0,30), gap:-(k.ptsMax)});
+        const gapVal = k.ptsMax - k.ptsAti;
+        if(gapVal > 0 && k.ptsMax > 0){
+            const cleanLabel = `${(MILHA_CFG[k.milha]||{label:k.milha}).label} – ${k.kpi}`
+                .replace('First Mile', 'FM')
+                .replace('Last Mile', 'LM');
+            gaps.push({label: cleanLabel.substring(0, 50), gap: -gapVal});
         }
     });
     gaps.sort((a,b)=>a.gap-b.gap);
@@ -975,18 +980,28 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
     CH['compare'] = new Chart(document.getElementById('c-compare'),{
         type:'bar',
         data:{labels:cmpLabels,datasets:[
-            {label:prevMonth,data:cmpPrev,backgroundColor:'rgba(15,23,42,.12)',borderRadius:4,borderWidth:0},
-            {label:lastMonth,data:cmpLast,
-                backgroundColor:cmpLast.map((v,i)=>v>=(cmpPrev[i]||0)?'#16a34a':'#dc2626'),
-                borderRadius:4,borderWidth:0}
+            {
+                label: prevMonth,
+                data: cmpPrev,
+                backgroundColor: '#cbd5e1',
+                borderRadius: {topLeft: 4, topRight: 4},
+                borderWidth: 0
+            },
+            {
+                label: lastMonth,
+                data: cmpLast,
+                backgroundColor: '#2563eb',
+                borderRadius: {topLeft: 4, topRight: 4},
+                borderWidth: 0
+            }
         ]},
         options:{responsive:true,maintainAspectRatio:false,
             plugins:{
-                legend:{position:'top',labels:{boxWidth:10,font:{size:10,weight:'600'},color:'var(--text)',padding:12}},
+                legend:{position:'top',labels:{boxWidth:12,font:{size:11,weight:'600'},color:'var(--text)',padding:12}},
                 tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y} pts`}}
             },
             scales:{
-                x:{grid:{display:false},ticks:{color:'var(--muted2)',font:{size:10}}},
+                x:{grid:{display:false},ticks:{color:'var(--muted2)',font:{size:10,weight:'600'}}},
                 y:{grid:{color:'rgba(0,0,0,.03)'},ticks:{color:'var(--muted2)',font:{size:10}}}
             }
         }
@@ -1013,7 +1028,7 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
     // ── TABLES ───────────────────────────────────────────────────
     const peakIdx = monthPcts.reduce((bi,v,i)=>v>monthPcts[bi]?i:bi,0);
     document.getElementById('t-weekly').innerHTML = `
-    <thead><tr><th>Mês</th><th>Pontos Atingidos</th><th>Aproveitamento (%)</th><th>Status</th></tr></thead><tbody>
+    <thead><tr><th>Mês</th><th>Aproveitamento (%)</th><th>Status</th></tr></thead><tbody>
     ${months.map((m,i)=>{
         const wd=monthData[m]||{total:0,max:0};
         const p=wd.max?+(wd.total/wd.max*100).toFixed(1):0;
@@ -1026,7 +1041,7 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
         else if (p > (monthPcts[i-1]||0)) ptxt = 'Crescimento';
         else ptxt = 'Retração';
 
-        return `<tr><td><strong>${m}</strong></td><td>${wd.total} / ${wd.max}</td><td>${p}%</td><td>${pill(ptxt,pcls)}</td></tr>`;
+        return `<tr><td><strong>${m}</strong></td><td>${p}%</td><td>${pill(ptxt,pcls)}</td></tr>`;
     }).join('')}</tbody>`;
 
     document.getElementById('t-ops').innerHTML = `
