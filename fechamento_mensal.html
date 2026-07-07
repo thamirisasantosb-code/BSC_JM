@@ -525,6 +525,14 @@ function openKpiModal(r) {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 22,
+                            left: 15,
+                            right: 15,
+                            bottom: 5
+                        }
+                    },
                     plugins: {
                         legend: { position: 'bottom' },
                         tooltip: {
@@ -537,12 +545,36 @@ function openKpiModal(r) {
                         x: { grid: { display: false } },
                         y: {
                             ticks: {
-                                callback: v => v + (isPercentage ? '%' : '')
+                                display: false
                             },
                             grid: { color: '#E2E8F0' }
                         }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'datalabels',
+                    afterDatasetsDraw(chart) {
+                        const { ctx } = chart;
+                        ctx.save();
+                        ctx.font = 'bold 10px sans-serif';
+                        ctx.fillStyle = '#334155';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        
+                        const dataset = chart.data.datasets[0];
+                        const meta = chart.getDatasetMeta(0);
+                        if (dataset && meta) {
+                            meta.data.forEach((point, index) => {
+                                const value = dataset.data[index];
+                                if (value !== null && value !== undefined) {
+                                    const formattedValue = value.toFixed(2).replace('.', ',') + (isPercentage ? '%' : '');
+                                    ctx.fillText(formattedValue, point.x, point.y - 6);
+                                }
+                            });
+                        }
+                        ctx.restore();
+                    }
+                }]
             });
         }
     } catch (err) {

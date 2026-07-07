@@ -7,6 +7,52 @@ const pptxgen = require('pptxgenjs');
 const { generateExcel } = require('./gerar_visao_executiva');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+        user: process.env.SMTP_USER || '',
+        pass: process.env.SMTP_PASS || ''
+    }
+});
+
+async function enviarEmailRecuperacao(email, novaSenha) {
+    const assunto = 'Recuperação de Senha - BSC JM';
+    const corpo = `
+Olá,
+
+Você solicitou a recuperação de senha no painel BSC JM Distribuição.
+Sua nova senha temporária é: ${novaSenha}
+
+Atenção: Para acessar o painel com esta nova senha, o usuário Master precisará aprovar seu acesso novamente na tela de Gestão de Usuários.
+
+Atenciosamente,
+Equipe JM Distribuição
+    `;
+    
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+        try {
+            await transporter.sendMail({
+                from: `"BSC JM Distribuição" <${process.env.SMTP_USER}>`,
+                to: email,
+                subject: assunto,
+                text: corpo
+            });
+            console.log(`E-mail de recuperação enviado para: ${email}`);
+            return true;
+        } catch (err) {
+            console.error('Erro ao enviar e-mail via SMTP:', err);
+        }
+    }
+    
+    const logMsg = `[E-MAIL SIMULADO] Enviado para: ${email}\nAssunto: ${assunto}\nConteúdo:\n${corpo}\n========================================\n`;
+    fs.appendFileSync('recuperacao_senha_log.txt', logMsg, 'utf8');
+    console.log(logMsg);
+    return false;
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -325,7 +371,7 @@ app.post('/api/login', (req, res) => {
         
         // Gerar token JWT válido por 24 horas
         const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
+            { id: user.id, email: user.email, role: user.role, visibility: user.visibility || [] },
             JWT_SECRET,
             { expiresIn: '24h' }
         );
@@ -334,7 +380,8 @@ app.post('/api/login', (req, res) => {
             token,
             email: user.email,
             role: user.role,
-            status: user.status
+            status: user.status,
+            visibility: user.visibility || []
         });
     } catch (error) {
         res.status(500).json({ error: 'Erro no servidor' });
@@ -375,7 +422,7 @@ app.get('/api/users', authMiddleware, requireRole(['Master']), (req, res) => {
     try {
         const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
         // Return without passwords
-        const safeUsers = users.map(u => ({ id: u.id, email: u.email, role: u.role, status: u.status, createdAt: u.createdAt }));
+        const safeUsers = users.map(u => ({ id: u.id, email: u.email, role: u.role, status: u.status, visibility: u.visibility || [], createdAt: u.createdAt }));
         res.status(200).json(safeUsers);
     } catch (error) {
         res.status(500).json({ error: 'Erro ao buscar usuários' });
@@ -386,7 +433,7 @@ app.get('/api/users', authMiddleware, requireRole(['Master']), (req, res) => {
 app.put('/api/users/:id', authMiddleware, requireRole(['Master']), (req, res) => {
     try {
         const { id } = req.params;
-        const { role, status } = req.body;
+        const { role, status, visibility } = req.body;
         const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
         
         const index = users.findIndex(u => u.id === id);
@@ -396,11 +443,71 @@ app.put('/api/users/:id', authMiddleware, requireRole(['Master']), (req, res) =>
         
         if (role) users[index].role = role;
         if (status) users[index].status = status;
+        if (visibility !== undefined) users[index].visibility = visibility;
         
         fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
         res.status(200).json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Erro ao atualizar usuário' });
+    }
+});
+
+// POST Forgot Password
+app.post('/api/forgot-password', (req, res) => {
+    try {
+        const email = (req.body.email || '').trim().toLowerCase();
+        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        
+        const index = users.findIndex(u => u.email.trim().toLowerCase() === email);
+        if (index === -1) {
+            return res.status(404).json({ error: 'E-mail não cadastrado.' });
+        }
+        
+        const novaSenha = 'JM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        
+        users[index].password = bcrypt.hashSync(novaSenha, 10);
+        users[index].status = 'Pendente'; // Força aprovação pelo Master
+        
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+        
+        enviarEmailRecuperacao(email, novaSenha);
+        
+        res.status(200).json({ success: true, message: 'Nova senha enviada por e-mail. Seu acesso foi redefinido para Pendente e precisará ser aprovado pelo usuário Master.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao processar recuperação de senha.' });
+    }
+});
+
+// POST Create User (Apenas Master)
+app.post('/api/users', authMiddleware, requireRole(['Master']), (req, res) => {
+    try {
+        const email = (req.body.email || '').trim().toLowerCase();
+        const password = (req.body.password || '').trim();
+        const role = req.body.role || 'Nenhuma';
+        const visibility = req.body.visibility || [];
+        const status = req.body.status || 'Aprovado';
+        
+        const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        
+        if (users.find(u => u.email.trim().toLowerCase() === email)) {
+            return res.status(400).json({ error: 'E-mail já cadastrado.' });
+        }
+        
+        const newUser = {
+            id: Date.now().toString(),
+            email,
+            password: bcrypt.hashSync(password, 10),
+            role,
+            status,
+            visibility,
+            createdAt: new Date().toISOString()
+        };
+        
+        users.push(newUser);
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+        res.status(201).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao criar usuário.' });
     }
 });
 

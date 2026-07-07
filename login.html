@@ -338,12 +338,15 @@
             </div>
         </div>
 
-        <div class="input-group">
+        <div class="input-group" id="password-group">
             <label>Senha</label>
             <div class="input-wrapper">
                 <span class="input-icon">🔒</span>
                 <input type="password" id="password" placeholder="••••••••"
                        onkeydown="if(event.key==='Enter') handleLogin()">
+            </div>
+            <div style="text-align: right; margin-top: 6px;">
+                <a href="#" onclick="toggleForgotPassword(event)" style="font-size: 11px; color: rgba(255,255,255,.5); text-decoration: none; font-weight: 500;">Esqueci minha senha</a>
             </div>
         </div>
 
@@ -361,12 +364,28 @@
 
     <script>
         let isLogin = true;
+        let isForgot = false;
 
         function toggleForm() {
             isLogin = !isLogin;
+            isForgot = false;
+            document.getElementById('password-group').style.display = 'block';
             document.getElementById('form-title').textContent  = isLogin ? 'Acesso ao Painel' : 'Criar Nova Conta';
             document.getElementById('btn-submit').textContent  = isLogin ? 'Entrar'           : 'Cadastrar';
             document.getElementById('btn-toggle').textContent  = isLogin ? 'Criar Conta'      : 'Já tenho conta';
+            const msg = document.getElementById('msg');
+            msg.textContent = '';
+            msg.className = 'message';
+        }
+
+        function toggleForgotPassword(e) {
+            if (e) e.preventDefault();
+            isForgot = !isForgot;
+            isLogin = true;
+            document.getElementById('password-group').style.display = isForgot ? 'none' : 'block';
+            document.getElementById('form-title').textContent = isForgot ? 'Recuperar Senha' : 'Acesso ao Painel';
+            document.getElementById('btn-submit').textContent = isForgot ? 'Enviar Nova Senha' : 'Entrar';
+            document.getElementById('btn-toggle').textContent = isForgot ? 'Voltar para Acesso' : 'Criar Conta';
             const msg = document.getElementById('msg');
             msg.textContent = '';
             msg.className = 'message';
@@ -378,8 +397,13 @@
             const msgEl    = document.getElementById('msg');
             const btn      = document.getElementById('btn-submit');
 
-            if (!email || !password) {
-                msgEl.textContent = 'Preencha todos os campos.';
+            if (!email) {
+                msgEl.textContent = 'Preencha o e-mail.';
+                msgEl.className   = 'message error';
+                return;
+            }
+            if (!isForgot && !password) {
+                msgEl.textContent = 'Preencha a senha.';
                 msgEl.className   = 'message error';
                 return;
             }
@@ -389,19 +413,35 @@
             msgEl.className = 'message';
 
             try {
-                const endpoint = isLogin ? '/api/login' : '/api/register';
+                let endpoint;
+                let bodyPayload;
+                if (isForgot) {
+                    endpoint = '/api/forgot-password';
+                    bodyPayload = { email };
+                } else {
+                    endpoint = isLogin ? '/api/login' : '/api/register';
+                    bodyPayload = { email, password };
+                }
+                
                 const res  = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify(bodyPayload)
                 });
                 const data = await res.json();
 
                 if (res.ok) {
-                    if (isLogin) {
+                    if (isForgot) {
+                        msgEl.textContent = data.message;
+                        msgEl.className   = 'message success';
+                        setTimeout(() => toggleForgotPassword(), 4000);
+                        btn.innerHTML = 'Enviar Nova Senha';
+                        btn.disabled  = false;
+                    } else if (isLogin) {
                         localStorage.setItem('bsc_token',     data.token);
                         localStorage.setItem('bsc_user_role',  data.role);
                         localStorage.setItem('bsc_user_email', data.email);
+                        localStorage.setItem('bsc_user_visibility', JSON.stringify(data.visibility || []));
                         msgEl.textContent = '✓ Bem-vindo(a)! Redirecionando...';
                         msgEl.className   = 'message success';
                         setTimeout(() => { window.location.href = 'index.html'; }, 700);
@@ -415,13 +455,13 @@
                 } else {
                     msgEl.textContent = data.error || 'Credenciais inválidas.';
                     msgEl.className   = 'message error';
-                    btn.innerHTML = isLogin ? 'Entrar' : 'Cadastrar';
+                    btn.innerHTML = isForgot ? 'Enviar Nova Senha' : (isLogin ? 'Entrar' : 'Cadastrar');
                     btn.disabled  = false;
                 }
             } catch (err) {
                 msgEl.textContent = 'Erro ao conectar ao servidor. Verifique se o painel está iniciado.';
                 msgEl.className   = 'message error';
-                btn.innerHTML = isLogin ? 'Entrar' : 'Cadastrar';
+                btn.innerHTML = isForgot ? 'Enviar Nova Senha' : (isLogin ? 'Entrar' : 'Cadastrar');
                 btn.disabled  = false;
             }
         }

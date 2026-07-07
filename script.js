@@ -1,6 +1,19 @@
 var allActions = {};
 window.userRole = localStorage.getItem('bsc_user_role');
 window.userEmail = localStorage.getItem('bsc_user_email');
+let visString = localStorage.getItem('bsc_user_visibility');
+try {
+    window.userVisibility = visString ? JSON.parse(visString) : [];
+} catch (e) {
+    window.userVisibility = [];
+}
+if (!window.userVisibility || window.userVisibility.length === 0) {
+    if (window.userRole && window.userRole !== 'Master' && window.userRole !== 'Nenhuma') {
+        window.userVisibility = [window.userRole];
+    } else {
+        window.userVisibility = [];
+    }
+}
 
 // Interceptar fetch global para injetar token JWT
 const originalFetch = window.fetch;
@@ -140,7 +153,9 @@ function applyRoleRestrictions() {
             const titleEl = col.querySelector('.section-title');
             if (titleEl) {
                 const title = titleEl.textContent.trim();
-                if (isMaster || title === window.userRole) {
+                const cleanTitle = title.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+                const hasVisibility = isMaster || (window.userVisibility && window.userVisibility.includes(cleanTitle));
+                if (hasVisibility) {
                     col.style.display = '';
                     visibleCols++;
                 } else {
@@ -812,6 +827,9 @@ function openActionModalForEdit(actionData) {
     document.getElementById('action-start-date').value = '';
     document.getElementById('action-deadline').value = '';
     document.getElementById('action-status').value = 'Em andamento';
+    document.getElementById('action-implementation').value = '';
+    document.getElementById('action-how-done').value = '';
+    document.getElementById('action-observation').value = '';
     
     // Default to the operation name for new action
     const targetMile = actionData.opName || 'First Mile';
@@ -853,6 +871,10 @@ function openActionModalForEdit(actionData) {
         if (raw.deadline) document.getElementById('action-deadline').value = raw.deadline.split('T')[0];
         
         document.getElementById('action-status').value = raw.status || 'Em andamento';
+        document.getElementById('action-implementation').value = raw.implementation || '';
+        document.getElementById('action-how-done').value = raw.howDone || '';
+        document.getElementById('action-observation').value = raw.observation || '';
+        
         if (document.getElementById('btn-delete-action')) {
             document.getElementById('btn-delete-action').style.display = (window.userRole === 'Master') ? 'block' : 'none';
         }
@@ -878,13 +900,18 @@ function openActionModalForEdit(actionData) {
     const isMaster = window.userRole === 'Master';
     document.getElementById('action-indicator').disabled = !isMaster;
     
-    // The rest of the fields remain enabled so the user can modify the task.
-    document.getElementById('action-task').disabled = false;
-    setMileMultiselectDisabled(false);
-    document.getElementById('action-owner').disabled = false;
-    document.getElementById('action-start-date').disabled = false;
-    document.getElementById('action-deadline').disabled = false;
-    document.getElementById('action-status').disabled = false;
+    // The rest of the fields depend on role
+    document.getElementById('action-task').disabled = !isMaster;
+    setMileMultiselectDisabled(!isMaster);
+    document.getElementById('action-owner').disabled = !isMaster;
+    document.getElementById('action-start-date').disabled = !isMaster;
+    document.getElementById('action-deadline').disabled = !isMaster;
+    document.getElementById('action-status').disabled = !isMaster;
+    
+    // New fields are always editable for everyone
+    document.getElementById('action-implementation').disabled = false;
+    document.getElementById('action-how-done').disabled = false;
+    document.getElementById('action-observation').disabled = false;
     
     document.getElementById('action-modal').style.display = 'block';
     if (typeof window.updateActionModalIndicatorDetail === 'function') {
@@ -1009,7 +1036,10 @@ async function saveAction() {
         owner: document.getElementById('action-owner').value,
         startDate: document.getElementById('action-start-date').value,
         deadline: document.getElementById('action-deadline').value,
-        status: document.getElementById('action-status').value
+        status: document.getElementById('action-status').value,
+        implementation: document.getElementById('action-implementation').value,
+        observation: document.getElementById('action-observation').value,
+        howDone: document.getElementById('action-how-done').value
     };
     
     if (!actionData.task) {
@@ -1135,6 +1165,9 @@ function populateGlobalTasks() {
                 deadline: a.deadline,
                 owner: a.owner,
                 mile: a.mile,
+                implementation: a.implementation || '',
+                observation: a.observation || '',
+                howDone: a.howDone || '',
                 isAuto: false,
                 rawAction: a 
             });
@@ -1175,6 +1208,15 @@ function populateGlobalTasks() {
 
         const tdTask = document.createElement('td');
         tdTask.textContent = a.task || '-';
+
+        const tdHowDone = document.createElement('td');
+        tdHowDone.textContent = a.howDone || (a.rawAction && a.rawAction.howDone) || '-';
+
+        const tdImpl = document.createElement('td');
+        tdImpl.textContent = a.implementation || (a.rawAction && a.rawAction.implementation) || '-';
+
+        const tdObs = document.createElement('td');
+        tdObs.textContent = a.observation || (a.rawAction && a.rawAction.observation) || '-';
         
         const tdStatus = document.createElement('td');
         
@@ -1227,6 +1269,9 @@ function populateGlobalTasks() {
         tr.appendChild(tdOp);
         tr.appendChild(tdInd);
         tr.appendChild(tdTask);
+        tr.appendChild(tdHowDone);
+        tr.appendChild(tdImpl);
+        tr.appendChild(tdObs);
         tr.appendChild(tdOwner);
         tr.appendChild(tdDeadline);
         tr.appendChild(tdStatus);
@@ -1345,19 +1390,11 @@ async function downloadScreenshot() {
     try {
         const container = document.querySelector('.dashboard-container');
         
-        // Esconder temporariamente as linhas de ação durante o print
-        const tbody = document.getElementById('table-tasks');
-        const oldDisplay = tbody.style.display;
-        tbody.style.display = 'none';
-        
         const canvas = await html2canvas(container, {
             scale: 2,
             useCORS: true,
             logging: false
         });
-        
-        // Restaurar exibição
-        tbody.style.display = oldDisplay;
         
         canvas.toBlob(async function(blob) {
             try {
@@ -1428,7 +1465,9 @@ window.editAction = function(actionData) {
 window.toggleManualHighlight = () => { document.body.classList.toggle('highlight-manual'); };
 
 // ================= USER MANAGEMENT ================= //
-async function openUsersModal() {
+window.openUsersModal = async function() {
+    const profDropdown = document.querySelector('.profile-dropdown');
+    if (profDropdown) profDropdown.classList.remove('active');
     document.getElementById('users-modal').style.display = 'block';
     await loadUsers();
 }
@@ -1456,18 +1495,53 @@ async function loadUsers() {
             tdDate.textContent = new Date(u.createdAt).toLocaleDateString('pt-BR');
             
             const tdRole = document.createElement('td');
-            const selRole = document.createElement('select');
-            selRole.innerHTML = `
-                <option value="Master" ${u.role === 'Master' ? 'selected' : ''}>Master</option>
-                <option value="First Mile" ${u.role === 'First Mile' ? 'selected' : ''}>First Mile</option>
-                <option value="Last Mile" ${u.role === 'Last Mile' ? 'selected' : ''}>Last Mile</option>
-                <option value="Safety" ${u.role === 'Safety' ? 'selected' : ''}>Safety</option>
-                <option value="SRM" ${u.role === 'SRM' ? 'selected' : ''}>SRM</option>
-                <option value="XPT" ${u.role === 'XPT' ? 'selected' : ''}>XPT</option>
-                <option value="Nenhuma" ${u.role === 'Nenhuma' ? 'selected' : ''}>Nenhuma</option>
-            `;
-            selRole.onchange = (e) => updateUser(u.id, { role: e.target.value });
-            tdRole.appendChild(selRole);
+            const currentRoles = (u.role || '').split(',').map(r => r.trim());
+            
+            const createRoleCheckbox = (name) => {
+                const label = document.createElement('label');
+                label.style.marginRight = '8px';
+                label.style.fontSize = '11px';
+                label.style.display = 'inline-flex';
+                label.style.alignItems = 'center';
+                label.style.cursor = 'pointer';
+                
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = name;
+                cb.checked = currentRoles.includes(name);
+                cb.style.marginRight = '3px';
+                
+                cb.onchange = () => {
+                    let checkedRoles = Array.from(tdRole.querySelectorAll('input[type="checkbox"]:checked'))
+                                            .map(c => c.value);
+                    if (name === 'Master' && cb.checked) {
+                        tdRole.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                            if (input.value !== 'Master') input.checked = false;
+                        });
+                        checkedRoles = ['Master'];
+                    } else if (name !== 'Master' && cb.checked) {
+                        tdRole.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                            if (input.value === 'Master') input.checked = false;
+                        });
+                        checkedRoles = checkedRoles.filter(r => r !== 'Master');
+                    }
+                    
+                    updateUser(u.id, { role: checkedRoles.join(', ') || 'Nenhuma' });
+                };
+                
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(name));
+                return label;
+            };
+            
+            tdRole.appendChild(createRoleCheckbox('Master'));
+            tdRole.appendChild(document.createElement('br'));
+            tdRole.appendChild(createRoleCheckbox('First Mile'));
+            tdRole.appendChild(createRoleCheckbox('Last Mile'));
+            tdRole.appendChild(document.createElement('br'));
+            tdRole.appendChild(createRoleCheckbox('Safety'));
+            tdRole.appendChild(createRoleCheckbox('SRM'));
+            tdRole.appendChild(createRoleCheckbox('XPT'));
             
             const tdStatus = document.createElement('td');
             const selStatus = document.createElement('select');
@@ -1479,6 +1553,42 @@ async function loadUsers() {
             selStatus.onchange = (e) => updateUser(u.id, { status: e.target.value });
             tdStatus.appendChild(selStatus);
             
+            const tdVis = document.createElement('td');
+            const visList = u.visibility || [];
+            let currentVis = [...visList];
+            if (currentVis.length === 0 && ['First Mile', 'Last Mile', 'Safety'].includes(u.role)) {
+                currentVis = [u.role];
+            }
+            
+            const createCheckbox = (name) => {
+                const label = document.createElement('label');
+                label.style.marginRight = '8px';
+                label.style.fontSize = '11px';
+                label.style.display = 'inline-flex';
+                label.style.alignItems = 'center';
+                label.style.cursor = 'pointer';
+                
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = name;
+                cb.checked = currentVis.includes(name);
+                cb.style.marginRight = '3px';
+                
+                cb.onchange = () => {
+                    const checkedList = Array.from(tdVis.querySelectorAll('input[type="checkbox"]:checked'))
+                                             .map(c => c.value);
+                    updateUser(u.id, { visibility: checkedList });
+                };
+                
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(name));
+                return label;
+            };
+            
+            tdVis.appendChild(createCheckbox('First Mile'));
+            tdVis.appendChild(createCheckbox('Last Mile'));
+            tdVis.appendChild(createCheckbox('Safety'));
+            
             const tdAction = document.createElement('td');
             tdAction.textContent = "Salva auto.";
             tdAction.style.color = "#888";
@@ -1487,6 +1597,7 @@ async function loadUsers() {
             tr.appendChild(tdEmail);
             tr.appendChild(tdDate);
             tr.appendChild(tdRole);
+            tr.appendChild(tdVis);
             tr.appendChild(tdStatus);
             tr.appendChild(tdAction);
             
@@ -1712,15 +1823,47 @@ window.updateActionModalIndicatorDetail = function() {
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                top: 22,
+                                left: 15,
+                                right: 15,
+                                bottom: 5
+                            }
+                        },
                         plugins: {
                             legend: { display: false },
                             tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2).replace('.', ',') + '%' : '-'}` } }
                         },
                         scales: {
                             x: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 10 } } },
-                            y: { grid: { color: '#F8FAFC' }, ticks: { font: { size: 9 }, callback: v => v + '%' } }
+                            y: { grid: { color: '#F8FAFC' }, ticks: { display: false } }
                         }
-                    }
+                    },
+                    plugins: [{
+                        id: 'datalabels',
+                        afterDatasetsDraw(chart) {
+                            const { ctx } = chart;
+                            ctx.save();
+                            ctx.font = 'bold 10px sans-serif';
+                            ctx.fillStyle = '#334155';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            
+                            const dataset = chart.data.datasets[0];
+                            const meta = chart.getDatasetMeta(0);
+                            if (dataset && meta) {
+                                meta.data.forEach((point, index) => {
+                                    const value = dataset.data[index];
+                                    if (value !== null && value !== undefined) {
+                                        const formattedValue = value.toFixed(2).replace('.', ',') + '%';
+                                        ctx.fillText(formattedValue, point.x, point.y - 6);
+                                    }
+                                });
+                            }
+                            ctx.restore();
+                        }
+                    }]
                 });
             }
         } catch (chartErr) {
@@ -1738,9 +1881,77 @@ window.toggleMediaColumn = function() {
     if (document.body.classList.contains('show-media')) {
         btn.textContent = '[-] Média';
         btn.style.backgroundColor = '#d32f2f'; // Vermelho para recolher
+        btn.style.color = '#ffffff';
     } else {
         btn.textContent = '[+] Média';
         btn.style.backgroundColor = '#107c41'; // Verde para expandir
+        btn.style.color = '#ffffff';
     }
 };
 // ====================================================== //
+
+window.toggleAddUserForm = function() {
+    const wrap = document.getElementById('add-user-form-wrap');
+    if (wrap.style.display === 'none' || !wrap.style.display) {
+        wrap.style.display = 'block';
+        document.getElementById('new-user-email').value = '';
+        document.getElementById('new-user-password').value = '';
+        document.querySelectorAll('#new-user-roles-wrap input[type="checkbox"]').forEach(cb => {
+            cb.checked = (cb.value === 'First Mile');
+        });
+    } else {
+        wrap.style.display = 'none';
+    }
+};
+
+window.handleNewUserMasterRole = function(masterCb) {
+    if (masterCb.checked) {
+        document.querySelectorAll('#new-user-roles-wrap input[type="checkbox"]').forEach(cb => {
+            if (cb !== masterCb) cb.checked = false;
+        });
+    }
+};
+
+window.handleNewUserStandardRole = function(stdCb) {
+    if (stdCb.checked) {
+        document.querySelectorAll('#new-user-roles-wrap input[type="checkbox"]').forEach(cb => {
+            if (cb.value === 'Master') cb.checked = false;
+        });
+    }
+};
+
+window.submitNewUser = async function() {
+    const email = document.getElementById('new-user-email').value.trim();
+    const password = document.getElementById('new-user-password').value;
+    
+    const checkedRoles = Array.from(document.querySelectorAll('#new-user-roles-wrap input[type="checkbox"]:checked'))
+                             .map(cb => cb.value);
+    const role = checkedRoles.join(', ') || 'Nenhuma';
+    
+    if (!email || !password) {
+        alert('Preencha o e-mail e a senha do novo usuário.');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, role, status: 'Aprovado' })
+        });
+        
+        if (res.ok) {
+            alert('Usuário criado com sucesso!');
+            window.toggleAddUserForm();
+            if (typeof openUsersModal === 'function') {
+                openUsersModal(); // Recarrega a lista
+            }
+        } else {
+            const data = await res.json();
+            alert(data.error || 'Erro ao criar usuário.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro ao conectar ao servidor.');
+    }
+};

@@ -15,11 +15,42 @@
             if (document.body.classList.contains('show-media')) {
                 btn.textContent = '[-] Média';
                 btn.style.backgroundColor = '#d32f2f';
+                btn.style.color = '#ffffff';
             } else {
                 btn.textContent = '[+] Média';
                 btn.style.backgroundColor = '#107c41';
+                btn.style.color = '#ffffff';
             }
         }
+
+        function toggleProfileDropdown(event) {
+            event.stopPropagation();
+            const actDropdown = document.querySelector('.actions-dropdown');
+            if (actDropdown) actDropdown.classList.remove('active');
+            
+            const dropdown = document.querySelector('.profile-dropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function toggleActionsDropdown(event) {
+            event.stopPropagation();
+            const profDropdown = document.querySelector('.profile-dropdown');
+            if (profDropdown) profDropdown.classList.remove('active');
+            
+            const dropdown = document.querySelector('.actions-dropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const actDropdown = document.querySelector('.actions-dropdown');
+            if (actDropdown && !actDropdown.contains(event.target)) {
+                actDropdown.classList.remove('active');
+            }
+            const profDropdown = document.querySelector('.profile-dropdown');
+            if (profDropdown && !profDropdown.contains(event.target)) {
+                profDropdown.classList.remove('active');
+            }
+        });
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BSC Dashboard · JM Distribuição</title>
@@ -44,7 +75,27 @@
             cursor: pointer; font-weight: bold; font-size: 14px;
         }
         .profile-dropdown-content button:hover { background-color: #e0e0e0; }
-        .profile-dropdown:hover .profile-dropdown-content { display: block; }
+        .profile-dropdown.active .profile-dropdown-content { display: block; }
+
+        /* Actions dropdown */
+        .actions-dropdown { position: relative; display: inline-block; margin-right: 8px; }
+        .actions-dropdown-content {
+            display: none; position: absolute; right: 0;
+            background-color: #f9f9f9; min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,.2);
+            z-index: 1000; border-radius: 4px; overflow: hidden; margin-top: 5px;
+        }
+        .actions-dropdown-content button, .actions-dropdown-content a {
+            color: #333; padding: 12px 16px; display: block; width: 100%;
+            text-align: left; border: none; background: none;
+            cursor: pointer; font-weight: bold; font-size: 13px;
+            text-decoration: none; box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        .actions-dropdown-content button:last-child { border-bottom: none; }
+        .actions-dropdown-content button:hover, .actions-dropdown-content a:hover { background-color: #e0e0e0; }
+        .actions-dropdown.active .actions-dropdown-content { display: block; }
 
         /* Fechamento dropdown */
         .fechamento-dropdown { position: relative; display: inline-block; margin-right: 8px; }
@@ -313,25 +364,30 @@
         
         <header class="excel-header">
             <div class="header-left">
-                <div class="jm-td-logo">
-                    <span class="jm-text">JM</span>
-                    <span class="td-box">TD</span>
+                <div class="actions-dropdown">
+                    <div class="jm-td-logo" onclick="toggleActionsDropdown(event)" style="cursor: pointer; display: flex; align-items: center;">
+                        <span class="jm-text">JM</span>
+                        <span class="td-box">TD</span>
+                        <span style="font-size: 10px; margin-left: 6px; color: rgba(255,255,255,0.7);">▾</span>
+                    </div>
+                    <div class="actions-dropdown-content" style="left: 0; right: auto; margin-top: 5px;">
+                        <button class="btn-highlight" onclick="window.toggleManualHighlight()">🔍 Destacar Manuais</button>
+                        <button class="btn-toggle-media" id="btn-toggle-media" onclick="toggleMediaColumn()" style="background: #107c41; color: white;">[+] Média</button>
+                        <button class="btn-fechamento" onclick="window.open('fechamento_mensal.html','_blank')">📅 Fechamento Mensal</button>
+                        <button class="btn-print" onclick="downloadScreenshot()">📸 Print</button>
+                        <button class="btn-export" onclick="exportToExcel()">📊 Excel</button>
+                    </div>
                 </div>
             </div>
             <div class="header-title" style="font-size: 20px; font-weight: bold; color: #fff;">BCS - JM</div>
             <div class="header-buttons">
                 <div class="profile-dropdown">
-                    <button id="btn-profile" style="background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">👤 Perfil ▾</button>
+                    <button id="btn-profile" onclick="toggleProfileDropdown(event)" style="background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">👤 Perfil ▾</button>
                     <div class="profile-dropdown-content">
                         <button id="btn-users-mgmt" onclick="openUsersModal()" style="display: none;">👥 Gestão de Usuários</button>
                         <button id="btn-logout" onclick="logoutRole()" style="color: #d32f2f;">🚪 Sair da Conta</button>
                     </div>
                 </div>
-                <button class="btn-highlight" onclick="window.toggleManualHighlight()" style="background: #E8A838; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 8px;">🔍 Destacar Manuais</button>
-                <button class="btn-toggle-media" id="btn-toggle-media" onclick="toggleMediaColumn()" style="background: #107c41; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-right: 8px;">[+] Média</button>
-                <button class="btn-fechamento" onclick="window.open('fechamento_mensal.html','_blank')" style="background:#6366F1; color:white; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; margin-right:8px;">📅 Fechamento Mensal</button>
-                <button class="btn-print" onclick="downloadScreenshot()">📸 Print</button>
-                <button class="btn-export" onclick="exportToExcel()">📊 Excel</button>
             </div>
         </header>
 
@@ -455,13 +511,16 @@
                         <th style="font-weight: bold;">Operação</th>
                         <th style="font-weight: normal;">Indicador</th>
                         <th style="font-weight: normal;">Ação / Tarefa</th>
+                        <th style="font-weight: normal;">Como está sendo feito</th>
+                        <th style="font-weight: normal;">Implementação</th>
+                        <th style="font-weight: normal;">Observações</th>
                         <th style="font-weight: normal;">Responsável</th>
                         <th style="font-weight: normal;">Prazo</th>
                         <th style="font-weight: normal;">Status</th>
                     </tr>
                 </thead>
                 <tbody id="table-tasks">
-                    <tr class="skeleton-row"><td colspan="6"><div class="skeleton-line"></div></td></tr>
+                    <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
                 </tbody>
             </table>
         </div>
@@ -473,18 +532,53 @@
     
     <!-- Modal Gestão de Usuários -->
     <div id="users-modal" class="modal" style="display:none; z-index: 10000;">
-        <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-content" style="max-width: 850px; width: 95%;">
             <div class="modal-header" style="background-color: #4CAF50;">
                 <h2 style="margin:0;">Gestão de Usuários</h2>
                 <span class="close" onclick="closeUsersModal()">&times;</span>
             </div>
             <div class="modal-body">
+                <!-- Add User Form -->
+                <div style="text-align: right; margin-bottom: 12px;">
+                    <button onclick="toggleAddUserForm()" style="background-color: #2563EB; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">➕ Novo Usuário</button>
+                </div>
+                
+                <div id="add-user-form-wrap" style="display: none; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 13px; color: #1e293b;">Cadastrar Novo Usuário</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                        <div style="flex: 2; display: flex; flex-direction: column; gap: 4px; min-width: 150px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B;">EMAIL:</label>
+                            <input type="email" id="new-user-email" placeholder="email@jmdistribuicao.com.br" style="height: 32px; padding: 0 8px; border: 1.5px solid #cbd5e1; border-radius: 4px; font-size: 12px; box-sizing: border-box; width: 100%;">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 100px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B;">SENHA:</label>
+                            <input type="password" id="new-user-password" placeholder="Senha" style="height: 32px; padding: 0 8px; border: 1.5px solid #cbd5e1; border-radius: 4px; font-size: 12px; box-sizing: border-box; width: 100%;">
+                        </div>
+                        <div style="flex: 2; display: flex; flex-direction: column; gap: 4px; min-width: 250px;" id="new-user-roles-wrap">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B;">MILHA / ACESSO (MÚLTIPLO):</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; background: #fff; border: 1.5px solid #cbd5e1; border-radius: 4px; padding: 6px; font-size: 11px;">
+                                <label style="display: inline-flex; align-items: center; gap: 3px; cursor: pointer;"><input type="checkbox" value="Master" onchange="handleNewUserMasterRole(this)"> Master</label>
+                                <label style="display: inline-flex; align-items: center; gap: 3px; cursor: pointer;"><input type="checkbox" value="First Mile" checked onchange="handleNewUserStandardRole(this)"> First Mile</label>
+                                <label style="display: inline-flex; align-items: center; gap: 3px; cursor: pointer;"><input type="checkbox" value="Last Mile" onchange="handleNewUserStandardRole(this)"> Last Mile</label>
+                                <label style="display: inline-flex; align-items: center; gap: 3px; cursor: pointer;"><input type="checkbox" value="Safety" onchange="handleNewUserStandardRole(this)"> Safety</label>
+                                <label style="display: inline-flex; align-items: center; gap: 3px; cursor: pointer;"><input type="checkbox" value="SRM" onchange="handleNewUserStandardRole(this)"> SRM</label>
+                                <label style="display: inline-flex; align-items: center; gap: 3px; cursor: pointer;"><input type="checkbox" value="XPT" onchange="handleNewUserStandardRole(this)"> XPT</label>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="submitNewUser()" style="background-color: #107c41; color: white; border: none; height: 32px; padding: 0 16px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Salvar</button>
+                            <button onclick="toggleAddUserForm()" style="background-color: #64748b; color: white; border: none; height: 32px; padding: 0 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <table class="tasks-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                     <thead>
                         <tr style="background-color: #eee; text-align: left;">
                             <th style="padding: 8px; border: 1px solid #ccc;">Email</th>
                             <th style="padding: 8px; border: 1px solid #ccc;">Data de Criação</th>
                             <th style="padding: 8px; border: 1px solid #ccc;">Milha / Acesso</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Visualização (Gráficos)</th>
                             <th style="padding: 8px; border: 1px solid #ccc;">Status</th>
                             <th style="padding: 8px; border: 1px solid #ccc;">Ação</th>
                         </tr>
@@ -561,6 +655,22 @@
                                 <option value="Atrasado">Atrasado</option>
                                 <option value="Concluído">Concluído</option>
                             </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Row 2.5: Novas informações de acompanhamento -->
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Implementação / Andamento:</label>
+                            <input type="text" id="action-implementation" placeholder="Status da implementação..." style="width: 100%; box-sizing: border-box; height: 32px; padding: 0 10px; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none;">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Como está sendo feito:</label>
+                            <input type="text" id="action-how-done" placeholder="Método ou processo executado..." style="width: 100%; box-sizing: border-box; height: 32px; padding: 0 10px; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none;">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase;">Observações:</label>
+                            <input type="text" id="action-observation" placeholder="Comentários adicionais..." style="width: 100%; box-sizing: border-box; height: 32px; padding: 0 10px; border: 1.5px solid var(--border-strong); border-radius: 6px; font-size: 12px; outline: none;">
                         </div>
                     </div>
                     
@@ -659,7 +769,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="script.js?v=58"></script>
+    <script src="script.js?v=63"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
 
@@ -757,6 +867,14 @@
                     data: { labels, datasets },
                     options: {
                         responsive: true, maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                top: 22,
+                                left: 15,
+                                right: 15,
+                                bottom: 5
+                            }
+                        },
                         interaction: { mode: 'index', intersect: false },
                         plugins: {
                             legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12 } },
@@ -768,9 +886,33 @@
                         },
                         scales: {
                             x: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 } } },
-                            y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }
+                            y: { grid: { color: '#F1F5F9' }, ticks: { display: false } }
                         }
-                    }
+                    },
+                    plugins: [{
+                        id: 'datalabels',
+                        afterDatasetsDraw(chart) {
+                            const { ctx } = chart;
+                            ctx.save();
+                            ctx.font = 'bold 10px sans-serif';
+                            ctx.fillStyle = '#334155';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            
+                            const dataset = chart.data.datasets[0];
+                            const meta = chart.getDatasetMeta(0);
+                            if (dataset && meta) {
+                                meta.data.forEach((point, index) => {
+                                    const value = dataset.data[index];
+                                    if (value !== null && value !== undefined) {
+                                        const formattedValue = value.toFixed(2).replace('.', ',') + '%';
+                                        ctx.fillText(formattedValue, point.x, point.y - 6);
+                                    }
+                                });
+                            }
+                            ctx.restore();
+                        }
+                    }]
                 });
             } else {
                 console.warn("Chart.js is not loaded.");
