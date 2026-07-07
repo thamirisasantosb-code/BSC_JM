@@ -7,28 +7,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         :root {
-            --bg:       #080e1c;
-            --card:     #0e1829;
-            --card2:    #121f36;
-            --border:   rgba(255,255,255,0.06);
-            --blue:     #3b82f6;
-            --blue2:    #60a5fa;
-            --blueBg:   rgba(59,130,246,0.10);
-            --green:    #22c55e;
-            --green2:   #4ade80;
-            --greenBg:  rgba(34,197,94,0.09);
-            --red:      #ef4444;
-            --red2:     #f87171;
-            --redBg:    rgba(239,68,68,0.09);
-            --amber:    #f59e0b;
-            --amberBg:  rgba(245,158,11,0.09);
-            --text:     #e2e8f0;
-            --muted:    #334155;
+            --bg:       #f1f5f9;
+            --card:     #ffffff;
+            --card2:    #f8fafc;
+            --border:   rgba(15, 23, 42, 0.08);
+            --blue:     #2563eb;
+            --blue2:    #1d4ed8;
+            --blueBg:   rgba(37, 99, 235, 0.06);
+            --green:    #16a34a;
+            --green2:   #15803d;
+            --greenBg:  rgba(22, 163, 74, 0.06);
+            --red:      #dc2626;
+            --red2:     #b91c1c;
+            --redBg:    rgba(220, 38, 38, 0.06);
+            --amber:    #d97706;
+            --amberBg:  rgba(217, 119, 6, 0.06);
+            --text:     #0f172a;
+            --muted:    #e2e8f0;
             --muted2:   #64748b;
-            --muted3:   #94a3b8;
+            --muted3:   #475569;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -36,12 +35,12 @@
 
         /* TOPBAR */
         .topbar {
-            background: linear-gradient(135deg,#0a246a 0%,#0f1d45 55%,#080e1c 100%);
-            border-bottom: 1px solid rgba(59,130,246,0.18);
+            background: linear-gradient(135deg, #0a246a 0%, #1e3a8a 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding: 0 28px; height: 54px;
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 200;
-            box-shadow: 0 2px 24px rgba(0,0,0,0.45);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
         }
         .topbar-left { display: flex; align-items: center; gap: 14px; }
         .logo { display:flex; align-items:center; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:4px 10px; }
@@ -49,22 +48,72 @@
         .logo .td { background:#E8A838; color:#0a246a; padding:1px 5px; border-radius:3px; font-size:9px; font-weight:900; margin-left:3px; }
         .topbar h1 { font-size:14px; font-weight:700; color:rgba(255,255,255,.9); }
         .topbar-right { display:flex; align-items:center; gap:10px; }
-        .badge-wk { background:var(--blueBg); border:1px solid rgba(59,130,246,.35); color:var(--blue2); font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; }
-        .btn-back { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:#cbd5e1; padding:6px 14px; border-radius:6px; font-weight:600; font-size:12px; text-decoration:none; transition:all .2s; }
-        .btn-back:hover { background:rgba(255,255,255,.12); color:#fff; }
+        .badge-wk { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,.25); color:#fff; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; }
+        .btn-back { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); color:#fff; padding:6px 14px; border-radius:6px; font-weight:600; font-size:12px; text-decoration:none; transition:all .2s; }
+        .btn-back:hover { background:rgba(255,255,255,.2); color:#fff; }
 
         /* LOADING */
         #loading { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:1000; gap:14px; }
-        .spinner { width:42px; height:42px; border:3px solid rgba(59,130,246,.15); border-top-color:#3b82f6; border-radius:50%; animation:spin .7s linear infinite; }
+        .spinner { width:42px; height:42px; border:3px solid rgba(37,99,235,.15); border-top-color:#2563eb; border-radius:50%; animation:spin .7s linear infinite; }
         @keyframes spin { to { transform:rotate(360deg); } }
         .load-txt { color:var(--muted2); font-size:13px; font-weight:500; }
 
         /* PAGE */
         .page { max-width:1600px; margin:0 auto; padding:22px 24px 52px; }
 
+        /* CONTROL PANEL (FILTERS) */
+        .filt-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 12px rgba(15,23,42,0.03);
+        }
+        .filt-group { display: flex; flex-direction: column; gap: 4px; }
+        .filt-group label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted2); letter-spacing: .06em; }
+        .filt-select {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-weight: 600;
+            font-size: 12.5px;
+            outline: none;
+            cursor: pointer;
+            min-width: 160px;
+            transition: border-color 0.15s;
+        }
+        .filt-select:focus { border-color: var(--blue); }
+
         /* SECTION TITLE */
-        .sec { font-size:11px; font-weight:700; color:var(--muted2); text-transform:uppercase; letter-spacing:.08em; margin:24px 0 14px; display:flex; align-items:center; gap:10px; }
+        .sec { font-size:11.5px; font-weight:700; color:var(--muted3); text-transform:uppercase; letter-spacing:.08em; margin:24px 0 14px; display:flex; align-items:center; gap:10px; }
         .sec::after { content:''; flex:1; height:1px; background:var(--border); }
+
+        /* COMPARISON SUMMARY ROW */
+        .comp-panel {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid rgba(37,99,235,0.15);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            color: #1e3a8a;
+        }
+        .comp-title { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .comp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        @media(max-width: 800px) { .comp-grid { grid-template-columns: repeat(2, 1fr); } }
+        .comp-item { background: rgba(255,255,255,0.6); border: 1px solid rgba(37,99,235,0.1); border-radius: 10px; padding: 10px 14px; }
+        .comp-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #1e40af; opacity: 0.8; margin-bottom: 2px; }
+        .comp-val-main { font-size: 20px; font-weight: 900; }
+        .comp-val-diff { font-size: 11px; font-weight: 700; margin-top: 2px; }
+        .diff-pos { color: #15803d; }
+        .diff-neg { color: #b91c1c; }
+        .diff-neu { color: #4b5563; }
 
         /* KPI CARDS TOP */
         .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
@@ -74,11 +123,11 @@
         .kcard {
             background:var(--card); border:1px solid var(--border); border-radius:14px;
             padding:18px 20px; position:relative; overflow:hidden;
+            box-shadow: 0 4px 12px rgba(15,23,42,0.03);
             transition:transform .2s, box-shadow .2s; cursor:default;
         }
-        .kcard:hover { transform:translateY(-2px); box-shadow:0 10px 36px rgba(0,0,0,.35); }
+        .kcard:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(15,23,42,0.08); }
         .kcard .top-accent { position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; }
-        .kcard .glow { position:absolute; top:-30px; right:-30px; width:90px; height:90px; border-radius:50%; opacity:.06; }
         .k-icon { font-size:20px; margin-bottom:12px; }
         .k-label { font-size:10px; font-weight:700; color:var(--muted2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px; }
         .k-val { font-size:28px; font-weight:900; line-height:1; margin-bottom:4px; }
@@ -92,7 +141,11 @@
         @media(max-width:1100px){ .grid-2-1,.grid-3,.grid-2{ grid-template-columns:1fr; } }
 
         /* CARD */
-        .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; display:flex; flex-direction:column; }
+        .card {
+            background:var(--card); border:1px solid var(--border); border-radius:14px;
+            padding:18px 20px; display:flex; flex-direction:column;
+            box-shadow: 0 4px 12px rgba(15,23,42,0.03);
+        }
         .card-hd { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; }
         .card-hd h3 { font-size:13px; font-weight:700; color:var(--text); line-height:1.3; }
         .card-hd .sub { font-size:11px; color:var(--muted2); margin-top:2px; }
@@ -103,26 +156,26 @@
         .op-list { display:flex; flex-direction:column; gap:13px; }
         .op-item { display:flex; flex-direction:column; gap:5px; }
         .op-row { display:flex; justify-content:space-between; align-items:center; font-size:11.5px; }
-        .op-nm { color:var(--muted2); font-weight:600; }
-        .op-track { height:8px; background:rgba(255,255,255,.05); border-radius:99px; overflow:hidden; border:1px solid rgba(255,255,255,.04); }
+        .op-nm { color:var(--text); font-weight:600; }
+        .op-track { height:8px; background:rgba(15,23,42,0.05); border-radius:99px; overflow:hidden; }
         .op-fill { height:100%; border-radius:99px; }
 
         /* TABLE */
         .dt { width:100%; border-collapse:collapse; font-size:12px; }
         .dt th { text-align:left; padding:8px 12px; color:var(--muted2); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid var(--border); }
-        .dt td { padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.04); color:var(--muted2); }
+        .dt td { padding:9px 12px; border-bottom:1px solid var(--border); color:var(--muted3); }
         .dt td:first-child { color:var(--text); font-weight:600; }
         .dt tr:last-child td { border-bottom:none; }
-        .dt tbody tr:hover td { background:rgba(255,255,255,.02); }
+        .dt tbody tr:hover td { background:rgba(0,0,0,.015); }
         .pill { display:inline-block; padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; }
-        .p-green  { background:var(--greenBg); color:var(--green2); }
-        .p-red    { background:var(--redBg);   color:var(--red2); }
-        .p-yellow { background:var(--yellowBg);color:var(--yellow2); }
-        .p-blue   { background:var(--blueBg);  color:var(--blue2); }
+        .p-green  { background:var(--greenBg); color:var(--green); }
+        .p-red    { background:var(--redBg);   color:var(--red); }
+        .p-yellow { background:var(--amberBg); color:var(--amber); }
+        .p-blue   { background:var(--blueBg);  color:var(--blue); }
 
         /* INSIGHTS */
         .insight-list { display:flex; flex-direction:column; gap:9px; }
-        .ii { display:flex; align-items:flex-start; gap:10px; padding:11px 14px; background:rgba(255,255,255,.025); border-radius:10px; border-left:3px solid; }
+        .ii { display:flex; align-items:flex-start; gap:10px; padding:11px 14px; background:rgba(0,0,0,0.015); border-radius:10px; border-left:3px solid; }
         .ii-icon { font-size:15px; flex-shrink:0; margin-top:1px; }
         .ii-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px; }
         .ii-desc  { font-size:11px; color:var(--muted2); line-height:1.55; }
@@ -142,9 +195,10 @@
             border: 1px solid var(--border);
             border-radius: 14px;
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(15,23,42,0.03);
             transition: transform .2s, box-shadow .2s;
         }
-        .mcard:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.3); }
+        .mcard:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(15,23,42,0.08); }
 
         /* Thin left accent — only structural color */
         .mcard-header {
@@ -153,7 +207,7 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
-            border-left: 3px solid var(--blue); /* single blue accent */
+            border-left: 3px solid var(--blue);
         }
         .mcard-name { font-size: 13px; font-weight: 700; color: var(--text); display:flex; align-items:center; gap:7px; }
         .mcard-pct  { font-size: 18px; font-weight: 900; }
@@ -210,7 +264,7 @@
             color: var(--muted2);
             margin-bottom: 5px;
         }
-        .mcard-bar-track { height: 6px; background: rgba(255,255,255,.05); border-radius: 99px; overflow: hidden; }
+        .mcard-bar-track { height: 6px; background: rgba(15,23,42,0.05); border-radius: 99px; overflow: hidden; }
         .mcard-bar-fill  { height: 100%; border-radius: 99px; background: var(--blue); }
         .mcard-bar-fill.good   { background: var(--green); }
         .mcard-bar-fill.medium { background: var(--amber); }
@@ -224,7 +278,7 @@
             justify-content: space-between;
             padding: 6px 16px;
             font-size: 11px;
-            border-bottom: 1px solid rgba(255,255,255,.03);
+            border-bottom: 1px solid var(--border);
             gap: 8px;
         }
         .mcard-kpi-item:last-child { border-bottom: none; }
@@ -240,7 +294,7 @@
 
 <div id="loading">
     <div class="spinner"></div>
-    <div class="load-txt">Carregando dados reais do BSC…</div>
+    <div class="load-txt">Carregando dados consolidados...</div>
 </div>
 
 <div class="topbar">
@@ -249,12 +303,43 @@
         <h1>Relatório Executivo – BSC JM Distribuição</h1>
     </div>
     <div class="topbar-right">
-        <span class="badge-wk" id="badge-wk">W—</span>
+        <span class="badge-wk" id="badge-wk">—</span>
         <a href="index.html" class="btn-back">← Voltar ao Painel</a>
     </div>
 </div>
 
 <div class="page" id="pg" style="display:none;">
+
+    <!-- ── FILTROS ── -->
+    <div class="filt-card">
+        <div class="filt-group">
+            <label>Filtrar Milha</label>
+            <select id="filt-milha" class="filt-select" onchange="applyFilters()">
+                <option value="TODAS">🌍 Todas as Milhas</option>
+                <option value="SAFETY">🦺 Safety</option>
+                <option value="FM - FULL">📦 First Mile FULL</option>
+                <option value="FM - XD">🔄 First Mile XD</option>
+                <option value="LM">🚚 Last Mile</option>
+                <option value="XPT">⚡ XPT</option>
+                <option value="SRM">📋 SRM</option>
+            </select>
+        </div>
+        <div class="filt-group">
+            <label>Mês Principal (Base)</label>
+            <select id="filt-mes-base" class="filt-select" onchange="applyFilters()">
+                <!-- filled dynamically -->
+            </select>
+        </div>
+        <div class="filt-group" style="border-left: 1px solid var(--border); padding-left: 20px;">
+            <label>Comparar com Mês</label>
+            <select id="filt-mes-comp" class="filt-select" onchange="applyFilters()">
+                <!-- filled dynamically -->
+            </select>
+        </div>
+    </div>
+
+    <!-- ── COMPARATIVO DETALHADO ── -->
+    <div id="comp-panel-container" style="display: none;"></div>
 
     <!-- ── KPI CARDS ── -->
     <div class="sec" style="margin-top:0;">📊 Visão Geral</div>
@@ -266,7 +351,7 @@
         <div class="card">
             <div class="card-hd">
                 <div><h3>Pontos Atingidos por Operação</h3><div class="sub">Pontos totais vs máximo disponível</div></div>
-                <span class="badge" id="badge-op" style="background:var(--blueBg);color:var(--blue2);"></span>
+                <span class="badge" id="badge-op" style="background:var(--blueBg);color:var(--blue);"></span>
             </div>
             <div class="op-list" id="op-bars"></div>
         </div>
@@ -277,13 +362,13 @@
     </div>
 
     <!-- ── POR MILHA ── -->
-    <div class="sec">🗂️ Análise por Milha — Quantidade de KPIs por Status</div>
+    <div class="sec" id="milha-sec-header">🗂️ Análise por Milha — Quantidade de KPIs por Status</div>
 
     <!-- Stacked bar: KPI counts per milha -->
-    <div class="card" style="margin-bottom:14px;">
+    <div class="card" style="margin-bottom:14px;" id="milha-chart-card">
         <div class="card-hd">
-            <div><h3>KPIs 🟢 Atingidos vs 🔴 Não Atingidos por Milha</h3><div class="sub">Comparativo de status de indicadores entre todas as operações</div></div>
-            <span class="badge" id="badge-wk2" style="background:var(--blueBg);color:var(--blue2);"></span>
+            <div><h3>KPIs Atingidos vs Não Atingidos por Milha</h3><div class="sub">Comparativo de status de indicadores entre todas as operações</div></div>
+            <span class="badge" id="badge-wk2" style="background:var(--blueBg);color:var(--blue);"></span>
         </div>
         <div class="kpi-overview-chart-wrap"><canvas id="c-milha-status"></canvas></div>
     </div>
@@ -310,7 +395,7 @@
         </div>
         <div class="card">
             <div class="card-hd">
-                <div><h3>Comparativo Mês a Mês por Operação</h3><div class="sub">Evolução de pontos nos últimos 2 meses</div></div>
+                <div><h3>Comparativo Períodos por Operação</h3><div class="sub">Evolução de pontos nos meses selecionados</div></div>
                 <span class="badge" style="background:var(--greenBg);color:var(--green2);">Δ Comparativo</span>
             </div>
             <div class="cw"><canvas id="c-compare"></canvas></div>
@@ -330,7 +415,7 @@
                 <table class="dt" id="t-weekly"></table>
             </div>
             <div>
-                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Operações (último mês)</h3></div></div>
+                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Operações (mês selecionado)</h3></div></div>
                 <table class="dt" id="t-ops"></table>
             </div>
         </div>
@@ -362,137 +447,240 @@ window.fetch = function(url, options = {}) {
     });
 };
 
-Chart.defaults.color = '#475569';
-Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+Chart.defaults.color = '#334155';
+Chart.defaults.borderColor = 'rgba(15, 23, 42, 0.06)';
 const CH = {};
 
 function dc(id){ if(CH[id]){ CH[id].destroy(); delete CH[id]; } }
 function pill(t,c){ return `<span class="pill p-${c}">${t}</span>`; }
 function pn(s){ return parseFloat(String(s||'').replace(/[%><\s🟢🔴,]/g,'').replace(',','.')) }
-function clr(pct){ return pct>=70?'#10b981':pct>=40?'#f59e0b':'#ef4444'; }
+function clr(pct){ return pct>=70?'#16a34a':pct>=40?'#d97706':'#dc2626'; }
 
 // Milha display config
 const MILHA_CFG = {
-    'SAFETY':   { label:'Safety',       icon:'🦺', color:'#8b5cf6' },
-    'FM - FULL':{ label:'First Mile FULL', icon:'📦', color:'#3b82f6' },
-    'FM - XD':  { label:'First Mile XD',  icon:'🔄', color:'#0ea5e9' },
-    'LM':       { label:'Last Mile',    icon:'🚚', color:'#10b981' },
-    'XPT':      { label:'XPT',          icon:'⚡', color:'#f59e0b' },
-    'SRM':      { label:'SRM',          icon:'📋', color:'#ec4899' },
+    'SAFETY':   { label:'Safety',       icon:'🦺', color:'#7c3aed' },
+    'FM - FULL':{ label:'First Mile FULL', icon:'📦', color:'#2563eb' },
+    'FM - XD':  { label:'First Mile XD',  icon:'🔄', color:'#0284c7' },
+    'LM':       { label:'Last Mile',    icon:'🚚', color:'#16a34a' },
+    'XPT':      { label:'XPT',          icon:'⚡', color:'#d97706' },
+    'SRM':      { label:'SRM',          icon:'📋', color:'#db2777' },
 };
 
-async function init(){
-    let months = [];
-    let monthData = {};
+// Dados globais recebidos
+let globalMonths = [];
+let globalRawByMonth = {};
 
+async function init(){
     try {
         const resp = await fetch('/api/fechamento-mensal?v=' + Date.now());
         if (!resp.ok) throw new Error('Erro ao carregar dados consolidados');
         const json = await resp.json();
         
-        months = json.months || [];
-        const rawByMonth = json.data || {};
+        globalMonths = json.months || [];
+        globalRawByMonth = json.data || {};
 
-        months.forEach(month => {
-            monthData[month] = { total: 0, max: 0, ops: {}, kpis: [] };
-            const wd = monthData[month];
-            const rows = rawByMonth[month] || [];
-
-            rows.forEach(r => {
-                const milha   = r.milha.trim().toUpperCase();
-                const kpi     = r.kpi.trim();
-                const ptsMax  = parseFloat(r.ptsMax || 0) || 0;
-                const ptsAti  = parseFloat(r.ptsAti || 0) || 0;
-                const gapStr  = String(r.gapStr || '');
-                const green   = gapStr.includes('🟢');
-                const result  = String(r.resultado || '').trim();
-
-                if (ptsMax > 0) {
-                    wd.total += ptsAti;
-                    wd.max   += ptsMax;
-                }
-
-                const mKey = milha;
-                if (!wd.ops[mKey]) wd.ops[mKey] = { pts: 0, max: 0, green: 0, red: 0, kpis: [] };
-                if (ptsMax > 0) {
-                    wd.ops[mKey].pts += ptsAti;
-                    wd.ops[mKey].max += ptsMax;
-                }
-                if (green) wd.ops[mKey].green++;
-                else       wd.ops[mKey].red++;
-                
-                wd.ops[mKey].kpis.push({ kpi, result, green, ptsAti, ptsMax, gapStr });
-                wd.kpis.push({ milha: mKey, kpi, result, green, ptsAti, ptsMax });
+        if (globalMonths.length === 0) {
+            // Fallback se não houver dados
+            globalMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'];
+            const fbOps = {
+                'SAFETY':  {pts:43,max:100,green:5,red:3,kpis:[]},
+                'FM - FULL':{pts:62,max:100,green:3,red:3,kpis:[]},
+                'FM - XD': {pts:80,max:100,green:4,red:2,kpis:[]},
+                'LM':      {pts:16,max:100,green:2,red:4,kpis:[]},
+                'XPT':     {pts:10,max:100,green:1,red:4,kpis:[]},
+                'SRM':     {pts:2, max:0,  green:4,red:0,kpis:[]},
+            };
+            globalMonths.forEach(m => {
+                globalRawByMonth[m] = [
+                    { milha: 'SAFETY', kpi: 'Ad. Vec Fleet', ptsMax: 24, ptsAti: 24, gapStr: '🟢', resultado: '95%' },
+                    { milha: 'FM - XD', kpi: 'Pickup Sucess XD', ptsMax: 100, ptsAti: 80, gapStr: '🔴', resultado: '81%' },
+                    { milha: 'LM', kpi: 'Delivery Success', ptsMax: 28, ptsAti: 0, gapStr: '🔴', resultado: '95%' }
+                ];
             });
+        }
+
+        // Popular os filtros de meses
+        const baseSelect = document.getElementById('filt-mes-base');
+        const compSelect = document.getElementById('filt-mes-comp');
+
+        baseSelect.innerHTML = '';
+        compSelect.innerHTML = '<option value="">Nenhum (Usar mês anterior)</option>';
+
+        globalMonths.forEach((m, idx) => {
+            const optBase = document.createElement('option');
+            optBase.value = m;
+            optBase.textContent = m;
+            if (idx === globalMonths.length - 1) optBase.selected = true; // Seleciona o último mês
+            baseSelect.appendChild(optBase);
+
+            const optComp = document.createElement('option');
+            optComp.value = m;
+            optComp.textContent = m;
+            compSelect.appendChild(optComp);
         });
+
+        applyFilters();
+
     } catch(e) {
-        console.warn('Erro ao carregar dados da API:', e);
+        console.warn('Erro na inicialização:', e);
+        document.getElementById('loading').innerHTML = `<p style="color:red;font-weight:700;">Erro ao inicializar: ${e.message}</p>`;
+    }
+}
+
+function applyFilters() {
+    const selectedMilha = document.getElementById('filt-milha').value;
+    const selectedMonthBase = document.getElementById('filt-mes-base').value;
+    const selectedMonthComp = document.getElementById('filt-mes-comp').value;
+
+    // 1. Filtrar e formatar dados do mês baseado no filtro da Milha
+    const monthData = {};
+    
+    globalMonths.forEach(month => {
+        monthData[month] = { total: 0, max: 0, ops: {}, kpis: [] };
+        const wd = monthData[month];
+        const rows = globalRawByMonth[month] || [];
+
+        rows.forEach(r => {
+            const milha = r.milha.trim().toUpperCase();
+            
+            // Filtro da milha
+            if (selectedMilha !== 'TODAS' && milha !== selectedMilha) return;
+
+            const kpi     = r.kpi.trim();
+            const ptsMax  = parseFloat(r.ptsMax || 0) || 0;
+            const ptsAti  = parseFloat(r.ptsAti || 0) || 0;
+            const gapStr  = String(r.gapStr || '');
+            const green   = gapStr.includes('🟢');
+            const result  = String(r.resultado || '').trim();
+
+            if (ptsMax > 0) {
+                wd.total += ptsAti;
+                wd.max   += ptsMax;
+            }
+
+            const mKey = milha;
+            if (!wd.ops[mKey]) wd.ops[mKey] = { pts: 0, max: 0, green: 0, red: 0, kpis: [] };
+            if (ptsMax > 0) {
+                wd.ops[mKey].pts += ptsAti;
+                wd.ops[mKey].max += ptsMax;
+            }
+            if (green) wd.ops[mKey].green++;
+            else       wd.ops[mKey].red++;
+            
+            wd.ops[mKey].kpis.push({ kpi, result, green, ptsAti, ptsMax, gapStr });
+            wd.kpis.push({ milha: mKey, kpi, result, green, ptsAti, ptsMax });
+        });
+    });
+
+    renderDashboard(monthData, selectedMonthBase, selectedMonthComp, selectedMilha);
+}
+
+function clearComparison() {
+    document.getElementById('filt-mes-comp').value = '';
+    applyFilters();
+}
+
+function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
+    const months = globalMonths;
+
+    let prevMonth = compMonthInput;
+    let isCustomComparison = true;
+    if (!prevMonth) {
+        // Se nenhum mês de comparação selecionado, usar o anterior da ordem cronológica
+        const idx = months.indexOf(lastMonth);
+        prevMonth = idx > 0 ? months[idx - 1] : months[0];
+        isCustomComparison = false;
     }
 
-    // Use fallback if no data
-    const useFallback = months.length === 0;
-    let lastMonth, prevMonth, lastData, prevData, lastPct, prevPct, deltaPct;
-
-    if(useFallback){
-        months.push('Abr','Mai');
-        const fbOps = {
-            'SAFETY':  {pts:43,max:100,green:5,red:3,kpis:[]},
-            'FM - FULL':{pts:62,max:100,green:3,red:3,kpis:[]},
-            'FM - XD': {pts:80,max:100,green:4,red:2,kpis:[]},
-            'LM':      {pts:16,max:100,green:2,red:4,kpis:[]},
-            'XPT':     {pts:10,max:100,green:1,red:4,kpis:[]},
-            'SRM':     {pts:2, max:0,  green:4,red:0,kpis:[]},
-        };
-        monthData['Abr']={total:213,max:460,ops:JSON.parse(JSON.stringify(fbOps)),kpis:[]};
-        monthData['Mai']={total:245,max:460,ops:JSON.parse(JSON.stringify(fbOps)),kpis:[]};
-    }
-
-    lastMonth = months[months.length-1];
-    prevMonth = months[months.length-2]||months[0];
-    lastData = monthData[lastMonth]||{total:213,max:460,ops:{},kpis:[]};
-    prevData = monthData[prevMonth]||{total:213,max:460,ops:{},kpis:[]};
-    lastPct  = lastData.max ? +(lastData.total/lastData.max*100).toFixed(1) : 46.3;
-    prevPct  = prevData.max ? +(prevData.total/prevData.max*100).toFixed(1) : 51.5;
-    deltaPct = +(lastPct-prevPct).toFixed(1);
+    const lastData = monthData[lastMonth] || {total:0,max:0,ops:{},kpis:[]};
+    const prevData = monthData[prevMonth] || {total:0,max:0,ops:{},kpis:[]};
+    
+    const lastPct  = lastData.max ? +(lastData.total/lastData.max*100).toFixed(1) : 0;
+    const prevPct  = prevData.max ? +(prevData.total/prevData.max*100).toFixed(1) : 0;
+    const deltaPct = +(lastPct-prevPct).toFixed(1);
 
     // KPI totals
     let totalGreen=0, totalRed=0;
     Object.values(lastData.ops||{}).forEach(o=>{ totalGreen+=o.green; totalRed+=o.red; });
-    if(!totalGreen&&!totalRed){ totalGreen=19; totalRed=16; }
-    const aderencia = totalGreen+totalRed>0 ? +(totalGreen/(totalGreen+totalRed)*100).toFixed(0) : 54;
+    const aderencia = totalGreen+totalRed>0 ? +(totalGreen/(totalGreen+totalRed)*100).toFixed(0) : 0;
 
     // Best/worst op
     const opEntries = Object.entries(lastData.ops||{}).sort((a,b)=>{
         const pa=a[1].max?a[1].pts/a[1].max:0, pb=b[1].max?b[1].pts/b[1].max:0;
         return pb-pa;
     });
-    const bestEntry  = opEntries[0]||['FM - XD',{pts:80,max:100}];
-    const worstEntry = [...opEntries].sort((a,b)=>{
+    
+    let bestEntry = opEntries[0] || ['-', {pts:0,max:0,green:0,red:0}];
+    let worstEntry = [...opEntries].sort((a,b)=>{
         const pa=a[1].max?a[1].pts/a[1].max:1, pb=b[1].max?b[1].pts/b[1].max:1;
         return pa-pb;
-    })[0]||['XPT',{pts:10,max:100}];
+    })[0] || ['-', {pts:0,max:0,green:0,red:0}];
 
-    const bestPct  = bestEntry[1].max  ? +(bestEntry[1].pts /bestEntry[1].max *100).toFixed(0) : 80;
-    const worstPct = worstEntry[1].max ? +(worstEntry[1].pts/worstEntry[1].max*100).toFixed(0) : 10;
+    const bestPct  = bestEntry[1].max  ? +(bestEntry[1].pts /bestEntry[1].max *100).toFixed(0) : 0;
+    const worstPct = worstEntry[1].max ? +(worstEntry[1].pts/worstEntry[1].max*100).toFixed(0) : 0;
     const bestCfg  = MILHA_CFG[bestEntry[0].toUpperCase()] ||{label:bestEntry[0],icon:'🏭'};
     const worstCfg = MILHA_CFG[worstEntry[0].toUpperCase()]||{label:worstEntry[0],icon:'⚠️'};
 
+    // ── COMPARISON SUMMARY BOX (Se selecionado) ──────────────────
+    const compContainer = document.getElementById('comp-panel-container');
+    if (isCustomComparison && compMonthInput) {
+        const dScore = +(lastPct - prevPct).toFixed(1);
+        const dGreen = (totalGreen - (prevData.kpis ? prevData.kpis.filter(k=>k.green).length : 0));
+        const deltaClass = dScore >= 0 ? 'diff-pos' : 'diff-neg';
+        const deltaSym = dScore >= 0 ? '▲ +' : '▼ ';
+        
+        compContainer.innerHTML = `
+        <div class="comp-panel">
+            <div class="comp-title">🔍 Painel de Comparativo: Mês Base (<strong>${lastMonth}</strong>) vs Mês Comparado (<strong>${prevMonth}</strong>)</div>
+            <div class="comp-grid">
+                <div class="comp-item">
+                    <div class="comp-lbl">Aproveitamento</div>
+                    <div class="comp-val-main">${lastPct}% <span style="font-size:12px;color:var(--muted2);font-weight:600;">vs ${prevPct}%</span></div>
+                    <div class="comp-val-diff ${deltaClass}">${deltaSym}${Math.abs(dScore)}% de diferença</div>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-lbl">Pontuação Scorecard</div>
+                    <div class="comp-val-main">${lastData.total} <span style="font-size:12px;color:var(--muted2);font-weight:600;">vs ${prevData.total}</span></div>
+                    <div class="comp-val-diff ${lastData.total >= prevData.total ? 'diff-pos' : 'diff-neg'}">
+                        ${lastData.total >= prevData.total ? '▲ +' : '▼ '}${lastData.total - prevData.total} pontos atingidos
+                    </div>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-lbl">Meta Atingida (🟢)</div>
+                    <div class="comp-val-main">${totalGreen} <span style="font-size:12px;color:var(--muted2);font-weight:600;">vs ${prevData.kpis ? prevData.kpis.filter(k=>k.green).length : 0}</span></div>
+                    <div class="comp-val-diff ${dGreen >= 0 ? 'diff-pos' : 'diff-neg'}">
+                        ${dGreen >= 0 ? '▲ +' : '▼ '}${Math.abs(dGreen)} KPIs no status
+                    </div>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-lbl">Total de GAPs</div>
+                    <div class="comp-val-main">${totalRed} <span style="font-size:12px;color:var(--muted2);font-weight:600;">vs ${prevData.kpis ? prevData.kpis.filter(k=>!k.green).length : 0}</span></div>
+                    <div class="comp-val-diff ${(totalRed <= (prevData.kpis ? prevData.kpis.filter(k=>!k.green).length : 0)) ? 'diff-pos' : 'diff-neg'}">
+                        Abaixo da meta: ${totalRed} KPIs
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        compContainer.style.display = 'block';
+    } else {
+        compContainer.style.display = 'none';
+    }
+
     // ── HEADER ──────────────────────────────────────────────────
     document.getElementById('badge-wk').textContent = lastMonth;
-    document.getElementById('badge-wk2').textContent = lastMonth;
+    if (document.getElementById('badge-wk2')) document.getElementById('badge-wk2').textContent = lastMonth;
     document.getElementById('badge-op').textContent = lastMonth;
-    const trendColor = deltaPct>=0?'var(--green2)':'var(--red2)';
+    const trendColor = deltaPct>=0?'var(--green)':'var(--red)';
     const trendBg    = deltaPct>=0?'var(--greenBg)':'var(--redBg)';
     const trendArr   = deltaPct>=0?'↑':'↓';
-    document.getElementById('badge-trend').textContent = `${trendArr} ${Math.abs(deltaPct)}%`;
 
     // ── KPI CARDS TOP ────────────────────────────────────────────
     document.getElementById('kpi-row').innerHTML = `
     <div class="kcard">
         <div class="top-accent" style="background:var(--blue);"></div>
         <div class="k-icon">📊</div>
-        <div class="k-label">Aproveitamento Geral ${lastMonth}</div>
-        <div class="k-val" style="color:var(--blue2);">${lastPct}%</div>
+        <div class="k-label">Aproveitamento ${lastMonth}</div>
+        <div class="k-val" style="color:var(--blue);">${lastPct}%</div>
         <div class="k-sub">${lastData.total} de ${lastData.max} pontos</div>
         <span class="k-trend" style="background:${trendBg};color:${trendColor};">${trendArr} ${Math.abs(deltaPct)}% vs ${prevMonth}</span>
     </div>
@@ -500,31 +688,31 @@ async function init(){
         <div class="top-accent" style="background:var(--green);"></div>
         <div class="k-icon">🏆</div>
         <div class="k-label">Melhor Operação</div>
-        <div class="k-val" style="color:var(--green2);font-size:18px;line-height:1.2;">${bestCfg.label}</div>
-        <div class="k-sub">${bestEntry[1].pts}/${bestEntry[1].max} pts &middot; ${bestPct}% aproveitamento</div>
-        <span class="k-trend" style="background:var(--greenBg);color:var(--green2);">↑ Melhor desempenho</span>
+        <div class="k-val" style="color:var(--green);font-size:18px;line-height:1.2;">${bestCfg.label}</div>
+        <div class="k-sub">${bestEntry[1].pts}/${bestEntry[1].max} pts &middot; ${bestPct}%</div>
+        <span class="k-trend" style="background:var(--greenBg);color:var(--green);">✅ Líder de pontos</span>
     </div>
     <div class="kcard">
         <div class="top-accent" style="background:var(--red);"></div>
         <div class="k-icon">⚠️</div>
         <div class="k-label">Maior Gargalo</div>
-        <div class="k-val" style="color:var(--red2);font-size:18px;line-height:1.2;">${worstCfg.label}</div>
-        <div class="k-sub">${worstEntry[1].pts}/${worstEntry[1].max} pts &middot; ${worstPct}% aproveitamento</div>
-        <span class="k-trend" style="background:var(--redBg);color:var(--red2);">↓ Ação urgente</span>
+        <div class="k-val" style="color:var(--red);font-size:18px;line-height:1.2;">${worstCfg.label}</div>
+        <div class="k-sub">${worstEntry[1].pts}/${worstEntry[1].max} pts &middot; ${worstPct}%</div>
+        <span class="k-trend" style="background:var(--redBg);color:var(--red);">↓ Gargalo crítico</span>
     </div>
     <div class="kcard">
         <div class="top-accent" style="background:var(--blue);"></div>
         <div class="k-icon">🎯</div>
-        <div class="k-label">KPIs por Status (${lastMonth})</div>
-        <div class="k-val" style="display:flex;gap:14px;align-items:baseline;font-size:26px;">
-            <span style="color:var(--green2);">${totalGreen}</span>
-            <span style="font-size:12px;color:var(--muted2);">atingidos</span>
-            <span style="color:var(--red2);">${totalRed}</span>
-            <span style="font-size:12px;color:var(--muted2);">abaixo</span>
+        <div class="k-label">Aderência de KPIs (${lastMonth})</div>
+        <div class="k-val" style="display:flex;gap:10px;align-items:baseline;font-size:26px;">
+            <span style="color:var(--green);">${totalGreen}</span>
+            <span style="font-size:12px;color:var(--muted2);">🟢</span>
+            <span style="color:var(--red);">${totalRed}</span>
+            <span style="font-size:12px;color:var(--muted2);">🔴</span>
         </div>
-        <div class="k-sub" style="margin-top:4px;">${aderencia}% de aderência geral</div>
+        <div class="k-sub" style="margin-top:4px;">${aderencia}% de metas atingidas</div>
+        <span class="k-trend" style="background:var(--blueBg);color:var(--blue);">${totalGreen+totalRed} KPIs ativos</span>
     </div>`;
-
 
     // ── OP BARS ──────────────────────────────────────────────────
     const opBars = document.getElementById('op-bars');
@@ -548,10 +736,10 @@ async function init(){
     CH['donut'] = new Chart(document.getElementById('c-donut'),{
         type:'doughnut',
         data:{ labels:['Meta Atingida','Abaixo da Meta'],
-            datasets:[{data:[totalGreen,totalRed],backgroundColor:['rgba(34,197,94,0.75)','rgba(239,68,68,0.65)'],borderWidth:3,borderColor:'#0e1829'}]},
-        options:{responsive:true,maintainAspectRatio:false,cutout:'72%',
+            datasets:[{data:[totalGreen,totalRed],backgroundColor:['rgba(22,163,74,0.75)','rgba(220,38,38,0.7)'],borderWidth:2,borderColor:'var(--card)'}]},
+        options:{responsive:true,maintainAspectRatio:false,cutout:'74%',
             plugins:{
-                legend:{position:'bottom',labels:{boxWidth:10,font:{size:11,weight:'600'},color:'#64748b',padding:14}},
+                legend:{position:'bottom',labels:{boxWidth:10,font:{size:11,weight:'600'},color:'var(--text)',padding:14}},
                 tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed} KPIs`}}
             }
         },
@@ -559,8 +747,8 @@ async function init(){
             const{ctx,chartArea:{width,height,top,left}}=chart;
             const cx=left+width/2, cy=top+height/2-10;
             ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
-            ctx.font='bold 26px Inter'; ctx.fillStyle='#e2e8f0'; ctx.fillText(aderencia+'%',cx,cy);
-            ctx.font='10px Inter'; ctx.fillStyle='#64748b'; ctx.fillText('aderência',cx,cy+22);
+            ctx.font='bold 24px Inter'; ctx.fillStyle='var(--text)'; ctx.fillText(aderencia+'%',cx,cy);
+            ctx.font='10px Inter'; ctx.fillStyle='var(--muted2)'; ctx.fillText('aderência',cx,cy+20);
             ctx.restore();
         }}]
     });
@@ -572,55 +760,59 @@ async function init(){
     const milhaRed    = milhaKeys.map(k=>(lastData.ops[k]||{red:0}).red);
 
     dc('milha-status');
-    CH['milha-status'] = new Chart(document.getElementById('c-milha-status'),{
-        type:'bar',
-        data:{
-            labels: milhaLabels,
-            datasets:[
-                {label:'Atingidos', data:milhaGreen, backgroundColor:'rgba(34,197,94,0.65)', borderRadius:{topLeft:4,topRight:4}, stack:'s'},
-                {label:'Abaixo da Meta', data:milhaRed, backgroundColor:'rgba(239,68,68,0.5)',  borderRadius:{topLeft:4,topRight:4}, stack:'s'}
-            ]
-        },
-        options:{
-            responsive:true, maintainAspectRatio:false,
-            plugins:{
-                legend:{position:'top',labels:{boxWidth:10,font:{size:11,weight:'600'},color:'#64748b',padding:14}},
-                tooltip:{
-                    callbacks:{
-                        label:c=>{
-                            const ds=c.datasetIndex===0?milhaGreen:milhaRed;
-                            const total2=(milhaGreen[c.dataIndex]||0)+(milhaRed[c.dataIndex]||0);
-                            const pct2=total2>0?+(c.parsed.y/total2*100).toFixed(0):0;
-                            return ` ${c.dataset.label}: ${c.parsed.y} KPIs (${pct2}%)`;
+    if (selectedMilha === 'TODAS') {
+        document.getElementById('milha-sec-header').style.display = 'block';
+        document.getElementById('milha-chart-card').style.display = 'block';
+        CH['milha-status'] = new Chart(document.getElementById('c-milha-status'),{
+            type:'bar',
+            data:{
+                labels: milhaLabels,
+                datasets:[
+                    {label:'Atingidos', data:milhaGreen, backgroundColor:'rgba(22,163,74,0.75)', borderRadius:{topLeft:4,topRight:4}, stack:'s'},
+                    {label:'Abaixo da Meta', data:milhaRed, backgroundColor:'rgba(220,38,38,0.65)',  borderRadius:{topLeft:4,topRight:4}, stack:'s'}
+                ]
+            },
+            options:{
+                responsive:true, maintainAspectRatio:false,
+                plugins:{
+                    legend:{position:'top',labels:{boxWidth:10,font:{size:11,weight:'600'},color:'var(--text)',padding:14}},
+                    tooltip:{
+                        callbacks:{
+                            label:c=>{
+                                const total2=(milhaGreen[c.dataIndex]||0)+(milhaRed[c.dataIndex]||0);
+                                const pct2=total2>0?+(c.parsed.y/total2*100).toFixed(0):0;
+                                return ` ${c.dataset.label}: ${c.parsed.y} KPIs (${pct2}%)`;
+                            }
                         }
                     }
+                },
+                scales:{
+                    x:{grid:{display:false},ticks:{color:'var(--muted2)',font:{size:11,weight:'600'}}},
+                    y:{stacked:true,grid:{color:'rgba(0,0,0,.03)'},ticks:{color:'var(--muted2)',font:{size:10},stepSize:1}}
                 }
-            },
-            scales:{
-                x:{grid:{display:false},ticks:{color:'#64748b',font:{size:11,weight:'600'}}},
-                y:{stacked:true,grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#475569',font:{size:10},stepSize:1}}
             }
-        }
-    });
+        });
+    } else {
+        document.getElementById('milha-sec-header').style.display = 'none';
+        document.getElementById('milha-chart-card').style.display = 'none';
+    }
 
     // ── MILHA CARDS ──────────────────────────────────────────────
     const milhaCardsEl = document.getElementById('milha-cards');
     milhaCardsEl.innerHTML = '';
 
     opEntries.forEach(([key, d])=>{
-        const cfg   = MILHA_CFG[key.toUpperCase()]||{label:key,icon:'🏭',color:'#3b82f6'};
+        const cfg   = MILHA_CFG[key.toUpperCase()]||{label:key,icon:'🏭',color:'#2563eb'};
         const pct   = d.max?+(d.pts/d.max*100).toFixed(1):0;
-        const pctColor = pct>=70?'#4ade80':pct>=40?'#f59e0b':'#f87171';
+        const pctColor = pct>=70?'#16a34a':pct>=40?'#d97706':'#dc2626';
         const barCls   = pct>=70?'good':pct>=40?'medium':'bad';
         const green = d.green||0;
         const red   = d.red||0;
         const total = green+red;
-        const ader  = total>0?+(green/total*100).toFixed(0):0;
 
-        // KPI rows
         const kpisSorted = (d.kpis||[]).slice(0,6);
         const kpiRows = kpisSorted.map(k=>{
-            const rc = k.green?'#4ade80':'#f87171';
+            const rc = k.green?'var(--green)':'var(--red)';
             return `<div class="mcard-kpi-item">
                 <div class="dot" style="background:${rc};opacity:0.85;"></div>
                 <span class="mcard-kpi-name" title="${k.kpi}">${k.kpi}</span>
@@ -630,7 +822,7 @@ async function init(){
 
         milhaCardsEl.innerHTML += `
         <div class="mcard">
-            <div class="mcard-header">
+            <div class="mcard-header" style="border-left-color: ${cfg.color}">
                 <div class="mcard-name">${cfg.icon} ${cfg.label}</div>
                 <div class="mcard-pct" style="color:${pctColor};">${pct}%</div>
             </div>
@@ -638,32 +830,32 @@ async function init(){
             <div class="mcard-status-row">
                 <div class="kpi-count-box">
                     <div class="cnt-wrap">
-                        <span class="cnt" style="color:#4ade80;">${green}</span>
-                        <span class="pct-badge" style="background:rgba(34,197,94,0.1);color:#4ade80;">${total>0?+(green/total*100).toFixed(0):0}%</span>
+                        <span class="cnt" style="color:var(--green);">${green}</span>
+                        <span class="pct-badge" style="background:var(--greenBg);color:var(--green);">${total>0?+(green/total*100).toFixed(0):0}%</span>
                     </div>
-                    <div class="lbl">KPIs Atingidos</div>
+                    <div class="lbl">Atingidos</div>
                 </div>
                 <div class="mcard-divider"></div>
                 <div class="kpi-count-box">
                     <div class="cnt-wrap">
-                        <span class="cnt" style="color:#f87171;">${red}</span>
-                        <span class="pct-badge" style="background:rgba(239,68,68,0.1);color:#f87171;">${total>0?+(red/total*100).toFixed(0):0}%</span>
+                        <span class="cnt" style="color:var(--red);">${red}</span>
+                        <span class="pct-badge" style="background:var(--redBg);color:var(--red);">${total>0?+(red/total*100).toFixed(0):0}%</span>
                     </div>
-                    <div class="lbl">KPIs Abaixo</div>
+                    <div class="lbl">Abaixo</div>
                 </div>
                 <div class="mcard-divider"></div>
                 <div class="kpi-count-box">
                     <div class="cnt-wrap">
-                        <span class="cnt" style="color:#e2e8f0;">${total}</span>
+                        <span class="cnt" style="color:var(--text);">${total}</span>
                     </div>
-                    <div class="lbl">Total de KPIs</div>
+                    <div class="lbl">Total KPIs</div>
                 </div>
             </div>
 
             <div class="mcard-bar-wrap">
                 <div class="mcard-bar-label">
                     <span>${d.pts} / ${d.max} pontos</span>
-                    <span style="color:${pctColor}; font-weight:700;">${pct}% aproveitamento</span>
+                    <span style="color:${pctColor}; font-weight:700;">${pct}%</span>
                 </div>
                 <div class="mcard-bar-track">
                     <div class="mcard-bar-fill ${barCls}" style="width:${pct}%;"></div>
@@ -671,37 +863,37 @@ async function init(){
             </div>
 
             <div class="mcard-kpi-list">
-                ${kpiRows||'<div style="padding:8px 16px;font-size:11px;color:var(--muted2);">Sem KPIs disponíveis</div>'}
+                ${kpiRows||'<div style="padding:8px 16px;font-size:11px;color:var(--muted2);">Sem KPIs cadastrados</div>'}
             </div>
         </div>`;
     });
 
-    // ── MONTHLY LINE ──────────────────────────────────────────────
+    // ── MONTHLY LINE CHART ─────────────────────────────────────────
     const monthPcts = months.map(m=>{
         const wd=monthData[m]||{total:0,max:0};
         return wd.max?+(wd.total/wd.max*100).toFixed(1):0;
     });
-    const ptColors = monthPcts.map((v,i)=>i===0?'#3b82f6':v>monthPcts[i-1]?'#10b981':'#ef4444');
+    const ptColors = monthPcts.map((v,i)=>i===0?'#2563eb':v>monthPcts[i-1]?'#16a34a':'#dc2626');
 
     dc('weekly');
     CH['weekly'] = new Chart(document.getElementById('c-weekly'),{
         type:'line',
         data:{labels:months,datasets:[{
             label:'Aproveitamento (%)',data:monthPcts,
-            borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.07)',fill:true,tension:.35,borderWidth:3,
-            pointRadius:8,pointBackgroundColor:ptColors,pointBorderColor:'#0e1829',pointBorderWidth:2
+            borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.04)',fill:true,tension:.35,borderWidth:3,
+            pointRadius:8,pointBackgroundColor:ptColors,pointBorderColor:'var(--card)',pointBorderWidth:2
         }]},
         options:{responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.y}%`}}},
             scales:{
-                x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#64748b',font:{size:11,weight:'600'}}},
+                x:{grid:{color:'rgba(0,0,0,.03)'},ticks:{color:'var(--muted2)',font:{size:11,weight:'600'}}},
                 y:{min:Math.max(0,Math.min(...monthPcts)-10),max:Math.min(100,Math.max(...monthPcts)+10),
-                    grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#64748b',callback:v=>v+'%',font:{size:10}}}
+                    grid:{color:'rgba(0,0,0,.03)'},ticks:{color:'var(--muted2)',callback:v=>v+'%',font:{size:10}}}
             }
         }
     });
 
-    // ── GAPS BAR ─────────────────────────────────────────────────
+    // ── GAPS BAR CHART ─────────────────────────────────────────────
     let gaps = [];
     (lastData.kpis||[]).forEach(k=>{
         if(!k.green && k.ptsMax>0){
@@ -712,9 +904,7 @@ async function init(){
     gaps = gaps.slice(0,8);
     if(!gaps.length) gaps=[
         {label:'XPT – Delivery Success',gap:-32},{label:'Safety – Telemetria',gap:-28},
-        {label:'LM – Delivery Success',gap:-28},{label:'Safety – Ad. Vec Fleet',gap:-24},
-        {label:'XPT – SPOT FDS',gap:-24},{label:'XPT – Telemetria MM',gap:-24},
-        {label:'LM – SDD% ER',gap:-20},{label:'LM – Frota Fixa',gap:-20}
+        {label:'LM – Delivery Success',gap:-28},{label:'Safety – Ad. Vec Fleet',gap:-24}
     ];
 
     dc('gaps');
@@ -722,18 +912,18 @@ async function init(){
         type:'bar',
         data:{labels:gaps.map(g=>g.label),datasets:[{
             label:'GAP (pts)',data:gaps.map(g=>g.gap),borderRadius:5,borderWidth:0,
-            backgroundColor:gaps.map((_,i)=>i<3?'rgba(239,68,68,.85)':'rgba(245,158,11,.75)')
+            backgroundColor:gaps.map((_,i)=>i<3?'rgba(220,38,38,.8)':'rgba(217,119,6,.75)')
         }]},
         options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.x} pts`}}},
             scales:{
-                x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#64748b',font:{size:10}}},
-                y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:9.5,weight:'600'}}}
+                x:{grid:{color:'rgba(0,0,0,.03)'},ticks:{color:'var(--muted2)',font:{size:10}}},
+                y:{grid:{display:false},ticks:{color:'var(--text)',font:{size:9.5,weight:'600'}}}
             }
         }
     });
 
-    // ── COMPARE BAR ──────────────────────────────────────────────
+    // ── COMPARE BAR CHART ──────────────────────────────────────────
     const cmpKeys   = opEntries.map(([k])=>k);
     const cmpLabels = cmpKeys.map(k=>(MILHA_CFG[k.toUpperCase()]||{label:k}).label.replace('First Mile','FM').replace('Last Mile','LM'));
     const cmpLast   = cmpKeys.map(k=>(lastData.ops[k]||{pts:0}).pts);
@@ -743,44 +933,39 @@ async function init(){
     CH['compare'] = new Chart(document.getElementById('c-compare'),{
         type:'bar',
         data:{labels:cmpLabels,datasets:[
-            {label:prevMonth,data:cmpPrev,backgroundColor:'rgba(59,130,246,.45)',borderRadius:4,borderWidth:0},
+            {label:prevMonth,data:cmpPrev,backgroundColor:'rgba(15,23,42,.15)',borderRadius:4,borderWidth:0},
             {label:lastMonth,data:cmpLast,
-                backgroundColor:cmpLast.map((v,i)=>v>=(cmpPrev[i]||0)?'#22c55e':'#ef4444'),
+                backgroundColor:cmpLast.map((v,i)=>v>=(cmpPrev[i]||0)?'#16a34a':'#dc2626'),
                 borderRadius:4,borderWidth:0}
         ]},
         options:{responsive:true,maintainAspectRatio:false,
             plugins:{
-                legend:{position:'top',labels:{boxWidth:10,font:{size:10,weight:'600'},color:'#94a3b8',padding:12}},
+                legend:{position:'top',labels:{boxWidth:10,font:{size:10,weight:'600'},color:'var(--text)',padding:12}},
                 tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y} pts`}}
             },
             scales:{
-                x:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:10}}},
-                y:{grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#64748b',font:{size:10}}}
+                x:{grid:{display:false},ticks:{color:'var(--muted2)',font:{size:10}}},
+                y:{grid:{color:'rgba(0,0,0,.03)'},ticks:{color:'var(--muted2)',font:{size:10}}}
             }
         }
     });
 
     // ── INSIGHTS ─────────────────────────────────────────────────
     document.getElementById('insights').innerHTML = `
-    <div class="ii" style="border-color:#ef4444;">
+    <div class="ii" style="border-color:var(--red);">
         <div class="ii-icon">🚨</div>
-        <div><div class="ii-title">${worstCfg.icon} ${worstCfg.label} – Aproveitamento Crítico (${worstPct}%)</div>
-        <div class="ii-desc">A operação com menor aproveitamento representa o maior risco ao scorecard. Planos de ação urgentes devem focar em <strong>mitigar os KPIs com zero pontuação</strong>.</div></div>
+        <div><div class="ii-title">${worstCfg.icon} ${worstCfg.label} – Rendimento Crítico (${worstPct}%)</div>
+        <div class="ii-desc">Esta milha representa a maior queda no período de <strong>${lastMonth}</strong>. Ações corretivas devem mitigar imediatamente as perdas.</div></div>
     </div>
-    <div class="ii" style="border-color:#f59e0b;">
-        <div class="ii-icon">⚠️</div>
-        <div><div class="ii-title">Safety – Telemetria &amp; Frota Fixada</div>
-        <div class="ii-desc">Telemetria Scorecard e aderência à frota fixada geraram gaps combinados de <strong>-52 pontos</strong>. Treinamento de motoristas e revisão de escala de frotas são ações prioritárias.</div></div>
-    </div>
-    <div class="ii" style="border-color:#10b981;">
+    <div class="ii" style="border-color:var(--green);">
         <div class="ii-icon">✅</div>
-        <div><div class="ii-title">${bestCfg.icon} ${bestCfg.label} – Destaque Positivo (${bestPct}%)</div>
-        <div class="ii-desc">Atingiu <strong>${bestPct}% de aproveitamento</strong> — melhor resultado em ${lastMonth}. Esta operação serve como referência de boas práticas para as demais.</div></div>
+        <div><div class="ii-title">${bestCfg.icon} ${bestCfg.label} – Operação Referência (${bestPct}%)</div>
+        <div class="ii-desc">Atingiu <strong>${bestPct}% de aproveitamento</strong> na visão filtrada. As boas práticas dessa equipe devem servir de padrão.</div></div>
     </div>
-    <div class="ii" style="border-color:#3b82f6;">
-        <div class="ii-icon">📉</div>
-        <div><div class="ii-title">Aderência Total: ${aderencia}% (${totalGreen} de ${totalGreen+totalRed} KPIs)</div>
-        <div class="ii-desc">BSC atingiu <strong>${lastPct}% de aproveitamento</strong> em ${lastMonth} (${deltaPct>=0?'+':''}${deltaPct}% vs ${prevMonth}). Operações abaixo de 40% requerem planos de ação imediatos.</div></div>
+    <div class="ii" style="border-color:var(--blue);">
+        <div class="ii-icon">📈</div>
+        <div><div class="ii-title">Desempenho Geral: ${lastPct}%</div>
+        <div class="ii-desc">O resultado do consolidado representa uma diferença de <strong>${deltaPct>=0?'+':''}${deltaPct}%</strong> comparado a <strong>${prevMonth}</strong>.</div></div>
     </div>`;
 
     // ── TABLES ───────────────────────────────────────────────────
@@ -790,7 +975,7 @@ async function init(){
     ${months.map((m,i)=>{
         const wd=monthData[m]||{total:0,max:0};
         const p=wd.max?+(wd.total/wd.max*100).toFixed(1):0;
-        const isPeak=i===peakIdx, isLast=i===months.length-1;
+        const isPeak=i===peakIdx, isLast=i===months.indexOf(lastMonth);
         const pcls=isPeak?'green':isLast&&p<monthPcts[0]?'red':p>(monthPcts[i-1]||0)?'blue':'yellow';
         const ptxt=isPeak?'Pico':isLast?'Atual':p>(monthPcts[i-1]||0)?'↑':'↓';
         return `<tr><td>${m}</td><td>${wd.total}/${wd.max}</td><td>${p}%</td><td>${pill(ptxt,pcls)}</td></tr>`;
@@ -802,10 +987,10 @@ async function init(){
         const cfg2=MILHA_CFG[k.toUpperCase()]||{label:k,icon:'🏭'};
         const p=d.max?+(d.pts/d.max*100).toFixed(1):0;
         const cls=p>=70?'green':p>=40?'yellow':'red';
-        return `<tr><td>${cfg2.icon} ${cfg2.label}</td><td><span style="color:#34d399;font-weight:700;">${d.green||0}</span></td><td><span style="color:#f87171;font-weight:700;">${d.red||0}</span></td><td>${pill(p+'%',cls)}</td></tr>`;
+        return `<tr><td>${cfg2.icon} ${cfg2.label}</td><td><span style="color:var(--green);font-weight:700;">${d.green||0}</span></td><td><span style="color:var(--red);font-weight:700;">${d.red||0}</span></td><td>${pill(p+'%',cls)}</td></tr>`;
     }).join('')}</tbody>`;
 
-    // ── SHOW ─────────────────────────────────────────────────────
+    // Exibir página
     document.getElementById('loading').style.display='none';
     document.getElementById('pg').style.display='block';
 }
