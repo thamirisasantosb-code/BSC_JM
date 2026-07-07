@@ -10,17 +10,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         :root {
-            --bg:      #080e1c;
-            --card:    #111e35;
-            --border:  rgba(255,255,255,0.07);
-            --green:   #10b981; --green2: #34d399; --greenBg: rgba(16,185,129,0.13);
-            --red:     #ef4444; --red2:   #f87171; --redBg:   rgba(239,68,68,0.13);
-            --yellow:  #f59e0b; --yellow2:#fbbf24; --yellowBg:rgba(245,158,11,0.13);
-            --blue:    #3b82f6; --blue2:  #60a5fa; --blueBg:  rgba(59,130,246,0.13);
-            --purple:  #8b5cf6; --purple2:#a78bfa;
-            --text:    #f1f5f9;
-            --muted:   #475569;
-            --muted2:  #94a3b8;
+            --bg:       #080e1c;
+            --card:     #0e1829;
+            --card2:    #121f36;
+            --border:   rgba(255,255,255,0.06);
+            --blue:     #3b82f6;
+            --blue2:    #60a5fa;
+            --blueBg:   rgba(59,130,246,0.10);
+            --green:    #22c55e;
+            --green2:   #4ade80;
+            --greenBg:  rgba(34,197,94,0.09);
+            --red:      #ef4444;
+            --red2:     #f87171;
+            --redBg:    rgba(239,68,68,0.09);
+            --amber:    #f59e0b;
+            --amberBg:  rgba(245,158,11,0.09);
+            --text:     #e2e8f0;
+            --muted:    #334155;
+            --muted2:   #64748b;
+            --muted3:   #94a3b8;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -136,61 +144,95 @@
             overflow: hidden;
             transition: transform .2s, box-shadow .2s;
         }
-        .mcard:hover { transform:translateY(-2px); box-shadow:0 10px 36px rgba(0,0,0,.3); }
+        .mcard:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.3); }
 
+        /* Thin left accent — only structural color */
         .mcard-header {
             padding: 14px 18px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
+            border-left: 3px solid var(--blue); /* single blue accent */
         }
-        .mcard-name { font-size: 13px; font-weight: 800; color: var(--text); display:flex; align-items:center; gap:8px; }
-        .mcard-pct  { font-size: 20px; font-weight: 900; }
+        .mcard-name { font-size: 13px; font-weight: 700; color: var(--text); display:flex; align-items:center; gap:7px; }
+        .mcard-pct  { font-size: 18px; font-weight: 900; }
 
-        /* KPI status row (🟢 / 🔴) */
+        /* KPI STATUS NUMBERS — 3 clean boxes */
         .mcard-status-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr 1px 1fr;
+            padding: 12px 14px;
             border-bottom: 1px solid var(--border);
+            gap: 0;
         }
+        .mcard-divider { background: var(--border); width: 1px; margin: 4px 0; }
         .kpi-count-box {
-            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 8px 6px;
-            border-radius: 10px;
-            gap: 2px;
+            padding: 6px 4px;
+            gap: 3px;
         }
-        .kpi-count-box .cnt { font-size: 22px; font-weight: 900; line-height: 1; }
-        .kpi-count-box .lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+        .kpi-count-box .cnt-wrap {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+        .kpi-count-box .cnt {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+        .kpi-count-box .pct-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 6px;
+            margin-bottom: 2px;
+        }
+        .kpi-count-box .lbl {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--muted2);
+        }
 
-        /* Progress bar inside card */
-        .mcard-bar-wrap { padding: 10px 18px 4px; }
-        .mcard-bar-label { display:flex; justify-content:space-between; font-size:10.5px; font-weight:600; color:var(--muted2); margin-bottom:5px; }
-        .mcard-bar-track { height:7px; background:rgba(255,255,255,.05); border-radius:99px; overflow:hidden; }
-        .mcard-bar-fill  { height:100%; border-radius:99px; }
+        /* KPI Progress bar */
+        .mcard-bar-wrap { padding: 10px 16px 6px; }
+        .mcard-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--muted2);
+            margin-bottom: 5px;
+        }
+        .mcard-bar-track { height: 6px; background: rgba(255,255,255,.05); border-radius: 99px; overflow: hidden; }
+        .mcard-bar-fill  { height: 100%; border-radius: 99px; background: var(--blue); }
+        .mcard-bar-fill.good   { background: var(--green); }
+        .mcard-bar-fill.medium { background: var(--amber); }
+        .mcard-bar-fill.bad    { background: var(--red); }
 
         /* KPI list per milha */
-        .mcard-kpi-list { padding: 8px 0 10px; }
+        .mcard-kpi-list { padding: 6px 0 8px; }
         .mcard-kpi-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 7px 18px;
+            padding: 6px 16px;
             font-size: 11px;
             border-bottom: 1px solid rgba(255,255,255,.03);
             gap: 8px;
         }
         .mcard-kpi-item:last-child { border-bottom: none; }
-        .mcard-kpi-name { color: var(--muted2); font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mcard-kpi-name   { color: var(--muted3); font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mcard-kpi-result { font-size: 11px; font-weight: 700; white-space: nowrap; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
-        /* KPI STATUS CHART (stacked bar overview) */
+        /* KPI STATUS CHART */
         .kpi-overview-chart-wrap { height: 240px; position: relative; }
     </style>
 </head>
@@ -427,53 +469,50 @@ async function init(){
     document.getElementById('badge-wk').textContent = lastWeek;
     document.getElementById('badge-wk2').textContent = lastWeek;
     document.getElementById('badge-op').textContent = lastWeek;
-    const trendColor = deltaPct>=0?'#10b981':'#ef4444';
-    const trendBg    = deltaPct>=0?'rgba(16,185,129,.12)':'rgba(239,68,68,.12)';
+    const trendColor = deltaPct>=0?'var(--green2)':'var(--red2)';
+    const trendBg    = deltaPct>=0?'var(--greenBg)':'var(--redBg)';
     const trendArr   = deltaPct>=0?'↑':'↓';
     document.getElementById('badge-trend').textContent = `${trendArr} ${Math.abs(deltaPct)}%`;
 
     // ── KPI CARDS TOP ────────────────────────────────────────────
     document.getElementById('kpi-row').innerHTML = `
     <div class="kcard">
-        <div class="top-accent" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div>
-        <div class="glow" style="background:#3b82f6;"></div>
+        <div class="top-accent" style="background:var(--blue);"></div>
         <div class="k-icon">📊</div>
         <div class="k-label">Aproveitamento Geral ${lastWeek}</div>
-        <div class="k-val" style="color:#60a5fa;">${lastPct}%</div>
+        <div class="k-val" style="color:var(--blue2);">${lastPct}%</div>
         <div class="k-sub">${lastData.total} de ${lastData.max} pontos</div>
         <span class="k-trend" style="background:${trendBg};color:${trendColor};">${trendArr} ${Math.abs(deltaPct)}% vs ${prevWeek}</span>
     </div>
     <div class="kcard">
-        <div class="top-accent" style="background:linear-gradient(90deg,#10b981,#34d399);"></div>
-        <div class="glow" style="background:#10b981;"></div>
+        <div class="top-accent" style="background:var(--green);"></div>
         <div class="k-icon">🏆</div>
         <div class="k-label">Melhor Operação</div>
-        <div class="k-val" style="color:#34d399;font-size:18px;line-height:1.2;">${bestCfg.icon} ${bestCfg.label}</div>
-        <div class="k-sub">${bestEntry[1].pts}/${bestEntry[1].max} pts · ${bestPct}% aproveitamento</div>
-        <span class="k-trend" style="background:rgba(16,185,129,.12);color:#34d399;">✅ Destaque positivo</span>
+        <div class="k-val" style="color:var(--green2);font-size:18px;line-height:1.2;">${bestCfg.label}</div>
+        <div class="k-sub">${bestEntry[1].pts}/${bestEntry[1].max} pts &middot; ${bestPct}% aproveitamento</div>
+        <span class="k-trend" style="background:var(--greenBg);color:var(--green2);">↑ Melhor desempenho</span>
     </div>
     <div class="kcard">
-        <div class="top-accent" style="background:linear-gradient(90deg,#ef4444,#f87171);"></div>
-        <div class="glow" style="background:#ef4444;"></div>
+        <div class="top-accent" style="background:var(--red);"></div>
         <div class="k-icon">⚠️</div>
         <div class="k-label">Maior Gargalo</div>
-        <div class="k-val" style="color:#f87171;font-size:18px;line-height:1.2;">${worstCfg.icon} ${worstCfg.label}</div>
-        <div class="k-sub">${worstEntry[1].pts}/${worstEntry[1].max} pts · ${worstPct}% aproveitamento</div>
-        <span class="k-trend" style="background:rgba(239,68,68,.12);color:#f87171;">🔴 Ação urgente</span>
+        <div class="k-val" style="color:var(--red2);font-size:18px;line-height:1.2;">${worstCfg.label}</div>
+        <div class="k-sub">${worstEntry[1].pts}/${worstEntry[1].max} pts &middot; ${worstPct}% aproveitamento</div>
+        <span class="k-trend" style="background:var(--redBg);color:var(--red2);">↓ Ação urgente</span>
     </div>
     <div class="kcard">
-        <div class="top-accent" style="background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
-        <div class="glow" style="background:#f59e0b;"></div>
+        <div class="top-accent" style="background:var(--blue);"></div>
         <div class="k-icon">🎯</div>
         <div class="k-label">KPIs por Status (${lastWeek})</div>
-        <div class="k-val" style="display:flex;gap:12px;align-items:baseline;font-size:26px;">
-            <span style="color:#34d399;">${totalGreen}</span>
-            <span style="font-size:13px;color:var(--muted);">/</span>
-            <span style="color:#f87171;">${totalRed}</span>
+        <div class="k-val" style="display:flex;gap:14px;align-items:baseline;font-size:26px;">
+            <span style="color:var(--green2);">${totalGreen}</span>
+            <span style="font-size:12px;color:var(--muted2);">atingidos</span>
+            <span style="color:var(--red2);">${totalRed}</span>
+            <span style="font-size:12px;color:var(--muted2);">abaixo</span>
         </div>
-        <div class="k-sub">Metas Atingidas / Não Atingidas</div>
-        <span class="k-trend" style="background:rgba(245,158,11,.12);color:#fbbf24;">${aderencia}% de aderência</span>
+        <div class="k-sub" style="margin-top:4px;">${aderencia}% de aderência geral</div>
     </div>`;
+
 
     // ── OP BARS ──────────────────────────────────────────────────
     const opBars = document.getElementById('op-bars');
@@ -496,11 +535,11 @@ async function init(){
     dc('donut');
     CH['donut'] = new Chart(document.getElementById('c-donut'),{
         type:'doughnut',
-        data:{ labels:['Meta Atingida 🟢','Abaixo da Meta 🔴'],
-            datasets:[{data:[totalGreen,totalRed],backgroundColor:['#10b981','#ef4444'],borderWidth:3,borderColor:'#111e35'}]},
-        options:{responsive:true,maintainAspectRatio:false,cutout:'70%',
+        data:{ labels:['Meta Atingida','Abaixo da Meta'],
+            datasets:[{data:[totalGreen,totalRed],backgroundColor:['rgba(34,197,94,0.75)','rgba(239,68,68,0.65)'],borderWidth:3,borderColor:'#0e1829'}]},
+        options:{responsive:true,maintainAspectRatio:false,cutout:'72%',
             plugins:{
-                legend:{position:'bottom',labels:{boxWidth:10,font:{size:11,weight:'600'},color:'#94a3b8',padding:14}},
+                legend:{position:'bottom',labels:{boxWidth:10,font:{size:11,weight:'600'},color:'#64748b',padding:14}},
                 tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed} KPIs`}}
             }
         },
@@ -508,7 +547,7 @@ async function init(){
             const{ctx,chartArea:{width,height,top,left}}=chart;
             const cx=left+width/2, cy=top+height/2-10;
             ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
-            ctx.font='bold 26px Inter'; ctx.fillStyle='#f1f5f9'; ctx.fillText(aderencia+'%',cx,cy);
+            ctx.font='bold 26px Inter'; ctx.fillStyle='#e2e8f0'; ctx.fillText(aderencia+'%',cx,cy);
             ctx.font='10px Inter'; ctx.fillStyle='#64748b'; ctx.fillText('aderência',cx,cy+22);
             ctx.restore();
         }}]
@@ -526,19 +565,28 @@ async function init(){
         data:{
             labels: milhaLabels,
             datasets:[
-                {label:'🟢 Meta Atingida', data:milhaGreen, backgroundColor:'rgba(16,185,129,0.8)', borderRadius:{topLeft:4,topRight:4}, stack:'s'},
-                {label:'🔴 Abaixo da Meta',data:milhaRed,   backgroundColor:'rgba(239,68,68,0.8)',  borderRadius:{topLeft:4,topRight:4}, stack:'s'}
+                {label:'Atingidos', data:milhaGreen, backgroundColor:'rgba(34,197,94,0.65)', borderRadius:{topLeft:4,topRight:4}, stack:'s'},
+                {label:'Abaixo da Meta', data:milhaRed, backgroundColor:'rgba(239,68,68,0.5)',  borderRadius:{topLeft:4,topRight:4}, stack:'s'}
             ]
         },
         options:{
             responsive:true, maintainAspectRatio:false,
             plugins:{
-                legend:{position:'top',labels:{boxWidth:12,font:{size:11,weight:'600'},color:'#94a3b8',padding:14}},
-                tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y} KPIs`}}
+                legend:{position:'top',labels:{boxWidth:10,font:{size:11,weight:'600'},color:'#64748b',padding:14}},
+                tooltip:{
+                    callbacks:{
+                        label:c=>{
+                            const ds=c.datasetIndex===0?milhaGreen:milhaRed;
+                            const total2=(milhaGreen[c.dataIndex]||0)+(milhaRed[c.dataIndex]||0);
+                            const pct2=total2>0?+(c.parsed.y/total2*100).toFixed(0):0;
+                            return ` ${c.dataset.label}: ${c.parsed.y} KPIs (${pct2}%)`;
+                        }
+                    }
+                }
             },
             scales:{
-                x:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:11,weight:'600'}}},
-                y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{size:10},stepSize:1}}
+                x:{grid:{display:false},ticks:{color:'#64748b',font:{size:11,weight:'600'}}},
+                y:{stacked:true,grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#475569',font:{size:10},stepSize:1}}
             }
         }
     });
@@ -550,19 +598,19 @@ async function init(){
     opEntries.forEach(([key, d])=>{
         const cfg   = MILHA_CFG[key.toUpperCase()]||{label:key,icon:'🏭',color:'#3b82f6'};
         const pct   = d.max?+(d.pts/d.max*100).toFixed(1):0;
-        const c     = clr(pct);
+        const pctColor = pct>=70?'#4ade80':pct>=40?'#f59e0b':'#f87171';
+        const barCls   = pct>=70?'good':pct>=40?'medium':'bad';
         const green = d.green||0;
         const red   = d.red||0;
         const total = green+red;
         const ader  = total>0?+(green/total*100).toFixed(0):0;
 
-        // Top 5 KPIs for this milha
+        // KPI rows
         const kpisSorted = (d.kpis||[]).slice(0,6);
-
         const kpiRows = kpisSorted.map(k=>{
-            const rc = k.green?'#10b981':'#ef4444';
+            const rc = k.green?'#4ade80':'#f87171';
             return `<div class="mcard-kpi-item">
-                <div class="dot" style="background:${rc};"></div>
+                <div class="dot" style="background:${rc};opacity:0.85;"></div>
                 <span class="mcard-kpi-name" title="${k.kpi}">${k.kpi}</span>
                 <span class="mcard-kpi-result" style="color:${rc};">${k.result||'—'}</span>
             </div>`;
@@ -570,40 +618,48 @@ async function init(){
 
         milhaCardsEl.innerHTML += `
         <div class="mcard">
-            <div class="mcard-header" style="border-top:3px solid ${cfg.color};">
+            <div class="mcard-header">
                 <div class="mcard-name">${cfg.icon} ${cfg.label}</div>
-                <div class="mcard-pct" style="color:${c};">${pct}%</div>
+                <div class="mcard-pct" style="color:${pctColor};">${pct}%</div>
             </div>
 
             <div class="mcard-status-row">
-                <div class="kpi-count-box" style="background:rgba(16,185,129,0.1);">
-                    <div class="cnt" style="color:#34d399;">${green}</div>
-                    <div class="lbl" style="color:#34d399;">🟢 Atingidos</div>
+                <div class="kpi-count-box">
+                    <div class="cnt-wrap">
+                        <span class="cnt" style="color:#4ade80;">${green}</span>
+                        <span class="pct-badge" style="background:rgba(34,197,94,0.1);color:#4ade80;">${total>0?+(green/total*100).toFixed(0):0}%</span>
+                    </div>
+                    <div class="lbl">KPIs Atingidos</div>
                 </div>
-                <div style="width:1px;height:36px;background:var(--border);"></div>
-                <div class="kpi-count-box" style="background:rgba(239,68,68,0.1);">
-                    <div class="cnt" style="color:#f87171;">${red}</div>
-                    <div class="lbl" style="color:#f87171;">🔴 Abaixo</div>
+                <div class="mcard-divider"></div>
+                <div class="kpi-count-box">
+                    <div class="cnt-wrap">
+                        <span class="cnt" style="color:#f87171;">${red}</span>
+                        <span class="pct-badge" style="background:rgba(239,68,68,0.1);color:#f87171;">${total>0?+(red/total*100).toFixed(0):0}%</span>
+                    </div>
+                    <div class="lbl">KPIs Abaixo</div>
                 </div>
-                <div style="width:1px;height:36px;background:var(--border);"></div>
-                <div class="kpi-count-box" style="background:rgba(255,255,255,0.03);">
-                    <div class="cnt" style="color:#fbbf24;">${ader}%</div>
-                    <div class="lbl" style="color:#fbbf24;">Aderência</div>
+                <div class="mcard-divider"></div>
+                <div class="kpi-count-box">
+                    <div class="cnt-wrap">
+                        <span class="cnt" style="color:#e2e8f0;">${total}</span>
+                    </div>
+                    <div class="lbl">Total de KPIs</div>
                 </div>
             </div>
 
             <div class="mcard-bar-wrap">
                 <div class="mcard-bar-label">
-                    <span>Pts: ${d.pts}/${d.max}</span>
-                    <span style="color:${c};">${pct}% aproveitamento</span>
+                    <span>${d.pts} / ${d.max} pontos</span>
+                    <span style="color:${pctColor}; font-weight:700;">${pct}% aproveitamento</span>
                 </div>
                 <div class="mcard-bar-track">
-                    <div class="mcard-bar-fill" style="width:${pct}%;background:${c};"></div>
+                    <div class="mcard-bar-fill ${barCls}" style="width:${pct}%;"></div>
                 </div>
             </div>
 
             <div class="mcard-kpi-list">
-                ${kpiRows||'<div style="padding:10px 18px;font-size:11px;color:var(--muted2);">Sem KPIs disponíveis</div>'}
+                ${kpiRows||'<div style="padding:8px 16px;font-size:11px;color:var(--muted2);">Sem KPIs disponíveis</div>'}
             </div>
         </div>`;
     });
