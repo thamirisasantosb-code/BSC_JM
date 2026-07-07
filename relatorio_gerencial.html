@@ -339,6 +339,29 @@
 </div><!-- /page -->
 
 <script>
+// Interceptar fetch global para autenticação
+const originalFetch = window.fetch;
+window.fetch = function(url, options = {}) {
+    const token = localStorage.getItem('bsc_token');
+    const isApi = typeof url === 'string' && url.includes('/api/');
+    if (isApi) {
+        if (!options.headers) options.headers = {};
+        if (token && !options.headers['Authorization']) {
+            options.headers['Authorization'] = 'Bearer ' + token;
+        }
+    }
+    return originalFetch(url, options).then(response => {
+        if (isApi && (response.status === 401 || response.status === 403)) {
+            localStorage.removeItem('bsc_token');
+            localStorage.removeItem('bsc_user_role');
+            localStorage.removeItem('bsc_user_email');
+            window.location.href = 'login.html';
+            throw new Error('Sessão expirada. Redirecionando...');
+        }
+        return response;
+    });
+};
+
 Chart.defaults.color = '#475569';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
 const CH = {};
@@ -359,63 +382,52 @@ const MILHA_CFG = {
 };
 
 async function init(){
-    let rows=[];
-    try{
-        rows = await new Promise((ok,err)=>{
-            Papa.parse('/Base_Indicadores_BSC.csv?v=' + Date.now(), {
-                download:true, header:true, skipEmptyLines:true,
-                complete:r=>ok(r.data), error:err
+    let months = [];
+    let monthData = {};
+
+    try {
+        const resp = await fetch('/api/fechamento-mensal?v=' + Date.now());
+        if (!resp.ok) throw new Error('Erro ao carregar dados consolidados');
+        const json = await resp.json();
+        
+        months = json.months || [];
+        const rawByMonth = json.data || {};
+
+        months.forEach(month => {
+            monthData[month] = { total: 0, max: 0, ops: {}, kpis: [] };
+            const wd = monthData[month];
+            const rows = rawByMonth[month] || [];
+
+            rows.forEach(r => {
+                const milha   = r.milha.trim().toUpperCase();
+                const kpi     = r.kpi.trim();
+                const ptsMax  = parseFloat(r.ptsMax || 0) || 0;
+                const ptsAti  = parseFloat(r.ptsAti || 0) || 0;
+                const gapStr  = String(r.gapStr || '');
+                const green   = gapStr.includes('🟢');
+                const result  = String(r.resultado || '').trim();
+
+                if (ptsMax > 0) {
+                    wd.total += ptsAti;
+                    wd.max   += ptsMax;
+                }
+
+                const mKey = milha;
+                if (!wd.ops[mKey]) wd.ops[mKey] = { pts: 0, max: 0, green: 0, red: 0, kpis: [] };
+                if (ptsMax > 0) {
+                    wd.ops[mKey].pts += ptsAti;
+                    wd.ops[mKey].max += ptsMax;
+                }
+                if (green) wd.ops[mKey].green++;
+                else       wd.ops[mKey].red++;
+                
+                wd.ops[mKey].kpis.push({ kpi, result, green, ptsAti, ptsMax, gapStr });
+                wd.kpis.push({ milha: mKey, kpi, result, green, ptsAti, ptsMax });
             });
         });
-    } catch(e){ console.warn('CSV não disponível'); }
-
-    // Detect months
-    const MONTH_ORDER = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const allPeriods = [...new Set(rows.map(r=>{
-        return (r['Período'] || r['\uFEFFPeríodo'] || Object.values(r)[0] || '').trim();
-    }))];
-    // Filter out weekly periods and keep only non-empty
-    const months = allPeriods.filter(p=> p && !/^W\d+$/.test(p)).sort((a,b)=>{
-        return MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b);
-    });
-
-    // Build month summaries from Pontuação Atingida / Pontuação Máxima columns
-    // CSV columns: Período, 1º Campo, 2º Campo, Milha, KPI, Meta 4 Pontos, Meta 2 Pontos,
-    //              Resultado Final, PESO, Pontuação Máxima, Pontuação Atingida, GAP Pontuação, GAP Peso Ponderado
-    const monthData = {}; // month -> { total, max, ops:{milha->{pts,max}}, kpis:[{milha,kpi,pts,max,gap,result,green}] }
-
-    rows.forEach(row=>{
-        const period = (row['Período'] || row['\uFEFFPeríodo'] || Object.values(row)[0] || '').trim();
-        if(!period || /^W\d+$/.test(period)) return;
-
-        const milha   = (row['Milha']||'').trim().toUpperCase();
-        const kpi     = (row['KPI']||row['Indicadores BSC']||Object.values(row)[4]||'').toString().trim();
-        const ptsMax  = parseFloat(row['Pontuação Máxima']||0)||0;
-        const ptsAti  = parseFloat(row['Pontuação Atingida']||0)||0;
-        const gapStr  = (row['GAP Pontuação']||'').toString();
-        const green   = gapStr.includes('🟢');
-        const result  = (row['Resultado Final']||'').trim();
-
-        if(!monthData[period]) monthData[period]={total:0,max:0,ops:{},kpis:[]};
-        const wd = monthData[period];
-
-        // Only sum positive max points (SRM has negative weights as penalties)
-        if(ptsMax>0){
-            wd.total += ptsAti;
-            wd.max   += ptsMax;
-        }
-
-        const mKey = milha;
-        if(!wd.ops[mKey]) wd.ops[mKey]={pts:0,max:0,green:0,red:0,kpis:[]};
-        if(ptsMax>0){
-            wd.ops[mKey].pts += ptsAti;
-            wd.ops[mKey].max += ptsMax;
-        }
-        if(green) wd.ops[mKey].green++;
-        else       wd.ops[mKey].red++;
-        wd.ops[mKey].kpis.push({kpi, result, green, ptsAti, ptsMax, gapStr});
-        wd.kpis.push({milha:mKey, kpi, result, green, ptsAti, ptsMax});
-    });
+    } catch(e) {
+        console.warn('Erro ao carregar dados da API:', e);
+    }
 
     // Use fallback if no data
     const useFallback = months.length === 0;

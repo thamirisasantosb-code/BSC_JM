@@ -125,17 +125,29 @@ app.get('/api/fechamento-mensal', authMiddleware, (req, res) => {
             lines.forEach(line => {
                 if (!line.trim()) return;
                 const cols = line.split(',').map(c => c.trim());
-                const periodo = cols[0];
+                const periodo = cols[0] ? cols[0].replace(/^\uFEFF/, '').trim() : '';
                 if (!periodo || !MONTHLY_LABELS.includes(periodo)) return;
 
                 const milha = cols[3] || '';
                 const kpi = cols[4] || '';
                 const meta4 = cols[5] || '';
                 const resultado = cols[7] || '';
+                const ptsMax = parseFloat(cols[9] || 0) || 0;
+                const ptsAti = parseFloat(cols[10] || 0) || 0;
+                const gapStr = cols[11] || '';
 
                 if (!kpi) return;
 
-                allRows.push({ periodo, milha, kpi, meta: meta4, resultado });
+                allRows.push({ 
+                    periodo, 
+                    milha, 
+                    kpi, 
+                    meta: meta4, 
+                    resultado,
+                    ptsMax,
+                    ptsAti,
+                    gapStr
+                });
             });
         });
 
