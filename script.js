@@ -1733,7 +1733,7 @@ window.updateActionModalIndicatorDetail = function() {
         if (firstWithMeta) {
             metaText = String(firstWithMeta.meta).replace(/\s*[🟢🔴]/g,'').trim();
         }
-        document.getElementById('action-detail-kpi-meta').textContent = metaText !== '-' ? `Meta: ${metaText}` : 'Meta: -';
+        // Meta fixa removida do cabeçalho de detalhes
 
         // Render Table
         monthTableWrap.innerHTML = `
@@ -1808,15 +1808,6 @@ window.updateActionModalIndicatorDetail = function() {
                                 tension: 0.25,
                                 fill: true,
                                 spanGaps: true
-                            },
-                            {
-                                label: 'Meta',
-                                data: monthlyMetas,
-                                borderColor: '#F59E0B',
-                                borderDash: [5,5],
-                                borderWidth: 2,
-                                pointRadius: 0,
-                                fill: false
                             }
                         ]
                     },
