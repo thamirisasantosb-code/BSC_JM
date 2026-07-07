@@ -9,12 +9,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg:       #f1f5f9;
+            --bg:       #f8fafc;
             --card:     #ffffff;
-            --card2:    #f8fafc;
+            --card2:    #f1f5f9;
             --border:   rgba(15, 23, 42, 0.08);
-            --blue:     #2563eb;
-            --blue2:    #1d4ed8;
+            --blue:     #0f246a;
+            --blue2:    #2563eb;
             --blueBg:   rgba(37, 99, 235, 0.06);
             --green:    #16a34a;
             --green2:   #15803d;
@@ -27,7 +27,7 @@
             --text:     #0f172a;
             --muted:    #e2e8f0;
             --muted2:   #64748b;
-            --muted3:   #475569;
+            --muted3:   #334155;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -35,22 +35,22 @@
 
         /* TOPBAR */
         .topbar {
-            background: linear-gradient(135deg, #0a246a 0%, #1e3a8a 100%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0 28px; height: 54px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px; height: 56px;
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 200;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(15,23,42,0.04);
         }
         .topbar-left { display: flex; align-items: center; gap: 14px; }
-        .logo { display:flex; align-items:center; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:4px 10px; }
-        .logo b { font-size:13px; font-weight:900; color:#fff; }
-        .logo .td { background:#E8A838; color:#0a246a; padding:1px 5px; border-radius:3px; font-size:9px; font-weight:900; margin-left:3px; }
-        .topbar h1 { font-size:14px; font-weight:700; color:rgba(255,255,255,.9); }
+        .logo { display:flex; align-items:center; background:#f1f5f9; border:1px solid var(--border); border-radius:8px; padding:4px 10px; }
+        .logo b { font-size:13px; font-weight:900; color:#0f246a; }
+        .logo .td { background:#E8A838; color:#0f246a; padding:1px 5px; border-radius:3px; font-size:9px; font-weight:900; margin-left:3px; }
+        .topbar h1 { font-size:14px; font-weight:700; color:var(--text); }
         .topbar-right { display:flex; align-items:center; gap:10px; }
-        .badge-wk { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,.25); color:#fff; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; }
-        .btn-back { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); color:#fff; padding:6px 14px; border-radius:6px; font-weight:600; font-size:12px; text-decoration:none; transition:all .2s; }
-        .btn-back:hover { background:rgba(255,255,255,.2); color:#fff; }
+        .badge-wk { background:var(--blueBg); border:1px solid rgba(37,99,235,0.2); color:var(--blue2); font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; }
+        .btn-back { background:#f8fafc; border:1px solid var(--border); color:var(--text); padding:6px 14px; border-radius:6px; font-weight:600; font-size:12px; text-decoration:none; transition:all .2s; }
+        .btn-back:hover { background:#e2e8f0; }
 
         /* LOADING */
         #loading { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:1000; gap:14px; }
@@ -72,12 +72,12 @@
             align-items: center;
             gap: 20px;
             flex-wrap: wrap;
-            box-shadow: 0 4px 12px rgba(15,23,42,0.03);
+            box-shadow: 0 4px 12px rgba(15,23,42,0.02);
         }
         .filt-group { display: flex; flex-direction: column; gap: 4px; }
         .filt-group label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted2); letter-spacing: .06em; }
         .filt-select {
-            background: var(--card2);
+            background: var(--bg);
             border: 1px solid var(--border);
             color: var(--text);
             border-radius: 6px;
@@ -86,34 +86,46 @@
             font-size: 12.5px;
             outline: none;
             cursor: pointer;
-            min-width: 160px;
+            min-width: 170px;
             transition: border-color 0.15s;
         }
-        .filt-select:focus { border-color: var(--blue); }
+        .filt-select:focus { border-color: var(--blue2); }
 
         /* SECTION TITLE */
-        .sec { font-size:11.5px; font-weight:700; color:var(--muted3); text-transform:uppercase; letter-spacing:.08em; margin:24px 0 14px; display:flex; align-items:center; gap:10px; }
+        .sec { font-size:11.5px; font-weight:700; color:var(--muted2); text-transform:uppercase; letter-spacing:.08em; margin:24px 0 14px; display:flex; align-items:center; gap:10px; }
         .sec::after { content:''; flex:1; height:1px; background:var(--border); }
 
-        /* COMPARISON SUMMARY ROW */
+        /* SUMMARY / COMPARATIVE CARD */
         .comp-panel {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border: 1px solid rgba(37,99,235,0.15);
+            background: #f8fafc;
+            border: 1px solid var(--border);
             border-radius: 14px;
             padding: 16px 20px;
             margin-bottom: 20px;
-            color: #1e3a8a;
         }
-        .comp-title { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .comp-title { font-weight: 800; font-size: 13.5px; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--blue); }
         .comp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         @media(max-width: 800px) { .comp-grid { grid-template-columns: repeat(2, 1fr); } }
-        .comp-item { background: rgba(255,255,255,0.6); border: 1px solid rgba(37,99,235,0.1); border-radius: 10px; padding: 10px 14px; }
-        .comp-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #1e40af; opacity: 0.8; margin-bottom: 2px; }
+        .comp-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .comp-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted2); margin-bottom: 3px; }
         .comp-val-main { font-size: 20px; font-weight: 900; }
         .comp-val-diff { font-size: 11px; font-weight: 700; margin-top: 2px; }
-        .diff-pos { color: #15803d; }
-        .diff-neg { color: #b91c1c; }
-        .diff-neu { color: #4b5563; }
+        .diff-pos { color: var(--green); }
+        .diff-neg { color: var(--red); }
+        .diff-neu { color: var(--muted2); }
+
+        /* EXECUTIVE SUMMARY CARD */
+        .exec-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(15,23,42,0.02);
+            line-height: 1.6;
+        }
+        .exec-title { font-size: 14px; font-weight: 800; color: var(--blue); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .exec-text { font-size: 13px; color: var(--muted3); }
 
         /* KPI CARDS TOP */
         .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
@@ -121,33 +133,33 @@
         @media(max-width:640px){ .kpi-row{ grid-template-columns:1fr; } }
 
         .kcard {
-            background:var(--card); border:1px solid var(--border); border-radius:14px;
+            background:var(--card); border: 1px solid var(--border); border-radius:14px;
             padding:18px 20px; position:relative; overflow:hidden;
-            box-shadow: 0 4px 12px rgba(15,23,42,0.03);
+            box-shadow: 0 4px 12px rgba(15,23,42,0.02);
             transition:transform .2s, box-shadow .2s; cursor:default;
         }
-        .kcard:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(15,23,42,0.08); }
+        .kcard:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(15,23,42,0.06); }
         .kcard .top-accent { position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; }
-        .k-icon { font-size:20px; margin-bottom:12px; }
-        .k-label { font-size:10px; font-weight:700; color:var(--muted2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px; }
-        .k-val { font-size:28px; font-weight:900; line-height:1; margin-bottom:4px; }
-        .k-sub { font-size:11.5px; color:var(--muted2); }
+        .k-icon { font-size:18px; margin-bottom:10px; }
+        .k-label { font-size:10px; font-weight:700; color:var(--muted2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+        .k-val { font-size: 26px; font-weight: 800; line-height:1; margin-bottom:4px; color: var(--blue); }
+        .k-sub { font-size:11px; color:var(--muted2); }
         .k-trend { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; margin-top:10px; padding:3px 9px; border-radius:20px; }
 
         /* MAIN CHARTS GRID */
-        .grid-2-1 { display:grid; grid-template-columns:1.5fr 1fr; gap:14px; }
+        .grid-2-1 { display:grid; grid-template-columns: 1.4fr 1fr; gap:14px; }
         .grid-3   { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-        .grid-2   { display:grid; grid-template-columns:2fr 1fr; gap:14px; }
+        .grid-2   { display:grid; grid-template-columns: 1.2fr 1fr; gap:14px; }
         @media(max-width:1100px){ .grid-2-1,.grid-3,.grid-2{ grid-template-columns:1fr; } }
 
         /* CARD */
         .card {
-            background:var(--card); border:1px solid var(--border); border-radius:14px;
+            background:var(--card); border: 1px solid var(--border); border-radius:14px;
             padding:18px 20px; display:flex; flex-direction:column;
-            box-shadow: 0 4px 12px rgba(15,23,42,0.03);
+            box-shadow: 0 4px 12px rgba(15,23,42,0.02);
         }
         .card-hd { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; }
-        .card-hd h3 { font-size:13px; font-weight:700; color:var(--text); line-height:1.3; }
+        .card-hd h3 { font-size:13px; font-weight:700; color:var(--blue); line-height:1.3; }
         .card-hd .sub { font-size:11px; color:var(--muted2); margin-top:2px; }
         .badge { flex-shrink:0; font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; white-space:nowrap; }
         .cw { position:relative; flex:1; min-height:200px; }
@@ -157,28 +169,28 @@
         .op-item { display:flex; flex-direction:column; gap:5px; }
         .op-row { display:flex; justify-content:space-between; align-items:center; font-size:11.5px; }
         .op-nm { color:var(--text); font-weight:600; }
-        .op-track { height:8px; background:rgba(15,23,42,0.05); border-radius:99px; overflow:hidden; }
+        .op-track { height:6px; background:rgba(15,23,42,0.05); border-radius:99px; overflow:hidden; }
         .op-fill { height:100%; border-radius:99px; }
 
         /* TABLE */
         .dt { width:100%; border-collapse:collapse; font-size:12px; }
         .dt th { text-align:left; padding:8px 12px; color:var(--muted2); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid var(--border); }
         .dt td { padding:9px 12px; border-bottom:1px solid var(--border); color:var(--muted3); }
-        .dt td:first-child { color:var(--text); font-weight:600; }
+        .dt td:first-child { color:var(--text); font-weight:700; }
         .dt tr:last-child td { border-bottom:none; }
-        .dt tbody tr:hover td { background:rgba(0,0,0,.015); }
+        .dt tbody tr:hover td { background:rgba(0,0,0,.01); }
         .pill { display:inline-block; padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; }
         .p-green  { background:var(--greenBg); color:var(--green); }
         .p-red    { background:var(--redBg);   color:var(--red); }
         .p-yellow { background:var(--amberBg); color:var(--amber); }
-        .p-blue   { background:var(--blueBg);  color:var(--blue); }
+        .p-blue   { background:var(--blueBg);  color:var(--blue2); }
 
         /* INSIGHTS */
         .insight-list { display:flex; flex-direction:column; gap:9px; }
-        .ii { display:flex; align-items:flex-start; gap:10px; padding:11px 14px; background:rgba(0,0,0,0.015); border-radius:10px; border-left:3px solid; }
+        .ii { display:flex; align-items:flex-start; gap:10px; padding:11px 14px; background:var(--bg); border-radius:10px; border-left:3px solid; }
         .ii-icon { font-size:15px; flex-shrink:0; margin-top:1px; }
-        .ii-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px; }
-        .ii-desc  { font-size:11px; color:var(--muted2); line-height:1.55; }
+        .ii-title { font-size:12px; font-weight:700; color:var(--blue); margin-bottom:2px; }
+        .ii-desc  { font-size:11.5px; color:var(--muted2); line-height:1.5; }
         .ii-desc strong { color:var(--text); }
 
         /* ─── MILHA CARDS ─────────────────────────────────────── */
@@ -195,10 +207,10 @@
             border: 1px solid var(--border);
             border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(15,23,42,0.03);
+            box-shadow: 0 4px 12px rgba(15,23,42,0.02);
             transition: transform .2s, box-shadow .2s;
         }
-        .mcard:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(15,23,42,0.08); }
+        .mcard:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(15,23,42,0.06); }
 
         /* Thin left accent — only structural color */
         .mcard-header {
@@ -207,9 +219,9 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
-            border-left: 3px solid var(--blue);
+            border-left: 3px solid var(--blue2);
         }
-        .mcard-name { font-size: 13px; font-weight: 700; color: var(--text); display:flex; align-items:center; gap:7px; }
+        .mcard-name { font-size: 13px; font-weight: 700; color: var(--blue); display:flex; align-items:center; gap:7px; }
         .mcard-pct  { font-size: 18px; font-weight: 900; }
 
         /* KPI STATUS NUMBERS — 3 clean boxes */
@@ -265,7 +277,7 @@
             margin-bottom: 5px;
         }
         .mcard-bar-track { height: 6px; background: rgba(15,23,42,0.05); border-radius: 99px; overflow: hidden; }
-        .mcard-bar-fill  { height: 100%; border-radius: 99px; background: var(--blue); }
+        .mcard-bar-fill  { height: 100%; border-radius: 99px; background: var(--blue2); }
         .mcard-bar-fill.good   { background: var(--green); }
         .mcard-bar-fill.medium { background: var(--amber); }
         .mcard-bar-fill.bad    { background: var(--red); }
@@ -294,7 +306,7 @@
 
 <div id="loading">
     <div class="spinner"></div>
-    <div class="load-txt">Carregando dados consolidados...</div>
+    <div class="load-txt">Preparando fechamento consolidado...</div>
 </div>
 
 <div class="topbar">
@@ -341,6 +353,14 @@
     <!-- ── COMPARATIVO DETALHADO ── -->
     <div id="comp-panel-container" style="display: none;"></div>
 
+    <!-- ── SUMÁRIO EXECUTIVO ── -->
+    <div class="exec-card" id="exec-summary-card">
+        <div class="exec-title">📝 Análise Crítica &amp; Sumário Executivo</div>
+        <div class="exec-text" id="exec-summary-text">
+            Selecione um mês para ver a análise executiva gerada em tempo real...
+        </div>
+    </div>
+
     <!-- ── KPI CARDS ── -->
     <div class="sec" style="margin-top:0;">📊 Visão Geral</div>
     <div class="kpi-row" id="kpi-row"></div>
@@ -351,7 +371,7 @@
         <div class="card">
             <div class="card-hd">
                 <div><h3>Pontos Atingidos por Operação</h3><div class="sub">Pontos totais vs máximo disponível</div></div>
-                <span class="badge" id="badge-op" style="background:var(--blueBg);color:var(--blue);"></span>
+                <span class="badge" id="badge-op" style="background:var(--blueBg);color:var(--blue2);"></span>
             </div>
             <div class="op-list" id="op-bars"></div>
         </div>
@@ -368,7 +388,7 @@
     <div class="card" style="margin-bottom:14px;" id="milha-chart-card">
         <div class="card-hd">
             <div><h3>KPIs Atingidos vs Não Atingidos por Milha</h3><div class="sub">Comparativo de status de indicadores entre todas as operações</div></div>
-            <span class="badge" id="badge-wk2" style="background:var(--blueBg);color:var(--blue);"></span>
+            <span class="badge" id="badge-wk2" style="background:var(--blueBg);color:var(--blue2);"></span>
         </div>
         <div class="kpi-overview-chart-wrap"><canvas id="c-milha-status"></canvas></div>
     </div>
@@ -377,8 +397,8 @@
     <div class="milha-grid" id="milha-cards"></div>
 
     <!-- ── TEMPORAL ── -->
-    <div class="sec">📈 Análise Temporal e Impactos</div>
-    <div class="grid-3">
+    <div class="sec">📈 Análise Temporal e Histórico</div>
+    <div class="grid-2">
         <div class="card">
             <div class="card-hd">
                 <div><h3>Evolução Mensal do BSC</h3><div class="sub">Aproveitamento geral mês a mês</div></div>
@@ -386,16 +406,26 @@
             </div>
             <div class="cw"><canvas id="c-weekly"></canvas></div>
         </div>
+        <div class="card" style="gap:18px;">
+            <div>
+                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Histórico Mensal Consolidadado</h3></div></div>
+                <table class="dt" id="t-weekly"></table>
+            </div>
+        </div>
+    </div>
+
+    <div class="sec">📊 GAPs &amp; Comparativo</div>
+    <div class="grid-2">
         <div class="card">
             <div class="card-hd">
-                <div><h3>Maiores GAPs de Pontos</h3><div class="sub">Impacto negativo no scorecard</div></div>
-                <span class="badge" style="background:var(--redBg);color:var(--red2);">⚠ Crítico</span>
+                <div><h3>Maiores GAPs de Pontos</h3><div class="sub">KPIs que mais impactaram negativamente o scorecard</div></div>
+                <span class="badge" style="background:var(--redBg);color:var(--red);">⚠ Crítico</span>
             </div>
             <div class="cw"><canvas id="c-gaps"></canvas></div>
         </div>
         <div class="card">
             <div class="card-hd">
-                <div><h3>Comparativo Períodos por Operação</h3><div class="sub">Evolução de pontos nos meses selecionados</div></div>
+                <div><h3>Comparativo por Operação</h3><div class="sub">Evolução de pontos nos meses selecionados</div></div>
                 <span class="badge" style="background:var(--greenBg);color:var(--green2);">Δ Comparativo</span>
             </div>
             <div class="cw"><canvas id="c-compare"></canvas></div>
@@ -403,21 +433,15 @@
     </div>
 
     <!-- ── INSIGHTS + TABLE ── -->
-    <div class="sec">💡 Conclusões e Histórico</div>
+    <div class="sec">💡 Plano de Ação &amp; Conclusões</div>
     <div class="grid-2">
         <div class="card">
-            <div class="card-hd"><div><h3>Principais Conclusões para Tomada de Decisão</h3></div></div>
+            <div class="card-hd"><div><h3>Plano de Ação para Principais Desvios</h3></div></div>
             <div class="insight-list" id="insights"></div>
         </div>
-        <div class="card" style="gap:18px;">
-            <div>
-                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Histórico Mensal</h3></div></div>
-                <table class="dt" id="t-weekly"></table>
-            </div>
-            <div>
-                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Operações (mês selecionado)</h3></div></div>
-                <table class="dt" id="t-ops"></table>
-            </div>
+        <div class="card">
+            <div class="card-hd" style="margin-bottom:10px;"><div><h3>Status das Operações (Mês Selecionado)</h3></div></div>
+            <table class="dt" id="t-ops"></table>
         </div>
     </div>
 
@@ -447,7 +471,7 @@ window.fetch = function(url, options = {}) {
     });
 };
 
-Chart.defaults.color = '#334155';
+Chart.defaults.color = '#475569';
 Chart.defaults.borderColor = 'rgba(15, 23, 42, 0.06)';
 const CH = {};
 
@@ -631,32 +655,32 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
         
         compContainer.innerHTML = `
         <div class="comp-panel">
-            <div class="comp-title">🔍 Painel de Comparativo: Mês Base (<strong>${lastMonth}</strong>) vs Mês Comparado (<strong>${prevMonth}</strong>)</div>
+            <div class="comp-title">🔍 Balanço Comparativo: Mês Base (<strong>${lastMonth}</strong>) vs Mês Comparado (<strong>${prevMonth}</strong>)</div>
             <div class="comp-grid">
                 <div class="comp-item">
-                    <div class="comp-lbl">Aproveitamento</div>
+                    <div class="comp-lbl">Aproveitamento Geral</div>
                     <div class="comp-val-main">${lastPct}% <span style="font-size:12px;color:var(--muted2);font-weight:600;">vs ${prevPct}%</span></div>
                     <div class="comp-val-diff ${deltaClass}">${deltaSym}${Math.abs(dScore)}% de diferença</div>
                 </div>
                 <div class="comp-item">
-                    <div class="comp-lbl">Pontuação Scorecard</div>
+                    <div class="comp-lbl">Pontuação Total</div>
                     <div class="comp-val-main">${lastData.total} <span style="font-size:12px;color:var(--muted2);font-weight:600;">vs ${prevData.total}</span></div>
                     <div class="comp-val-diff ${lastData.total >= prevData.total ? 'diff-pos' : 'diff-neg'}">
                         ${lastData.total >= prevData.total ? '▲ +' : '▼ '}${lastData.total - prevData.total} pontos atingidos
                     </div>
                 </div>
                 <div class="comp-item">
-                    <div class="comp-lbl">Meta Atingida (🟢)</div>
+                    <div class="comp-lbl">Metas Cumpridas (🟢)</div>
                     <div class="comp-val-main">${totalGreen} <span style="font-size:12px;color:var(--muted2);font-weight:600;">vs ${prevData.kpis ? prevData.kpis.filter(k=>k.green).length : 0}</span></div>
                     <div class="comp-val-diff ${dGreen >= 0 ? 'diff-pos' : 'diff-neg'}">
                         ${dGreen >= 0 ? '▲ +' : '▼ '}${Math.abs(dGreen)} KPIs no status
                     </div>
                 </div>
                 <div class="comp-item">
-                    <div class="comp-lbl">Total de GAPs</div>
+                    <div class="comp-lbl">Total de Desvios (🔴)</div>
                     <div class="comp-val-main">${totalRed} <span style="font-size:12px;color:var(--muted2);font-weight:600;">vs ${prevData.kpis ? prevData.kpis.filter(k=>!k.green).length : 0}</span></div>
                     <div class="comp-val-diff ${(totalRed <= (prevData.kpis ? prevData.kpis.filter(k=>!k.green).length : 0)) ? 'diff-pos' : 'diff-neg'}">
-                        Abaixo da meta: ${totalRed} KPIs
+                        Diferença de ${totalRed - (prevData.kpis ? prevData.kpis.filter(k=>!k.green).length : 0)} desvios
                     </div>
                 </div>
             </div>
@@ -665,6 +689,29 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
     } else {
         compContainer.style.display = 'none';
     }
+
+    // ── SUMÁRIO EXECUTIVO DINÂMICO ────────────────────────────────
+    let execTextHtml = '';
+    if (selectedMilha !== 'TODAS') {
+        execTextHtml += `Análise focada exclusivamente na milha <strong>${(MILHA_CFG[selectedMilha] || {label: selectedMilha}).label}</strong>. `;
+    }
+    
+    execTextHtml += `No mês de <strong>${lastMonth}</strong>, o Scorecard consolidado atingiu <strong>${lastPct}% de aproveitamento</strong>, correspondendo a <strong>${lastData.total} pontos atingidos</strong> de um limite máximo de ${lastData.max}. `;
+    
+    if (deltaPct >= 0) {
+        execTextHtml += `Este resultado representa uma <strong>evolução positiva de +${deltaPct}%</strong> comparado ao período de <strong>${prevMonth}</strong>. `;
+    } else {
+        execTextHtml += `Foi identificada uma <strong>retração de ${deltaPct}%</strong> em relação a <strong>${prevMonth}</strong>, indicando a necessidade de planos de ação preventivos nos principais gargalos. `;
+    }
+
+    if (bestEntry[0] !== '-' && bestPct > 0) {
+        execTextHtml += `A operação de destaque positivo foi <strong>${(MILHA_CFG[bestEntry[0]] || {label: bestEntry[0]}).label}</strong>, alcançando uma eficiência de <strong>${bestPct}%</strong> (${bestEntry[1].pts}/${bestEntry[1].max} pts). `;
+    }
+    if (worstEntry[0] !== '-' && worstEntry[0] !== bestEntry[0] && worstPct < 50) {
+        execTextHtml += `Por outro lado, a operação de <strong>${(MILHA_CFG[worstEntry[0]] || {label: worstEntry[0]}).label}</strong> registrou o desempenho mais crítico, com apenas <strong>${worstPct}%</strong> de aproveitamento, configurando o principal ponto de atenção gerencial. `;
+    }
+
+    document.getElementById('exec-summary-text').innerHTML = execTextHtml;
 
     // ── HEADER ──────────────────────────────────────────────────
     document.getElementById('badge-wk').textContent = lastMonth;
@@ -677,41 +724,36 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
     // ── KPI CARDS TOP ────────────────────────────────────────────
     document.getElementById('kpi-row').innerHTML = `
     <div class="kcard">
-        <div class="top-accent" style="background:var(--blue);"></div>
-        <div class="k-icon">📊</div>
-        <div class="k-label">Aproveitamento ${lastMonth}</div>
-        <div class="k-val" style="color:var(--blue);">${lastPct}%</div>
+        <div class="top-accent" style="background:var(--blue2);"></div>
+        <div class="k-label">Aproveitamento Geral</div>
+        <div class="k-val">${lastPct}%</div>
         <div class="k-sub">${lastData.total} de ${lastData.max} pontos</div>
         <span class="k-trend" style="background:${trendBg};color:${trendColor};">${trendArr} ${Math.abs(deltaPct)}% vs ${prevMonth}</span>
     </div>
     <div class="kcard">
         <div class="top-accent" style="background:var(--green);"></div>
-        <div class="k-icon">🏆</div>
         <div class="k-label">Melhor Operação</div>
-        <div class="k-val" style="color:var(--green);font-size:18px;line-height:1.2;">${bestCfg.label}</div>
+        <div class="k-val" style="font-size:18px;line-height:1.2;color:var(--green);">${bestCfg.label}</div>
         <div class="k-sub">${bestEntry[1].pts}/${bestEntry[1].max} pts &middot; ${bestPct}%</div>
-        <span class="k-trend" style="background:var(--greenBg);color:var(--green);">✅ Líder de pontos</span>
+        <span class="k-trend" style="background:var(--greenBg);color:var(--green);">Líder de pontuação</span>
     </div>
     <div class="kcard">
         <div class="top-accent" style="background:var(--red);"></div>
-        <div class="k-icon">⚠️</div>
         <div class="k-label">Maior Gargalo</div>
-        <div class="k-val" style="color:var(--red);font-size:18px;line-height:1.2;">${worstCfg.label}</div>
+        <div class="k-val" style="font-size:18px;line-height:1.2;color:var(--red);">${worstCfg.label}</div>
         <div class="k-sub">${worstEntry[1].pts}/${worstEntry[1].max} pts &middot; ${worstPct}%</div>
-        <span class="k-trend" style="background:var(--redBg);color:var(--red);">↓ Gargalo crítico</span>
+        <span class="k-trend" style="background:var(--redBg);color:var(--red);">Ação Gerencial Necessária</span>
     </div>
     <div class="kcard">
-        <div class="top-accent" style="background:var(--blue);"></div>
-        <div class="k-icon">🎯</div>
-        <div class="k-label">Aderência de KPIs (${lastMonth})</div>
-        <div class="k-val" style="display:flex;gap:10px;align-items:baseline;font-size:26px;">
-            <span style="color:var(--green);">${totalGreen}</span>
-            <span style="font-size:12px;color:var(--muted2);">🟢</span>
-            <span style="color:var(--red);">${totalRed}</span>
-            <span style="font-size:12px;color:var(--muted2);">🔴</span>
+        <div class="top-accent" style="background:var(--blue2);"></div>
+        <div class="k-label">Aderência de Metas</div>
+        <div class="k-val" style="display:flex;gap:10px;align-items:baseline;color:var(--blue2);">
+            <span>${totalGreen}</span>
+            <span style="font-size:11px;color:var(--muted2);font-weight:600;">OK</span>
+            <span style="color:var(--red); font-size: 22px;">/ ${totalRed}</span>
+            <span style="font-size:11px;color:var(--muted2);font-weight:600;">GAPs</span>
         </div>
-        <div class="k-sub" style="margin-top:4px;">${aderencia}% de metas atingidas</div>
-        <span class="k-trend" style="background:var(--blueBg);color:var(--blue);">${totalGreen+totalRed} KPIs ativos</span>
+        <div class="k-sub" style="margin-top:2px;">${aderencia}% de conformidade dos KPIs</div>
     </div>`;
 
     // ── OP BARS ──────────────────────────────────────────────────
@@ -933,7 +975,7 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
     CH['compare'] = new Chart(document.getElementById('c-compare'),{
         type:'bar',
         data:{labels:cmpLabels,datasets:[
-            {label:prevMonth,data:cmpPrev,backgroundColor:'rgba(15,23,42,.15)',borderRadius:4,borderWidth:0},
+            {label:prevMonth,data:cmpPrev,backgroundColor:'rgba(15,23,42,.12)',borderRadius:4,borderWidth:0},
             {label:lastMonth,data:cmpLast,
                 backgroundColor:cmpLast.map((v,i)=>v>=(cmpPrev[i]||0)?'#16a34a':'#dc2626'),
                 borderRadius:4,borderWidth:0}
@@ -954,35 +996,41 @@ function renderDashboard(monthData, lastMonth, compMonthInput, selectedMilha) {
     document.getElementById('insights').innerHTML = `
     <div class="ii" style="border-color:var(--red);">
         <div class="ii-icon">🚨</div>
-        <div><div class="ii-title">${worstCfg.icon} ${worstCfg.label} – Rendimento Crítico (${worstPct}%)</div>
-        <div class="ii-desc">Esta milha representa a maior queda no período de <strong>${lastMonth}</strong>. Ações corretivas devem mitigar imediatamente as perdas.</div></div>
+        <div><div class="ii-title">Mitigar gargalo operacional em ${worstCfg.label}</div>
+        <div class="ii-desc">A operação fechou o mês de <strong>${lastMonth}</strong> com rendimento crítico de <strong>${worstPct}%</strong>. Ações recomendadas: auditoria preventiva nos processos e reuniões de alinhamento com a equipe.</div></div>
     </div>
     <div class="ii" style="border-color:var(--green);">
         <div class="ii-icon">✅</div>
-        <div><div class="ii-title">${bestCfg.icon} ${bestCfg.label} – Operação Referência (${bestPct}%)</div>
-        <div class="ii-desc">Atingiu <strong>${bestPct}% de aproveitamento</strong> na visão filtrada. As boas práticas dessa equipe devem servir de padrão.</div></div>
+        <div><div class="ii-title">Padronizar boas práticas de ${bestCfg.label}</div>
+        <div class="ii-desc">A milha atingiu a liderança com <strong>${bestPct}%</strong> de conformidade. Propomos documentar os processos operacionais desta equipe para replicá-los nas demais operações.</div></div>
     </div>
-    <div class="ii" style="border-color:var(--blue);">
-        <div class="ii-icon">📈</div>
-        <div><div class="ii-title">Desempenho Geral: ${lastPct}%</div>
-        <div class="ii-desc">O resultado do consolidado representa uma diferença de <strong>${deltaPct>=0?'+':''}${deltaPct}%</strong> comparado a <strong>${prevMonth}</strong>.</div></div>
+    <div class="ii" style="border-color:var(--blue2);">
+        <div class="ii-icon">📊</div>
+        <div><div class="ii-title">Monitoramento de Desvios (GAPs)</div>
+        <div class="ii-desc">Identificados <strong>${totalRed} desvios</strong> (indicadores abaixo do esperado) no período. Foco em estabilizar os KPIs de peso alto que mais impactam no Scorecard geral.</div></div>
     </div>`;
 
     // ── TABLES ───────────────────────────────────────────────────
     const peakIdx = monthPcts.reduce((bi,v,i)=>v>monthPcts[bi]?i:bi,0);
     document.getElementById('t-weekly').innerHTML = `
-    <thead><tr><th>Mês</th><th>Pontos</th><th>%</th><th>Status</th></tr></thead><tbody>
+    <thead><tr><th>Mês</th><th>Pontos Atingidos</th><th>Aproveitamento (%)</th><th>Status</th></tr></thead><tbody>
     ${months.map((m,i)=>{
         const wd=monthData[m]||{total:0,max:0};
         const p=wd.max?+(wd.total/wd.max*100).toFixed(1):0;
         const isPeak=i===peakIdx, isLast=i===months.indexOf(lastMonth);
         const pcls=isPeak?'green':isLast&&p<monthPcts[0]?'red':p>(monthPcts[i-1]||0)?'blue':'yellow';
-        const ptxt=isPeak?'Pico':isLast?'Atual':p>(monthPcts[i-1]||0)?'↑':'↓';
-        return `<tr><td>${m}</td><td>${wd.total}/${wd.max}</td><td>${p}%</td><td>${pill(ptxt,pcls)}</td></tr>`;
+        
+        let ptxt = 'Estável';
+        if (isPeak) ptxt = 'Pico Máximo';
+        else if (isLast) ptxt = 'Mês Principal';
+        else if (p > (monthPcts[i-1]||0)) ptxt = 'Crescimento';
+        else ptxt = 'Retração';
+
+        return `<tr><td><strong>${m}</strong></td><td>${wd.total} / ${wd.max}</td><td>${p}%</td><td>${pill(ptxt,pcls)}</td></tr>`;
     }).join('')}</tbody>`;
 
     document.getElementById('t-ops').innerHTML = `
-    <thead><tr><th>Operação</th><th>KPIs 🟢</th><th>KPIs 🔴</th><th>%</th></tr></thead><tbody>
+    <thead><tr><th>Operação</th><th>Metas Atingidas (🟢)</th><th>Desvios Registrados (🔴)</th><th>Conformidade</th></tr></thead><tbody>
     ${opEntries.map(([k,d])=>{
         const cfg2=MILHA_CFG[k.toUpperCase()]||{label:k,icon:'🏭'};
         const p=d.max?+(d.pts/d.max*100).toFixed(1):0;
