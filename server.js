@@ -189,12 +189,49 @@ if (DATA_DIR !== __dirname && !fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
+function copyFolderSync(from, to) {
+    if (!fs.existsSync(to)) {
+        fs.mkdirSync(to, { recursive: true });
+    }
+    fs.readdirSync(from).forEach(element => {
+        const fromPath = path.join(from, element);
+        const toPath = path.join(to, element);
+        if (fs.lstatSync(fromPath).isDirectory()) {
+            copyFolderSync(fromPath, toPath);
+        } else {
+            fs.copyFileSync(fromPath, toPath);
+        }
+    });
+}
+
+// Se o volume estiver vazio, copia os arquivos do template do repositório
+if (DATA_DIR !== __dirname) {
+    const srcDbPath = path.join(__dirname, 'Bannco de Dados');
+    const destDbPath = path.join(DATA_DIR, 'Bannco de Dados');
+    if (!fs.existsSync(destDbPath) && fs.existsSync(srcDbPath)) {
+        console.log(`Copiando base inicial de 'Bannco de Dados' para ${destDbPath}...`);
+        copyFolderSync(srcDbPath, destDbPath);
+    }
+    
+    const srcActions = path.join(__dirname, 'actions.json');
+    if (!fs.existsSync(ACTIONS_FILE) && fs.existsSync(srcActions)) {
+        fs.copyFileSync(srcActions, ACTIONS_FILE);
+    }
+}
+
 // Ensure actions.json exists
 if (!fs.existsSync(ACTIONS_FILE)) {
     fs.writeFileSync(ACTIONS_FILE, JSON.stringify({}, null, 2), 'utf8');
 }
 
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
+
+if (DATA_DIR !== __dirname) {
+    const srcUsers = path.join(__dirname, 'users.json');
+    if (!fs.existsSync(USERS_FILE) && fs.existsSync(srcUsers)) {
+        fs.copyFileSync(srcUsers, USERS_FILE);
+    }
+}
 
 // Ensure users.json exists
 if (!fs.existsSync(USERS_FILE)) {
