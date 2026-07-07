@@ -296,7 +296,7 @@
     <div class="grid-3">
         <div class="card">
             <div class="card-hd">
-                <div><h3>Evolução Semanal do BSC</h3><div class="sub">Aproveitamento geral semana a semana</div></div>
+                <div><h3>Evolução Mensal do BSC</h3><div class="sub">Aproveitamento geral mês a mês</div></div>
                 <span class="badge" id="badge-trend" style="background:var(--purpleBg,rgba(139,92,246,.13));color:var(--purple2);"></span>
             </div>
             <div class="cw"><canvas id="c-weekly"></canvas></div>
@@ -310,7 +310,7 @@
         </div>
         <div class="card">
             <div class="card-hd">
-                <div><h3>Comparativo W→W por Operação</h3><div class="sub">Evolução de pontos nas últimas 2 semanas</div></div>
+                <div><h3>Comparativo Mês a Mês por Operação</h3><div class="sub">Evolução de pontos nos últimos 2 meses</div></div>
                 <span class="badge" style="background:var(--greenBg);color:var(--green2);">Δ Comparativo</span>
             </div>
             <div class="cw"><canvas id="c-compare"></canvas></div>
@@ -326,11 +326,11 @@
         </div>
         <div class="card" style="gap:18px;">
             <div>
-                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Histórico Semanal</h3></div></div>
+                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Histórico Mensal</h3></div></div>
                 <table class="dt" id="t-weekly"></table>
             </div>
             <div>
-                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Operações (última semana)</h3></div></div>
+                <div class="card-hd" style="margin-bottom:10px;"><div><h3>Operações (último mês)</h3></div></div>
                 <table class="dt" id="t-ops"></table>
             </div>
         </div>
@@ -369,21 +369,22 @@ async function init(){
         });
     } catch(e){ console.warn('CSV não disponível'); }
 
-    // Detect weeks
-    const WEEK_RE = /^W\d+$/;
+    // Detect months
+    const MONTH_ORDER = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     const allPeriods = [...new Set(rows.map(r=>(r['Período']||'').trim()))];
-    const weeks = allPeriods.filter(p=>WEEK_RE.test(p)).sort((a,b)=>{
-        return parseInt(a.replace('W',''))-parseInt(b.replace('W',''));
+    // Filter out weekly periods and keep only non-empty
+    const months = allPeriods.filter(p=> p && !/^W\d+$/.test(p)).sort((a,b)=>{
+        return MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b);
     });
 
-    // Build week summaries from Pontuação Atingida / Pontuação Máxima columns
+    // Build month summaries from Pontuação Atingida / Pontuação Máxima columns
     // CSV columns: Período, 1º Campo, 2º Campo, Milha, KPI, Meta 4 Pontos, Meta 2 Pontos,
     //              Resultado Final, PESO, Pontuação Máxima, Pontuação Atingida, GAP Pontuação, GAP Peso Ponderado
-    const weekData = {}; // week -> { total, max, ops:{milha->{pts,max}}, kpis:[{milha,kpi,pts,max,gap,result,green}] }
+    const monthData = {}; // month -> { total, max, ops:{milha->{pts,max}}, kpis:[{milha,kpi,pts,max,gap,result,green}] }
 
     rows.forEach(row=>{
         const period = (row['Período']||'').trim();
-        if(!WEEK_RE.test(period)) return;
+        if(!period || /^W\d+$/.test(period)) return;
 
         const milha   = (row['Milha']||'').trim().toUpperCase();
         const kpi     = (row['KPI']||row['Indicadores BSC']||Object.values(row)[4]||'').toString().trim();
@@ -393,8 +394,8 @@ async function init(){
         const green   = gapStr.includes('🟢');
         const result  = (row['Resultado Final']||'').trim();
 
-        if(!weekData[period]) weekData[period]={total:0,max:0,ops:{},kpis:[]};
-        const wd = weekData[period];
+        if(!monthData[period]) monthData[period]={total:0,max:0,ops:{},kpis:[]};
+        const wd = monthData[period];
 
         // Only sum positive max points (SRM has negative weights as penalties)
         if(ptsMax>0){
@@ -415,11 +416,11 @@ async function init(){
     });
 
     // Use fallback if no data
-    const useFallback = weeks.length === 0;
-    let lastWeek, prevWeek, lastData, prevData, lastPct, prevPct, deltaPct;
+    const useFallback = months.length === 0;
+    let lastMonth, prevMonth, lastData, prevData, lastPct, prevPct, deltaPct;
 
     if(useFallback){
-        weeks.push('W23','W24','W25','W26');
+        months.push('Abr','Mai');
         const fbOps = {
             'SAFETY':  {pts:43,max:100,green:5,red:3,kpis:[]},
             'FM - FULL':{pts:62,max:100,green:3,red:3,kpis:[]},
@@ -428,17 +429,14 @@ async function init(){
             'XPT':     {pts:10,max:100,green:1,red:4,kpis:[]},
             'SRM':     {pts:2, max:0,  green:4,red:0,kpis:[]},
         };
-        weekData['W23']={total:213,max:460,ops:JSON.parse(JSON.stringify(fbOps)),kpis:[]};
-        weekData['W24']={total:245,max:460,ops:JSON.parse(JSON.stringify(fbOps)),kpis:[]};
-        weekData['W25']={total:237,max:460,ops:JSON.parse(JSON.stringify(fbOps)),kpis:[]};
-        weekData['W26']={total:213,max:460,ops:fbOps,kpis:[]};
-        weekData['W24'].total=245;weekData['W25'].total=237;
+        monthData['Abr']={total:213,max:460,ops:JSON.parse(JSON.stringify(fbOps)),kpis:[]};
+        monthData['Mai']={total:245,max:460,ops:JSON.parse(JSON.stringify(fbOps)),kpis:[]};
     }
 
-    lastWeek = weeks[weeks.length-1];
-    prevWeek = weeks[weeks.length-2]||weeks[0];
-    lastData = weekData[lastWeek]||{total:213,max:460,ops:{},kpis:[]};
-    prevData = weekData[prevWeek]||{total:213,max:460,ops:{},kpis:[]};
+    lastMonth = months[months.length-1];
+    prevMonth = months[months.length-2]||months[0];
+    lastData = monthData[lastMonth]||{total:213,max:460,ops:{},kpis:[]};
+    prevData = monthData[prevMonth]||{total:213,max:460,ops:{},kpis:[]};
     lastPct  = lastData.max ? +(lastData.total/lastData.max*100).toFixed(1) : 46.3;
     prevPct  = prevData.max ? +(prevData.total/prevData.max*100).toFixed(1) : 51.5;
     deltaPct = +(lastPct-prevPct).toFixed(1);
@@ -466,9 +464,9 @@ async function init(){
     const worstCfg = MILHA_CFG[worstEntry[0].toUpperCase()]||{label:worstEntry[0],icon:'⚠️'};
 
     // ── HEADER ──────────────────────────────────────────────────
-    document.getElementById('badge-wk').textContent = lastWeek;
-    document.getElementById('badge-wk2').textContent = lastWeek;
-    document.getElementById('badge-op').textContent = lastWeek;
+    document.getElementById('badge-wk').textContent = lastMonth;
+    document.getElementById('badge-wk2').textContent = lastMonth;
+    document.getElementById('badge-op').textContent = lastMonth;
     const trendColor = deltaPct>=0?'var(--green2)':'var(--red2)';
     const trendBg    = deltaPct>=0?'var(--greenBg)':'var(--redBg)';
     const trendArr   = deltaPct>=0?'↑':'↓';
@@ -479,10 +477,10 @@ async function init(){
     <div class="kcard">
         <div class="top-accent" style="background:var(--blue);"></div>
         <div class="k-icon">📊</div>
-        <div class="k-label">Aproveitamento Geral ${lastWeek}</div>
+        <div class="k-label">Aproveitamento Geral ${lastMonth}</div>
         <div class="k-val" style="color:var(--blue2);">${lastPct}%</div>
         <div class="k-sub">${lastData.total} de ${lastData.max} pontos</div>
-        <span class="k-trend" style="background:${trendBg};color:${trendColor};">${trendArr} ${Math.abs(deltaPct)}% vs ${prevWeek}</span>
+        <span class="k-trend" style="background:${trendBg};color:${trendColor};">${trendArr} ${Math.abs(deltaPct)}% vs ${prevMonth}</span>
     </div>
     <div class="kcard">
         <div class="top-accent" style="background:var(--green);"></div>
@@ -503,7 +501,7 @@ async function init(){
     <div class="kcard">
         <div class="top-accent" style="background:var(--blue);"></div>
         <div class="k-icon">🎯</div>
-        <div class="k-label">KPIs por Status (${lastWeek})</div>
+        <div class="k-label">KPIs por Status (${lastMonth})</div>
         <div class="k-val" style="display:flex;gap:14px;align-items:baseline;font-size:26px;">
             <span style="color:var(--green2);">${totalGreen}</span>
             <span style="font-size:12px;color:var(--muted2);">atingidos</span>
@@ -664,26 +662,26 @@ async function init(){
         </div>`;
     });
 
-    // ── WEEKLY LINE ──────────────────────────────────────────────
-    const weekPcts = weeks.map(w=>{
-        const wd=weekData[w]||{total:0,max:0};
+    // ── MONTHLY LINE ──────────────────────────────────────────────
+    const monthPcts = months.map(m=>{
+        const wd=monthData[m]||{total:0,max:0};
         return wd.max?+(wd.total/wd.max*100).toFixed(1):0;
     });
-    const ptColors = weekPcts.map((v,i)=>i===0?'#3b82f6':v>weekPcts[i-1]?'#10b981':'#ef4444');
+    const ptColors = monthPcts.map((v,i)=>i===0?'#3b82f6':v>monthPcts[i-1]?'#10b981':'#ef4444');
 
     dc('weekly');
     CH['weekly'] = new Chart(document.getElementById('c-weekly'),{
         type:'line',
-        data:{labels:weeks,datasets:[{
-            label:'Aproveitamento (%)',data:weekPcts,
+        data:{labels:months,datasets:[{
+            label:'Aproveitamento (%)',data:monthPcts,
             borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.07)',fill:true,tension:.35,borderWidth:3,
-            pointRadius:8,pointBackgroundColor:ptColors,pointBorderColor:'#111e35',pointBorderWidth:2
+            pointRadius:8,pointBackgroundColor:ptColors,pointBorderColor:'#0e1829',pointBorderWidth:2
         }]},
         options:{responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.y}%`}}},
             scales:{
                 x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#64748b',font:{size:11,weight:'600'}}},
-                y:{min:Math.max(0,Math.min(...weekPcts)-10),max:Math.min(100,Math.max(...weekPcts)+10),
+                y:{min:Math.max(0,Math.min(...monthPcts)-10),max:Math.min(100,Math.max(...monthPcts)+10),
                     grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#64748b',callback:v=>v+'%',font:{size:10}}}
             }
         }
@@ -731,9 +729,9 @@ async function init(){
     CH['compare'] = new Chart(document.getElementById('c-compare'),{
         type:'bar',
         data:{labels:cmpLabels,datasets:[
-            {label:prevWeek,data:cmpPrev,backgroundColor:'rgba(59,130,246,.45)',borderRadius:4,borderWidth:0},
-            {label:lastWeek,data:cmpLast,
-                backgroundColor:cmpLast.map((v,i)=>v>=(cmpPrev[i]||0)?'#10b981':'#ef4444'),
+            {label:prevMonth,data:cmpPrev,backgroundColor:'rgba(59,130,246,.45)',borderRadius:4,borderWidth:0},
+            {label:lastMonth,data:cmpLast,
+                backgroundColor:cmpLast.map((v,i)=>v>=(cmpPrev[i]||0)?'#22c55e':'#ef4444'),
                 borderRadius:4,borderWidth:0}
         ]},
         options:{responsive:true,maintainAspectRatio:false,
@@ -763,25 +761,25 @@ async function init(){
     <div class="ii" style="border-color:#10b981;">
         <div class="ii-icon">✅</div>
         <div><div class="ii-title">${bestCfg.icon} ${bestCfg.label} – Destaque Positivo (${bestPct}%)</div>
-        <div class="ii-desc">Atingiu <strong>${bestPct}% de aproveitamento</strong> — melhor resultado em ${lastWeek}. Esta operação serve como referência de boas práticas para as demais.</div></div>
+        <div class="ii-desc">Atingiu <strong>${bestPct}% de aproveitamento</strong> — melhor resultado em ${lastMonth}. Esta operação serve como referência de boas práticas para as demais.</div></div>
     </div>
     <div class="ii" style="border-color:#3b82f6;">
         <div class="ii-icon">📉</div>
         <div><div class="ii-title">Aderência Total: ${aderencia}% (${totalGreen} de ${totalGreen+totalRed} KPIs)</div>
-        <div class="ii-desc">BSC atingiu <strong>${lastPct}% de aproveitamento</strong> em ${lastWeek} (${deltaPct>=0?'+':''}${deltaPct}% vs ${prevWeek}). Operações abaixo de 40% requerem planos de ação imediatos.</div></div>
+        <div class="ii-desc">BSC atingiu <strong>${lastPct}% de aproveitamento</strong> em ${lastMonth} (${deltaPct>=0?'+':''}${deltaPct}% vs ${prevMonth}). Operações abaixo de 40% requerem planos de ação imediatos.</div></div>
     </div>`;
 
     // ── TABLES ───────────────────────────────────────────────────
-    const peakIdx = weekPcts.reduce((bi,v,i)=>v>weekPcts[bi]?i:bi,0);
+    const peakIdx = monthPcts.reduce((bi,v,i)=>v>monthPcts[bi]?i:bi,0);
     document.getElementById('t-weekly').innerHTML = `
-    <thead><tr><th>Semana</th><th>Pontos</th><th>%</th><th>Status</th></tr></thead><tbody>
-    ${weeks.map((w,i)=>{
-        const wd=weekData[w]||{total:0,max:0};
+    <thead><tr><th>Mês</th><th>Pontos</th><th>%</th><th>Status</th></tr></thead><tbody>
+    ${months.map((m,i)=>{
+        const wd=monthData[m]||{total:0,max:0};
         const p=wd.max?+(wd.total/wd.max*100).toFixed(1):0;
-        const isPeak=i===peakIdx, isLast=i===weeks.length-1;
-        const pcls=isPeak?'green':isLast&&p<weekPcts[0]?'red':p>(weekPcts[i-1]||0)?'blue':'yellow';
-        const ptxt=isPeak?'Pico':isLast?'Atual':p>(weekPcts[i-1]||0)?'↑':'↓';
-        return `<tr><td>${w}</td><td>${wd.total}/${wd.max}</td><td>${p}%</td><td>${pill(ptxt,pcls)}</td></tr>`;
+        const isPeak=i===peakIdx, isLast=i===months.length-1;
+        const pcls=isPeak?'green':isLast&&p<monthPcts[0]?'red':p>(monthPcts[i-1]||0)?'blue':'yellow';
+        const ptxt=isPeak?'Pico':isLast?'Atual':p>(monthPcts[i-1]||0)?'↑':'↓';
+        return `<tr><td>${m}</td><td>${wd.total}/${wd.max}</td><td>${p}%</td><td>${pill(ptxt,pcls)}</td></tr>`;
     }).join('')}</tbody>`;
 
     document.getElementById('t-ops').innerHTML = `
