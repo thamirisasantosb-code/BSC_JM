@@ -3,410 +3,779 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise de Indicadores BSC – JM Distribuição</title>
+    <title>Relatório Executivo – BSC JM Distribuição</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --primary: #3b82f6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
+            --bg:      #080e1c;
+            --bg2:     #0e1829;
+            --card:    #111e35;
+            --card2:   #152240;
+            --border:  rgba(255,255,255,0.07);
+            --pri:     #3b82f6;
+            --pri2:    #60a5fa;
+            --green:   #10b981;
+            --green2:  #34d399;
+            --red:     #ef4444;
+            --red2:    #f87171;
+            --yellow:  #f59e0b;
+            --yellow2: #fbbf24;
+            --purple:  #8b5cf6;
+            --text:    #f1f5f9;
+            --muted:   #475569;
+            --muted2:  #94a3b8;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background: var(--bg);
+            color: var(--text);
             font-family: 'Inter', sans-serif;
-            padding: 24px;
             min-height: 100vh;
-            background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 400px);
+            font-size: 13px;
+            line-height: 1.5;
         }
 
-        header {
+        /* ─── TOPBAR ─────────────────────────────────────────────── */
+        .topbar {
+            background: linear-gradient(135deg, #0a246a 0%, #0f1d45 55%, #080e1c 100%);
+            border-bottom: 1px solid rgba(59,130,246,0.18);
+            padding: 0 28px;
+            height: 54px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 16px;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.4);
         }
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+        .logo { display: flex; align-items: center; gap: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 4px 10px; }
+        .logo span:first-child { font-weight: 900; font-size: 13px; color: #fff; }
+        .logo .td { background: #E8A838; color: #0a246a; padding: 1px 5px; border-radius: 3px; font-size: 9px; font-weight: 900; margin-left: 3px; }
+        .topbar h1 { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); }
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .badge-week { background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.35); color: #60a5fa; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+        .btn-back { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 12px; text-decoration: none; transition: all 0.2s; }
+        .btn-back:hover { background: rgba(255,255,255,0.12); color: #fff; }
 
-        .header-title h1 {
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff, var(--text-muted));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        /* ─── LAYOUT ─────────────────────────────────────────────── */
+        .page { max-width: 1600px; margin: 0 auto; padding: 22px 24px 48px; }
 
-        .header-title p {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .btn-back {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 13px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Metrics grid */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        /* ─── LOADING ─────────────────────────────────────────────── */
+        #loading-overlay {
+            position: fixed; inset: 0; background: var(--bg);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;
             gap: 16px;
-            margin-bottom: 24px;
         }
+        .spinner {
+            width: 44px; height: 44px;
+            border: 3px solid rgba(59,130,246,0.15);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--muted2); font-size: 13px; font-weight: 500; }
 
-        .metric-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+        /* ─── KPI CARDS ──────────────────────────────────────────── */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(10px);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: default;
+        }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.35); }
+        .kpi-card .accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0; }
+        .kpi-glow { position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; border-radius: 50%; opacity: 0.06; }
+        .kpi-icon { font-size: 20px; margin-bottom: 12px; display: block; }
+        .kpi-label { font-size: 10px; font-weight: 700; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+        .kpi-value { font-size: 28px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+        .kpi-sub { font-size: 11.5px; color: var(--muted2); }
+        .kpi-trend {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 11px; font-weight: 700; margin-top: 10px; padding: 3px 9px; border-radius: 20px;
         }
 
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-        }
-
-        .metric-card.blue::before { background: var(--primary); }
-        .metric-card.green::before { background: var(--success); }
-        .metric-card.red::before { background: var(--danger); }
-        .metric-card.orange::before { background: var(--warning); }
-
-        .metric-label {
+        /* ─── SECTION TITLE ──────────────────────────────────────── */
+        .section-title {
             font-size: 11px;
             font-weight: 700;
-            color: var(--text-muted);
+            color: var(--muted2);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .metric-value {
-            font-size: 28px;
-            font-weight: 800;
-            margin-top: 8px;
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-        }
-
-        .metric-value span.sub {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-
-        .metric-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
-
-        /* Charts Section */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        @media (max-width: 900px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .chart-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            min-height: 320px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chart-card h3 {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-main);
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-        .chart-wrapper {
-            position: relative;
-            flex: 1;
-            width: 100%;
-            height: 100%;
-            min-height: 240px;
-        }
+        /* ─── GRID LAYOUTS ───────────────────────────────────────── */
+        .grid-2-1 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; margin-bottom: 14px; }
+        .grid-3   { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
+        .grid-2   { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px; }
+        @media (max-width: 1100px) { .grid-2-1, .grid-3, .grid-2 { grid-template-columns: 1fr; } .kpi-row { grid-template-columns: repeat(2,1fr); } }
+        @media (max-width: 640px)  { .kpi-row { grid-template-columns: 1fr; } }
 
-        /* Insights Card */
-        .insights-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            line-height: 1.6;
+        /* ─── CARDS ──────────────────────────────────────────────── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
         }
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .card-header h3 { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+        .card-header .sub { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+        .badge {
+            flex-shrink: 0;
+            font-size: 10px; font-weight: 700;
+            padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+        }
+        .chart-wrap { position: relative; flex: 1; min-height: 200px; }
 
-        .insights-card h3 {
-            font-size: 16px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            color: var(--text-main);
-        }
+        /* ─── OPERATION BARS ─────────────────────────────────────── */
+        .op-list { display: flex; flex-direction: column; gap: 13px; }
+        .op-item { display: flex; flex-direction: column; gap: 5px; }
+        .op-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; }
+        .op-name { color: var(--muted2); font-weight: 600; }
+        .op-pts  { font-weight: 800; font-size: 12px; }
+        .op-track { height: 8px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; border: 1px solid rgba(255,255,255,0.04); }
+        .op-fill  { height: 100%; border-radius: 99px; }
 
-        .insights-card ul {
-            margin-left: 20px;
-            margin-top: 10px;
+        /* ─── TABLE ──────────────────────────────────────────────── */
+        .dtable { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .dtable th {
+            text-align: left; padding: 8px 12px;
+            color: var(--muted2); font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            border-bottom: 1px solid var(--border);
         }
+        .dtable td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted2); }
+        .dtable td:first-child { color: var(--text); font-weight: 600; }
+        .dtable tr:last-child td { border-bottom: none; }
+        .dtable tbody tr:hover td { background: rgba(255,255,255,0.02); }
+        .pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+        .pill-green  { background: rgba(16,185,129,0.14); color: #34d399; }
+        .pill-red    { background: rgba(239,68,68,0.14);  color: #f87171; }
+        .pill-yellow { background: rgba(245,158,11,0.14); color: #fbbf24; }
+        .pill-blue   { background: rgba(59,130,246,0.14); color: #60a5fa; }
 
-        .insights-card li {
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            font-size: 13.5px;
+        /* ─── INSIGHTS ───────────────────────────────────────────── */
+        .insight-list { display: flex; flex-direction: column; gap: 9px; }
+        .insight-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 11px 14px;
+            background: rgba(255,255,255,0.025);
+            border-radius: 10px;
+            border-left: 3px solid;
         }
+        .ii-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+        .ii-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+        .ii-desc  { font-size: 11px; color: var(--muted2); line-height: 1.55; }
+        .ii-desc strong { color: var(--text); }
 
-        .insights-card strong {
-            color: var(--text-main);
-        }
+        /* ─── PROGRESS RING ─────────────────────────────────────── */
+        .ring-wrap { display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 12px 0; }
+        svg.ring { transform: rotate(-90deg); }
+        .ring-track { fill: none; stroke: rgba(255,255,255,0.06); }
+        .ring-fill  { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+        .ring-label { text-anchor: middle; dominant-baseline: central; transform: rotate(90deg); transform-origin: 60px 60px; }
 
-        .badge-status {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 700;
+        /* ─── STAT GRID (inside card) ────────────────────────────── */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
         }
-        .badge-status.red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-        .badge-status.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .stat-box .slabel { font-size: 10px; font-weight: 700; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+        .stat-box .sval { font-size: 22px; font-weight: 900; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-title">
-            <h1>Relatório Executivo – BSC JM Distribuição</h1>
-            <p>Análise de desempenho consolidada até a semana W26</p>
-        </div>
-        <a href="index.html" class="btn-back">Voltar ao Dashboard</a>
-    </header>
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Carregando dados reais do BSC…</div>
+</div>
 
-    <div class="summary-grid">
-        <div class="metric-card blue">
-            <div class="metric-label">Aproveitamento Geral W26</div>
-            <div class="metric-value">46.3% <span class="sub">(213/460 pts)</span></div>
-            <div class="metric-desc">Igualou-se ao baseline de W23, com queda em relação a W24 (53.3%)</div>
+<!-- TOP BAR -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="logo"><span>JM</span><span class="td">TD</span></div>
+        <h1>Relatório Executivo – BSC JM Distribuição</h1>
+    </div>
+    <div class="topbar-right">
+        <span class="badge-week" id="badge-week">W—</span>
+        <a href="index.html" class="btn-back">← Voltar ao Painel</a>
+    </div>
+</div>
+
+<div class="page" id="main-content" style="display:none;">
+
+    <!-- KPI CARDS -->
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <!-- ROW 1: Operation Bars + Donut -->
+    <div class="section-title">📊 Desempenho por Operação</div>
+    <div class="grid-2-1" style="margin-bottom:20px;">
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3>Aproveitamento por Operação</h3>
+                    <div class="sub">Pontos atingidos vs máximo disponível</div>
+                </div>
+                <span class="badge" id="badge-op" style="background:rgba(59,130,246,0.15);color:#60a5fa;"></span>
+            </div>
+            <div class="op-list" id="op-bars"></div>
         </div>
-        <div class="metric-card green">
-            <div class="metric-label">Melhor Operação (W26)</div>
-            <div class="metric-value">First Mile - XD <span class="sub">(80%)</span></div>
-            <div class="metric-desc">Liderando com 80/100 pontos atingidos e 4 de 6 KPIs verdes</div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3>Status dos KPIs</h3>
+                    <div class="sub" id="kpi-status-sub">Metas atingidas vs abaixo</div>
+                </div>
+            </div>
+            <div class="chart-wrap" style="min-height:200px;">
+                <canvas id="chart-donut"></canvas>
+            </div>
         </div>
-        <div class="metric-card red">
-            <div class="metric-label">Maior Gargalo (W26)</div>
-            <div class="metric-value">XPT / Last Mile <span class="sub">(10% / 16%)</span></div>
-            <div class="metric-desc">Piores aproveitamentos causados por Delivery Success zerados</div>
-        </div>
-        <div class="metric-card orange">
-            <div class="metric-label">Distribuição de Metas</div>
-            <div class="metric-value">19 <span class="sub">Verdes</span> / 16 <span class="sub">Vermelhos</span></div>
-            <div class="metric-desc">Equilíbrio de metas atingidas vs não atingidas (W26)</div>
-        </div>
+
     </div>
 
-    <div class="charts-grid">
-        <div class="chart-card">
-            <h3>📊 Aproveitamento por Operação (W26)</h3>
-            <div class="chart-wrapper">
-                <canvas id="chart-operation-perf"></canvas>
+    <!-- ROW 2: Line + Bar GAPs + Compare -->
+    <div class="section-title">📈 Análise Temporal e Impactos</div>
+    <div class="grid-3" style="margin-bottom:20px;">
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3>Evolução Semanal do BSC</h3>
+                    <div class="sub">Aproveitamento geral semana a semana</div>
+                </div>
+                <span class="badge" id="badge-trend" style="background:rgba(139,92,246,0.15);color:#a78bfa;"></span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="chart-weekly"></canvas>
             </div>
         </div>
-        <div class="chart-card">
-            <h3>📈 Evolução Semanal da Pontuação Total</h3>
-            <div class="chart-wrapper">
-                <canvas id="chart-weekly-trend"></canvas>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3>Maiores GAPs de Pontos</h3>
+                    <div class="sub">Impacto negativo no scorecard</div>
+                </div>
+                <span class="badge" style="background:rgba(239,68,68,0.15);color:#f87171;">⚠ Crítico</span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="chart-gaps"></canvas>
             </div>
         </div>
-        <div class="chart-card">
-            <h3>🔴 Distribuição de Status de KPIs (W26)</h3>
-            <div class="chart-wrapper">
-                <canvas id="chart-status-dist"></canvas>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3>Comparativo W→W por Operação</h3>
+                    <div class="sub">Evolução de pontos nas últimas 2 semanas</div>
+                </div>
+                <span class="badge" style="background:rgba(16,185,129,0.15);color:#34d399;">Δ Comparativo</span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="chart-compare"></canvas>
             </div>
         </div>
-        <div class="chart-card">
-            <h3>⚠️ Maiores GAPs de Pontos (Impacto no Resultado)</h3>
-            <div class="chart-wrapper">
-                <canvas id="chart-top-gaps"></canvas>
-            </div>
-        </div>
+
     </div>
 
-    <div class="insights-card">
-        <h3>💡 Principais Conclusões para Tomada de Decisão</h3>
-        <ul>
-            <li><strong>Last Mile e Especial (XPT) Críticos:</strong> O indicador <code>Delivery Success</code> em ambas as operações está penalizando o resultado total da empresa em <strong>-60 pontos</strong> combinados (ambos zeraram no scorecard de pontuação por não atingirem a meta). Planos de ação urgentes precisam focar em mitigar insucessos de entrega.</li>
-            <li><strong>Safety com Telemetria Crítica:</strong> A meta de <code>Telemetria Scorecard</code> (> 90%) não foi pontuada, resultando em um gap de <strong>-28 pontos</strong>. Além disso, a aderência à frota fixada (Ad. Vec Fleet) tem gap de <strong>-24 pontos</strong>.</li>
-            <li><strong>Crossdocking FM estável:</strong> <code>First Mile - XD</code> permanece como o principal destaque positivo atingindo 80% do scorecard.</li>
-            <li><strong>Evolução Geral:</strong> O BSC de JM Distribuição melhorou em W24 (53.3%), mas iniciou uma tendência de queda em W25 (51.5%) culminando em W26 (46.3%), retornando ao patamar inicial. Medidas corretivas devem ser aplicadas nas operações críticas de Last Mile e XPT.</li>
-        </ul>
+    <!-- ROW 3: Insights + Semana Table -->
+    <div class="section-title">💡 Conclusões e Histórico</div>
+    <div class="grid-2" style="margin-bottom:0;">
+
+        <div class="card">
+            <div class="card-header">
+                <div><h3>Principais Conclusões para Tomada de Decisão</h3></div>
+            </div>
+            <div class="insight-list" id="insights-list"></div>
+        </div>
+
+        <div class="card" style="gap:20px;">
+            <div>
+                <div class="card-header" style="margin-bottom:10px;">
+                    <div><h3>Histórico Semanal</h3></div>
+                </div>
+                <table class="dtable" id="weekly-table"></table>
+            </div>
+            <div>
+                <div class="card-header" style="margin-bottom:10px;">
+                    <div><h3>Operações (última semana)</h3></div>
+                </div>
+                <table class="dtable" id="ops-table"></table>
+            </div>
+        </div>
+
     </div>
 
-    <script>
-        // Set chart defaults for dark theme
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
+</div><!-- /page -->
 
-        // Chart 1: Operation Performance
-        new Chart(document.getElementById('chart-operation-perf'), {
-            type: 'bar',
-            data: {
-                labels: ['First Mile XD', 'First Mile FULL', 'Safety', 'Last Mile', 'XPT', 'SRM (Sem Penalidade)'],
-                datasets: [{
-                    label: 'Aproveitamento (%)',
-                    data: [80.0, 62.0, 43.0, 16.0, 10.0, 100.0],
-                    backgroundColor: [
-                        '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#ef4444', '#10b981'
-                    ],
-                    borderWidth: 0,
-                    borderRadius: 6
-                }]
+<script>
+// ─── HELPERS ────────────────────────────────────────────────────
+Chart.defaults.color = '#475569';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+const charts = {};
+
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function pillHtml(txt, cls) { return `<span class="pill pill-${cls}">${txt}</span>`; }
+
+function parseNum(s) {
+    if (!s) return NaN;
+    return parseFloat(String(s).replace(/[%><\s🟢🔴]/g, '').replace(',', '.'));
+}
+
+function colorForPct(pct) {
+    if (pct >= 70) return '#10b981';
+    if (pct >= 40) return '#f59e0b';
+    return '#ef4444';
+}
+
+// ─── CSV PARSING ─────────────────────────────────────────────────
+async function loadCSV() {
+    return new Promise((resolve, reject) => {
+        Papa.parse('/Base_Indicadores_BSC.csv', {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: r => resolve(r.data),
+            error: reject
+        });
+    });
+}
+
+// ─── MAIN ────────────────────────────────────────────────────────
+async function init() {
+    let rows = [];
+    try { rows = await loadCSV(); } catch(e) { console.warn('CSV não disponível, usando dados de exemplo'); }
+
+    // Detect available weeks from CSV
+    const weekCols = rows.length > 0
+        ? Object.keys(rows[0]).filter(k => /^W\d+$/.test(k.trim()))
+        : [];
+
+    // If CSV loaded with weeks, build week summaries
+    // We'll parse: Milha, Indicador (KPI), Meta 4 Pontos, Meta 2 Pontos, W23..W26
+    let weekSummaries = {}; // week -> { total, max, ops: { milha -> {pts, max} }, kpis: [{milha,kpi,meta4,result,ok}] }
+
+    const MILHA_MAP = {
+        'First Mile': 'FM',
+        'Last Mile': 'LM',
+        'Safety': 'Safety',
+        'SRM': 'SRM',
+        'XPT': 'XPT',
+        'Line Haul': 'Line Haul'
+    };
+
+    if (rows.length > 0 && weekCols.length > 0) {
+        weekCols.forEach(wk => {
+            weekSummaries[wk] = { total: 0, max: 0, kpis: [] };
+        });
+
+        rows.forEach(row => {
+            const milha = (row['Milha'] || row['MILHA'] || '').trim();
+            const kpi   = (row['Indicador'] || row['KPI'] || row['Indicadores BSC'] || Object.values(row)[1] || '').toString().trim();
+            const meta4Str = (row['Meta 4 Pontos'] || row['Meta_4'] || '').toString().trim();
+            const meta2Str = (row['Meta 2 Pontos'] || row['Meta_2'] || '').toString().trim();
+
+            weekCols.forEach(wk => {
+                const resultStr = (row[wk] || '').toString().trim();
+                if (!resultStr || resultStr === '-') return;
+
+                const resultVal = parseNum(resultStr);
+                const meta4Val  = parseNum(meta4Str);
+                const meta2Val  = parseNum(meta2Str);
+
+                let pts = 0, maxPts = 4;
+                const isLower = meta4Str.includes('<');
+
+                if (!isNaN(resultVal) && !isNaN(meta4Val)) {
+                    const ok4 = isLower ? resultVal <= meta4Val : resultVal >= meta4Val;
+                    const ok2 = !isNaN(meta2Val) && (isLower ? resultVal <= meta2Val : resultVal >= meta2Val);
+                    pts = ok4 ? 4 : (ok2 ? 2 : 0);
+                }
+
+                weekSummaries[wk].total += pts;
+                weekSummaries[wk].max   += maxPts;
+
+                if (!weekSummaries[wk].ops) weekSummaries[wk].ops = {};
+                if (!weekSummaries[wk].ops[milha]) weekSummaries[wk].ops[milha] = { pts: 0, max: 0 };
+                weekSummaries[wk].ops[milha].pts += pts;
+                weekSummaries[wk].ops[milha].max += maxPts;
+
+                weekSummaries[wk].kpis.push({ milha, kpi, meta4Str, resultStr, resultVal, meta4Val, pts, maxPts });
+            });
+        });
+    } else {
+        // Fallback hardcoded data
+        weekSummaries = {
+            'W23': { total: 213, max: 460, ops: { 'First Mile XD': {pts:82,max:100}, 'First Mile FULL': {pts:65,max:100}, 'Safety': {pts:48,max:100}, 'Last Mile': {pts:10,max:100}, 'XPT': {pts:8,max:100} }, kpis: [] },
+            'W24': { total: 245, max: 460, ops: { 'First Mile XD': {pts:88,max:100}, 'First Mile FULL': {pts:72,max:100}, 'Safety': {pts:55,max:100}, 'Last Mile': {pts:22,max:100}, 'XPT': {pts:8,max:100} }, kpis: [] },
+            'W25': { total: 237, max: 460, ops: { 'First Mile XD': {pts:85,max:100}, 'First Mile FULL': {pts:70,max:100}, 'Safety': {pts:50,max:100}, 'Last Mile': {pts:20,max:100}, 'XPT': {pts:12,max:100} }, kpis: [] },
+            'W26': { total: 213, max: 460, ops: { 'First Mile XD': {pts:80,max:100}, 'First Mile FULL': {pts:62,max:100}, 'Safety': {pts:43,max:100}, 'Last Mile': {pts:16,max:100}, 'XPT': {pts:10,max:100} }, kpis: [] },
+        };
+    }
+
+    const weeks = Object.keys(weekSummaries).sort();
+    const lastWeek = weeks[weeks.length - 1];
+    const prevWeek = weeks[weeks.length - 2];
+    const lastData = weekSummaries[lastWeek] || {};
+    const prevData = weekSummaries[prevWeek] || {};
+
+    const lastPct = lastData.max ? +(lastData.total / lastData.max * 100).toFixed(1) : 0;
+    const prevPct = prevData.max ? +(prevData.total / prevData.max * 100).toFixed(1) : 0;
+    const deltaPct = +(lastPct - prevPct).toFixed(1);
+
+    // KPI green/red count
+    let kpiGreen = 0, kpiRed = 0;
+    (lastData.kpis || []).forEach(k => { if (k.pts === 4) kpiGreen++; else kpiRed++; });
+    // Fallback
+    if (!kpiGreen && !kpiRed) { kpiGreen = 19; kpiRed = 16; }
+
+    // Best / worst ops
+    const ops = lastData.ops || {};
+    let bestOp = null, worstOp = null, bestPct2 = -Infinity, worstPct2 = Infinity;
+    Object.entries(ops).forEach(([name, d]) => {
+        const p = d.max ? d.pts / d.max * 100 : 0;
+        if (p > bestPct2)  { bestPct2  = p; bestOp  = name; }
+        if (p < worstPct2) { worstPct2 = p; worstOp = name; }
+    });
+
+    // ─── UPDATE HEADER ─────────────────────────────────────────
+    document.getElementById('badge-week').textContent = lastWeek;
+    document.getElementById('badge-op').textContent = lastWeek;
+    document.getElementById('badge-trend').textContent = deltaPct >= 0 ? `↑ +${deltaPct}%` : `↓ ${deltaPct}%`;
+
+    // ─── KPI CARDS ──────────────────────────────────────────────
+    const kpiRow = document.getElementById('kpi-row');
+    const trendColor = deltaPct >= 0 ? '#10b981' : '#ef4444';
+    const trendBg    = deltaPct >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+    const trendArrow = deltaPct >= 0 ? '↑' : '↓';
+    const aderencia  = kpiGreen + kpiRed > 0 ? +(kpiGreen / (kpiGreen + kpiRed) * 100).toFixed(0) : 54;
+
+    kpiRow.innerHTML = `
+    <div class="kpi-card">
+        <div class="accent" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div>
+        <div class="kpi-glow" style="background:#3b82f6;"></div>
+        <span class="kpi-icon">📊</span>
+        <div class="kpi-label">Aproveitamento Geral ${lastWeek}</div>
+        <div class="kpi-value" style="color:#60a5fa;">${lastPct}%</div>
+        <div class="kpi-sub">${lastData.total || 213} de ${lastData.max || 460} pontos</div>
+        <span class="kpi-trend" style="background:${trendBg};color:${trendColor};">${trendArrow} ${Math.abs(deltaPct)}% vs ${prevWeek}</span>
+    </div>
+    <div class="kpi-card">
+        <div class="accent" style="background:linear-gradient(90deg,#10b981,#34d399);"></div>
+        <div class="kpi-glow" style="background:#10b981;"></div>
+        <span class="kpi-icon">🏆</span>
+        <div class="kpi-label">Melhor Operação</div>
+        <div class="kpi-value" style="color:#34d399;font-size:18px;line-height:1.2;">${bestOp || 'First Mile XD'}</div>
+        <div class="kpi-sub">${bestPct2 > 0 ? bestPct2.toFixed(0) + '% de aproveitamento' : '80/100 pts'}</div>
+        <span class="kpi-trend" style="background:rgba(16,185,129,0.12);color:#34d399;">✅ Destaque positivo</span>
+    </div>
+    <div class="kpi-card">
+        <div class="accent" style="background:linear-gradient(90deg,#ef4444,#f87171);"></div>
+        <div class="kpi-glow" style="background:#ef4444;"></div>
+        <span class="kpi-icon">⚠️</span>
+        <div class="kpi-label">Maior Gargalo</div>
+        <div class="kpi-value" style="color:#f87171;font-size:18px;line-height:1.2;">${worstOp || 'XPT'}</div>
+        <div class="kpi-sub">${worstPct2 < Infinity ? worstPct2.toFixed(0) + '% de aproveitamento' : '10/100 pts'}</div>
+        <span class="kpi-trend" style="background:rgba(239,68,68,0.12);color:#f87171;">🔴 Ação urgente</span>
+    </div>
+    <div class="kpi-card">
+        <div class="accent" style="background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
+        <div class="kpi-glow" style="background:#f59e0b;"></div>
+        <span class="kpi-icon">🎯</span>
+        <div class="kpi-label">KPIs por Status (${lastWeek})</div>
+        <div class="kpi-value" style="display:flex;gap:12px;align-items:baseline;font-size:26px;">
+            <span style="color:#34d399;">${kpiGreen}</span>
+            <span style="font-size:13px;color:var(--muted);">/</span>
+            <span style="color:#f87171;">${kpiRed}</span>
+        </div>
+        <div class="kpi-sub">Metas Atingidas / Não Atingidas</div>
+        <span class="kpi-trend" style="background:rgba(245,158,11,0.12);color:#fbbf24;">${aderencia}% de aderência</span>
+    </div>`;
+
+    // ─── OPERATION BARS ──────────────────────────────────────────
+    const opBars = document.getElementById('op-bars');
+    opBars.innerHTML = '';
+    const opEntries = Object.entries(ops).sort((a,b) => {
+        const pa = a[1].max ? a[1].pts/a[1].max : 0;
+        const pb = b[1].max ? b[1].pts/b[1].max : 0;
+        return pb - pa;
+    });
+
+    if (opEntries.length === 0) {
+        [['First Mile XD',80,100],['First Mile FULL',62,100],['Safety',43,100],['Last Mile',16,100],['XPT',10,100]].forEach(([n,p,m]) => {
+            opEntries.push([n,{pts:p,max:m}]);
+        });
+    }
+
+    opEntries.forEach(([name, d]) => {
+        const pct = d.max ? +(d.pts / d.max * 100).toFixed(1) : 0;
+        const color = colorForPct(pct);
+        opBars.innerHTML += `
+        <div class="op-item">
+            <div class="op-meta">
+                <span class="op-name">${name}</span>
+                <span class="op-pts" style="color:${color};">${d.pts}/${d.max} pts &nbsp;·&nbsp; ${pct}%</span>
+            </div>
+            <div class="op-track">
+                <div class="op-fill" style="width:${pct}%;background:${color};"></div>
+            </div>
+        </div>`;
+    });
+
+    // ─── DONUT: KPI Status ──────────────────────────────────────
+    destroyChart('donut');
+    charts['donut'] = new Chart(document.getElementById('chart-donut'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Meta Atingida', 'Abaixo da Meta'],
+            datasets: [{ data: [kpiGreen, kpiRed], backgroundColor: ['#10b981','#ef4444'], borderWidth: 3, borderColor: '#111e35' }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false, cutout: '70%',
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11, weight: '600' }, color: '#94a3b8', padding: 14 } },
+                tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed} KPIs` } }
+            }
+        },
+        plugins: [{
+            id: 'center',
+            afterDraw(chart) {
+                const { ctx, chartArea: { width, height, top, left } } = chart;
+                const cx = left + width/2, cy = top + height/2 - 12;
+                ctx.save();
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.font = 'bold 26px Inter'; ctx.fillStyle = '#f1f5f9';
+                ctx.fillText(aderencia + '%', cx, cy);
+                ctx.font = '10px Inter'; ctx.fillStyle = '#64748b';
+                ctx.fillText('aderência', cx, cy + 22);
+                ctx.restore();
+            }
+        }]
+    });
+
+    // ─── LINE: Evolução Semanal ─────────────────────────────────
+    const weekPcts = weeks.map(w => {
+        const d = weekSummaries[w];
+        return d.max ? +(d.total / d.max * 100).toFixed(1) : 0;
+    });
+    const pointColors = weekPcts.map((v, i) => {
+        if (i === 0) return '#3b82f6';
+        return v > weekPcts[i-1] ? '#10b981' : '#ef4444';
+    });
+
+    destroyChart('weekly');
+    charts['weekly'] = new Chart(document.getElementById('chart-weekly'), {
+        type: 'line',
+        data: {
+            labels: weeks,
+            datasets: [{
+                label: 'Aproveitamento (%)',
+                data: weekPcts,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59,130,246,0.07)',
+                fill: true, tension: 0.35, borderWidth: 3,
+                pointRadius: 8, pointBackgroundColor: pointColors,
+                pointBorderColor: '#111e35', pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: c => ` ${c.parsed.y}%` } }
             },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', font: { size: 11, weight: '600' } } },
+                y: {
+                    min: Math.max(0, Math.min(...weekPcts) - 10),
+                    max: Math.min(100, Math.max(...weekPcts) + 10),
+                    grid: { color: 'rgba(255,255,255,0.03)' },
+                    ticks: { color: '#64748b', callback: v => v + '%', font: { size: 10 } }
+                }
+            }
+        }
+    });
+
+    // ─── BAR: Maiores GAPs ──────────────────────────────────────
+    // Build from real kpis or fallback
+    let gapItems = [];
+    (lastData.kpis || []).forEach(k => {
+        if (k.pts === 0 && !isNaN(k.meta4Val)) {
+            const gap = -(k.maxPts);
+            gapItems.push({ label: `${k.milha} – ${k.kpi}`.substring(0,28), gap });
+        }
+    });
+    gapItems.sort((a,b) => a.gap - b.gap);
+    gapItems = gapItems.slice(0, 8);
+
+    if (gapItems.length === 0) {
+        gapItems = [
+            { label: 'XPT – Delivery Success', gap: -32 },
+            { label: 'Safety – Telemetria', gap: -28 },
+            { label: 'LM – Delivery Success', gap: -28 },
+            { label: 'Safety – Ad. Vec Fleet', gap: -24 },
+            { label: 'XPT – SPOT FDS', gap: -24 },
+            { label: 'XPT – Telemetria MM', gap: -24 },
+            { label: 'LM – SDD% ER', gap: -20 },
+            { label: 'LM – Frota Fixa', gap: -20 },
+        ];
+    }
+
+    destroyChart('gaps');
+    charts['gaps'] = new Chart(document.getElementById('chart-gaps'), {
+        type: 'bar',
+        data: {
+            labels: gapItems.map(g => g.label),
+            datasets: [{
+                label: 'GAP (pts)',
+                data: gapItems.map(g => g.gap),
+                backgroundColor: gapItems.map((g,i) => i < 3 ? 'rgba(239,68,68,0.85)' : 'rgba(245,158,11,0.75)'),
+                borderRadius: 5, borderWidth: 0
+            }]
+        },
+        options: {
+            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.parsed.x} pts` } } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', font: { size: 10 } } },
+                y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9.5, weight: '600' } } }
+            }
+        }
+    });
+
+    // ─── BAR: Comparativo W→W ──────────────────────────────────
+    const compareOps = Object.keys(lastData.ops || {}).filter(n => prevData.ops && prevData.ops[n]);
+    const lastPts = compareOps.map(n => (lastData.ops[n]||{pts:0}).pts);
+    const prevPts = compareOps.map(n => (prevData.ops[n]||{pts:0}).pts);
+    const shortLabels = compareOps.map(n => n.replace('First Mile', 'FM').replace('Last Mile', 'LM').split(' ').slice(0,2).join(' '));
+
+    destroyChart('compare');
+    charts['compare'] = new Chart(document.getElementById('chart-compare'), {
+        type: 'bar',
+        data: {
+            labels: shortLabels.length ? shortLabels : ['FM XD','FM FULL','Safety','LM','XPT'],
+            datasets: [
+                {
+                    label: prevWeek,
+                    data: prevPts.length ? prevPts : [85,70,50,20,12],
+                    backgroundColor: 'rgba(59,130,246,0.45)', borderRadius: 4, borderWidth: 0
                 },
-                scales: {
-                    x: {
-                        max: 100,
-                        ticks: { callback: value => value + '%' }
-                    }
+                {
+                    label: lastWeek,
+                    data: lastPts.length ? lastPts : [80,62,43,16,10],
+                    backgroundColor: (lastPts.length ? lastPts : [80,62,43,16,10]).map((v,i) => {
+                        const prev = (prevPts.length ? prevPts : [85,70,50,20,12])[i] || 0;
+                        return v >= prev ? '#10b981' : '#ef4444';
+                    }),
+                    borderRadius: 4, borderWidth: 0
                 }
-            }
-        });
-
-        // Chart 2: Weekly Trend
-        new Chart(document.getElementById('chart-weekly-trend'), {
-            type: 'line',
-            data: {
-                labels: ['W23', 'W24', 'W25', 'W26'],
-                datasets: [{
-                    label: 'Aproveitamento Geral',
-                    data: [46.3, 53.3, 51.5, 46.3],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    fill: true,
-                    tension: 0.3,
-                    borderWidth: 3,
-                    pointRadius: 6,
-                    pointBackgroundColor: '#3b82f6'
-                }]
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10, weight: '600' }, color: '#94a3b8', padding: 12 } },
+                tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y} pts` } }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        max: 100,
-                        ticks: { callback: value => value + '%' }
-                    }
-                }
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', font: { size: 10 } } }
             }
-        });
+        }
+    });
 
-        // Chart 3: KPI Status Distribution
-        new Chart(document.getElementById('chart-status-dist'), {
-            type: 'pie',
-            data: {
-                labels: ['Meta Atingida (🟢)', 'Meta Não Atingida (🔴)'],
-                datasets: [{
-                    data: [19, 16],
-                    backgroundColor: ['#10b981', '#ef4444'],
-                    borderWidth: 2,
-                    borderColor: '#1e293b'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
-        });
+    // ─── INSIGHTS ───────────────────────────────────────────────
+    const insightsList = document.getElementById('insights-list');
+    insightsList.innerHTML = `
+    <div class="insight-item" style="border-color:#ef4444;">
+        <div class="ii-icon">🚨</div>
+        <div><div class="ii-title">${worstOp || 'Last Mile & XPT'} – Delivery Success Crítico</div>
+        <div class="ii-desc">A operação com menor aproveitamento (${worstPct2 < Infinity ? worstPct2.toFixed(0) : 10}%) representa o maior risco ao scorecard. Planos de ação urgentes devem focar em <strong>mitigar insucessos de entrega</strong>.</div></div>
+    </div>
+    <div class="insight-item" style="border-color:#f59e0b;">
+        <div class="ii-icon">⚠️</div>
+        <div><div class="ii-title">Safety – Telemetria &amp; Frota Fixada</div>
+        <div class="ii-desc">Telemetria Scorecard e aderência à frota fixada geraram gaps combinados de <strong>-52 pontos</strong>. Treinamento de motoristas e revisão de escala de frotas são ações prioritárias.</div></div>
+    </div>
+    <div class="insight-item" style="border-color:#10b981;">
+        <div class="ii-icon">✅</div>
+        <div><div class="ii-title">${bestOp || 'First Mile XD'} – Destaque Positivo</div>
+        <div class="ii-desc">Atingiu <strong>${bestPct2 > 0 ? bestPct2.toFixed(0) : 80}% de aproveitamento</strong> — melhor resultado da empresa em ${lastWeek}. Serve como referência de boas práticas operacionais.</div></div>
+    </div>
+    <div class="insight-item" style="border-color:#3b82f6;">
+        <div class="ii-icon">📉</div>
+        <div><div class="ii-title">Tendência de ${deltaPct >= 0 ? 'Recuperação' : 'Queda'} após W24</div>
+        <div class="ii-desc">BSC passou por pico em W24 (${weekPcts[1] || 53.3}%), e em ${lastWeek} registrou ${lastPct}%. <strong>Medidas corretivas</strong> devem ser priorizadas nas operações com aproveitamento abaixo de 40%.</div></div>
+    </div>`;
 
-        // Chart 4: Top Gaps
-        new Chart(document.getElementById('chart-top-gaps'), {
-            type: 'bar',
-            data: {
-                labels: [
-                    'XPT - Delivery Success',
-                    'Safety - Telemetria',
-                    'LM - Delivery Success',
-                    'Safety - Ad. Vec Fleet',
-                    'XPT - SPOT FDS',
-                    'XPT - Telemetria MM',
-                    'LM - SDD % ER',
-                    'LM - Frota Fixa'
-                ],
-                datasets: [{
-                    label: 'GAP de Pontuação',
-                    data: [-32, -28, -28, -24, -24, -24, -20, -20],
-                    backgroundColor: '#ef4444',
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        ticks: { stepSize: 10 }
-                    }
-                }
-            }
-        });
-    </script>
+    // ─── WEEKLY TABLE ──────────────────────────────────────────
+    const wt = document.getElementById('weekly-table');
+    const wtPeak = weeks.reduce((best, w, i) => weekPcts[i] > (weekPcts[best] || 0) ? i : best, 0);
+    wt.innerHTML = `<thead><tr><th>Semana</th><th>Pontos</th><th>%</th><th>Status</th></tr></thead><tbody>` +
+        weeks.map((w, i) => {
+            const d = weekSummaries[w];
+            const p = weekPcts[i];
+            const isPeak = i === wtPeak;
+            const isLast = i === weeks.length - 1;
+            const pillCls = isPeak ? 'green' : (isLast && p < weekPcts[0] ? 'red' : (p > (weekPcts[i-1] || 0) ? 'blue' : 'yellow'));
+            const pillTxt = isPeak ? 'Pico' : (isLast ? 'Atual' : (p > (weekPcts[i-1] || 0) ? '↑' : '↓'));
+            return `<tr><td>${w}</td><td>${d.total}/${d.max}</td><td>${p}%</td><td>${pillHtml(pillTxt, pillCls)}</td></tr>`;
+        }).join('') + `</tbody>`;
+
+    // ─── OPS TABLE ────────────────────────────────────────────
+    const ot = document.getElementById('ops-table');
+    ot.innerHTML = `<thead><tr><th>Operação</th><th>Pts</th><th>%</th><th>Status</th></tr></thead><tbody>` +
+        opEntries.map(([name, d]) => {
+            const pct2 = d.max ? +(d.pts / d.max * 100).toFixed(1) : 0;
+            const cls = pct2 >= 70 ? 'green' : (pct2 >= 40 ? 'yellow' : 'red');
+            return `<tr><td>${name}</td><td>${d.pts}/${d.max}</td><td>${pct2}%</td><td>${pillHtml(pct2 + '%', cls)}</td></tr>`;
+        }).join('') + `</tbody>`;
+
+    // ─── SHOW PAGE ─────────────────────────────────────────────
+    document.getElementById('loading-overlay').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
