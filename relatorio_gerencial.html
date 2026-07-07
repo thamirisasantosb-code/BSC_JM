@@ -362,7 +362,7 @@ async function init(){
     let rows=[];
     try{
         rows = await new Promise((ok,err)=>{
-            Papa.parse('/Base_Indicadores_BSC.csv',{
+            Papa.parse('/Base_Indicadores_BSC.csv?v=' + Date.now(), {
                 download:true, header:true, skipEmptyLines:true,
                 complete:r=>ok(r.data), error:err
             });
@@ -371,7 +371,9 @@ async function init(){
 
     // Detect months
     const MONTH_ORDER = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const allPeriods = [...new Set(rows.map(r=>(r['Período']||'').trim()))];
+    const allPeriods = [...new Set(rows.map(r=>{
+        return (r['Período'] || r['\uFEFFPeríodo'] || Object.values(r)[0] || '').trim();
+    }))];
     // Filter out weekly periods and keep only non-empty
     const months = allPeriods.filter(p=> p && !/^W\d+$/.test(p)).sort((a,b)=>{
         return MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b);
@@ -383,7 +385,7 @@ async function init(){
     const monthData = {}; // month -> { total, max, ops:{milha->{pts,max}}, kpis:[{milha,kpi,pts,max,gap,result,green}] }
 
     rows.forEach(row=>{
-        const period = (row['Período']||'').trim();
+        const period = (row['Período'] || row['\uFEFFPeríodo'] || Object.values(row)[0] || '').trim();
         if(!period || /^W\d+$/.test(period)) return;
 
         const milha   = (row['Milha']||'').trim().toUpperCase();
