@@ -1397,6 +1397,15 @@ async function downloadScreenshot() {
     btn.innerHTML = '⏳ Gerando...';
     btn.disabled = true;
     
+    // Fechar dropdowns para evitar que apareçam no print
+    const actDropdown = document.querySelector('.actions-dropdown');
+    if (actDropdown) actDropdown.classList.remove('active');
+    const profDropdown = document.querySelector('.profile-dropdown');
+    if (profDropdown) profDropdown.classList.remove('active');
+    
+    // Aguardar os menus sumirem da tela antes de bater o print
+    await new Promise(resolve => setTimeout(resolve, 150));
+
     try {
         const container = document.querySelector('.dashboard-container');
         
