@@ -759,6 +759,7 @@ function openActionModal(opName) {
     const tableIdMap = {
         'First Mile': 'table-first-mile',
         'Last Mile': 'table-last-mile',
+        'Line Haul': 'table-line-haul',
         'Safety': 'table-safety'
     };
     
@@ -1180,6 +1181,13 @@ function populateGlobalTasks() {
         filteredActions = combinedActions.filter(a => a.opName === window.userRole);
     }
     
+    const iconMap = {
+        'First Mile': '709/709790.png',
+        'Last Mile': '679/679720.png',
+        'Line Haul': '3063/3063822.png',
+        'Safety': '1161/1161388.png'
+    };
+
     filteredActions.forEach(a => {
         total++;
         const tr = document.createElement('tr');
@@ -1187,7 +1195,9 @@ function populateGlobalTasks() {
         tr.dataset.status = (a.status || '').toLowerCase();
         
         const tdOp = document.createElement('td');
-        tdOp.innerHTML = `<span style="font-weight: bold; color: #0A246A;">${a.mile || a.opName}</span>`;
+        const opNameClean = a.mile || a.opName || '';
+        const iconStr = iconMap[opNameClean] || '1161/1161388.png';
+        tdOp.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/${iconStr}" alt="" style="width:16px;height:16px; border-radius:50%; background:var(--primary-blue); padding:2px; vertical-align: middle; margin-right: 4px;"> <span style="font-weight: bold; color: #0A246A;">${opNameClean}</span>`;
         
         const tdInd = document.createElement('td');
         const kpiClean = a.indicator ? a.indicator.replace('⚠️ ', '') : '-';

@@ -383,9 +383,9 @@ async function generateExcel() {
         { kpi: 'Aderência Treinamentos Safety Driver', label: 'Aderência Treinamentos Safety Driver', meta: '97%' }
     ];
 
-    const filteredFirstMile = firstMileStruct.filter(item => isOutOfTarget(item, closedWeek));
-    const filteredLastMile = lastMileStruct.filter(item => isOutOfTarget(item, closedWeek));
-    const filteredSafety = safetyStruct.filter(item => isOutOfTarget(item, closedWeek));
+    const filteredFirstMile = firstMileStruct.filter(item => isOutOfTarget(item, 'Mai'));
+    const filteredLastMile = lastMileStruct.filter(item => isOutOfTarget(item, 'Mai'));
+    const filteredSafety = safetyStruct.filter(item => isOutOfTarget(item, 'Mai'));
 
     const headersList = ['Indicador', 'Objetivo', ...weeksToInclude.map(w => w === latestWeek && w.startsWith('W') ? `${w} (Prévia)` : w), 'Média', 'Status'];
 

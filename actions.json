@@ -1,5 +1,120 @@
 {
-  "First Mile": [],
+  "First Mile": [
+    {
+      "indicator": "⚠️ Pickup Sucess (SI) FULL",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "First Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831868805",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ Pickup Sucess (Ontime) FULL",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "First Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831869146",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ Aderência ao Perfil FULL",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "First Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831865150",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ % Utilização Frota Fixa FULL",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "First Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831866658",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ Aceite de Scheduling",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "First Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831861086",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ Ad. Config XD",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "First Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831865705",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    }
+  ],
   "Last Mile": [
     {
       "indicator": "% Utilização Frota Fixa (LM)",
@@ -48,6 +163,139 @@
           "change": "Ação Criada"
         }
       ]
+    },
+    {
+      "indicator": "⚠️ Delivery Success",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Last Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831864851",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ PNR Revertido",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Last Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831863417",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ % Real x D7 FDS (SVC) SPOT",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Last Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "1783535583186247",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ Aceite Scheduling Pré Routing",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Last Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831867331",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ SDD - % ER",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Last Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831865112",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ Delivery Success XPT",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Last Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "1783535583186525",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ % Real x D7 FDS (XPT) SPOT",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Last Mile",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831861972",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
     }
   ],
   "Safety": [
@@ -74,6 +322,45 @@
           "change": "Atualizou a Ação/Tarefa"
         }
       ]
+    },
+    {
+      "indicator": "⚠️ Ad. Vec Fleet",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Safety",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831864915",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
+    },
+    {
+      "indicator": "⚠️ Telemetria Scorecard",
+      "task": "Analisar desvio e propor plano de ação (Gerado ref. resultado Mai)",
+      "mile": "Safety",
+      "owner": "",
+      "startDate": "2026-07-08",
+      "deadline": "",
+      "status": "Pendente",
+      "userEmail": "sistema@jmdistribuicao.com.br",
+      "id": "17835355831863425",
+      "createdAt": "2026-07-08T18:33:03.186Z",
+      "history": [
+        {
+          "date": "2026-07-08T18:33:03.186Z",
+          "user": "Sistema",
+          "change": "Ação Criada Automática"
+        }
+      ]
     }
-  ]
+  ],
+  "Line Haul": []
 }
