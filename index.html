@@ -364,13 +364,18 @@
         
         <header class="excel-header">
             <div class="header-left">
-                <div class="actions-dropdown">
-                    <div class="jm-td-logo" onclick="toggleActionsDropdown(event)" style="cursor: pointer; display: flex; align-items: center;">
+                <a href="index.html" style="cursor: pointer; text-decoration: none; display: flex; align-items: center;">
+                    <div class="jm-td-logo">
                         <span class="jm-text">JM</span>
                         <span class="td-box">TD</span>
-                        <span style="font-size: 10px; margin-left: 6px; color: rgba(255,255,255,0.7);">▾</span>
                     </div>
-                    <div class="actions-dropdown-content" style="left: 0; right: auto; margin-top: 5px;">
+                </a>
+            </div>
+            <div class="header-title" style="font-size: 20px; font-weight: bold; color: #fff;">BSC - JM</div>
+            <div class="header-buttons">
+                <div class="actions-dropdown">
+                    <button onclick="toggleActionsDropdown(event)" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">🛠️ Ferramentas ▾</button>
+                    <div class="actions-dropdown-content" style="right: 0; left: auto; margin-top: 5px;">
                         <button class="btn-highlight" onclick="window.toggleManualHighlight()">🔍 Destacar Manuais</button>
                         <button class="btn-toggle-media" id="btn-toggle-media" onclick="toggleMediaColumn()" style="background: #107c41; color: white;">[+] Média</button>
                         <button class="btn-fechamento" onclick="window.open('fechamento_mensal.html','_blank')">📅 Fechamento Mensal</button>
@@ -379,9 +384,6 @@
                         <button class="btn-export" onclick="exportToExcel()">📊 Excel</button>
                     </div>
                 </div>
-            </div>
-            <div class="header-title" style="font-size: 20px; font-weight: bold; color: #fff;">BSC - JM</div>
-            <div class="header-buttons">
                 <div class="profile-dropdown">
                     <button id="btn-profile" onclick="toggleProfileDropdown(event)" style="background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">👤 Perfil ▾</button>
                     <div class="profile-dropdown-content">
