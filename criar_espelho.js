@@ -11,12 +11,10 @@ async function createMirror() {
         { header: 'KPI', key: 'kpi', width: 40 },
         { header: 'Meta 4 Pontos', key: 'meta', width: 15 },
         { header: 'Jun', key: 'Jun', width: 10 },
-        { header: 'W22', key: 'W22', width: 10 },
-        { header: 'W23', key: 'W23', width: 10 },
-        { header: 'W24', key: 'W24', width: 10 },
-        { header: 'W25', key: 'W25', width: 10 },
         { header: 'W26', key: 'W26', width: 10 },
-        { header: 'W27', key: 'W27', width: 10 }
+        { header: 'W27', key: 'W27', width: 10 },
+        { header: 'W28', key: 'W28', width: 10 },
+        { header: 'W29', key: 'W29', width: 10 }
     ];
 
     // Estilizar o cabeçalho
@@ -105,12 +103,10 @@ async function createMirror() {
                 kpi: item.kpi,
                 meta: item.meta,
                 Jun: dataForKpi['Jun'] || '',
-                W22: dataForKpi['W22'] || '',
-                W23: dataForKpi['W23'] || '',
-                W24: dataForKpi['W24'] || '',
-                W25: dataForKpi['W25'] || '',
                 W26: dataForKpi['W26'] || '',
-                W27: dataForKpi['W27'] || ''
+                W27: dataForKpi['W27'] || '',
+                W28: dataForKpi['W28'] || '',
+                W29: dataForKpi['W29'] || ''
             });
         }
     }
