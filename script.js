@@ -392,9 +392,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         const periodos = new Set();
+        const allowedWeeks = ['W26', 'W27', 'W28', 'W29'];
         data.forEach(row => {
-            if (row['Período'] && row['Período'] !== 'W21' && (row['Período'].startsWith('W') || row['Período'] === 'Jun')) {
-                periodos.add(row['Período']);
+            const p = row['Período'];
+            if (p && (p === 'Jun' || allowedWeeks.includes(p))) {
+                periodos.add(p);
             }
         });
         
@@ -425,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.dyn-w6').forEach(th => th.style.display = '');
         }
         
-        const formatHeader = (wk) => wk === latestWeek ? `${wk} (Prévia)` : (wk || '--');
+        const formatHeader = (wk) => wk === 'Jun' ? 'Junho' : (wk === latestWeek ? `${wk} (Prévia)` : (wk || '--'));
         document.querySelectorAll('.dyn-w1').forEach(th => th.textContent = formatHeader(globalLast6Weeks[0]));
         document.querySelectorAll('.dyn-w2').forEach(th => th.textContent = formatHeader(globalLast6Weeks[1]));
         document.querySelectorAll('.dyn-w3').forEach(th => th.textContent = formatHeader(globalLast6Weeks[2]));

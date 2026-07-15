@@ -51,7 +51,8 @@ async function generateExcel() {
         const row = lines[i].split(',').map(c => c.trim());
         
         const periodo = row[0];
-        if (periodo && periodo !== 'W21' && (periodo.startsWith('W') || periodo === 'Jun')) periodosSet.add(periodo);
+        const allowedWeeks = ['W26', 'W27', 'W28', 'W29'];
+        if (periodo && (periodo === 'Jun' || allowedWeeks.includes(periodo))) periodosSet.add(periodo);
 
         const milha = row[3] || 'Geral';
         const kpi = row[4];
@@ -141,7 +142,8 @@ async function generateExcel() {
 
             const dataItem = pivot.get(key);
             Object.keys(row).forEach(col => {
-                if ((col.startsWith('W') || col === 'Jun') && col !== 'W21' && row[col] !== '') {
+                const allowedWeeks = ['W26', 'W27', 'W28', 'W29'];
+                if ((col === 'Jun' || allowedWeeks.includes(col)) && row[col] !== '') {
                     periodosSet.add(col);
                     const resStr = row[col].toString();
                     if (resStr.includes('%')) dataItem.isPercentage = true;
@@ -170,12 +172,14 @@ async function generateExcel() {
                         });
                     }
                     const dataItem = pivot.get(key);
+                    const allowedWeeks = ['W26', 'W27', 'W28', 'W29'];
                     for (const [week, value] of Object.entries(weeks)) {
-                        if (week === 'W21') continue;
-                        periodosSet.add(week);
-                        const resStr = value.toString();
-                        if (resStr.includes('%')) dataItem.isPercentage = true;
-                        dataItem.resultados[week] = parseValue(resStr);
+                        if (week === 'Jun' || allowedWeeks.includes(week)) {
+                            periodosSet.add(week);
+                            const resStr = value.toString();
+                            if (resStr.includes('%')) dataItem.isPercentage = true;
+                            dataItem.resultados[week] = parseValue(resStr);
+                        }
                     }
                 }
             }
@@ -387,7 +391,7 @@ async function generateExcel() {
     const filteredLastMile = lastMileStruct.filter(item => isOutOfTarget(item, 'Jun'));
     const filteredSafety = safetyStruct.filter(item => isOutOfTarget(item, 'Jun'));
 
-    const headersList = ['Indicador', 'Objetivo', ...weeksToInclude.map(w => w === latestWeek && w.startsWith('W') ? `${w} (Prévia)` : w), 'Média', 'Status'];
+    const headersList = ['Indicador', 'Objetivo', ...weeksToInclude.map(w => w === 'Jun' ? 'Junho' : (w === latestWeek && w.startsWith('W') ? `${w} (Prévia)` : w)), 'Média', 'Status'];
 
     // Draw First Mile (Row 4, Col 1)
     const nextRowAfterFM = drawTable(1, 4, 'First Mile', headersList, filteredFirstMile, 'First Mile');
