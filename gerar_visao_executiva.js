@@ -51,7 +51,7 @@ async function generateExcel() {
         const row = lines[i].split(',').map(c => c.trim());
         
         const periodo = row[0];
-        if (periodo && periodo !== 'W21' && (periodo.startsWith('W') || periodo === 'Mai')) periodosSet.add(periodo);
+        if (periodo && periodo !== 'W21' && (periodo.startsWith('W') || periodo === 'Jun')) periodosSet.add(periodo);
 
         const milha = row[3] || 'Geral';
         const kpi = row[4];
@@ -141,7 +141,7 @@ async function generateExcel() {
 
             const dataItem = pivot.get(key);
             Object.keys(row).forEach(col => {
-                if ((col.startsWith('W') || col === 'Mai') && col !== 'W21' && row[col] !== '') {
+                if ((col.startsWith('W') || col === 'Jun') && col !== 'W21' && row[col] !== '') {
                     periodosSet.add(col);
                     const resStr = row[col].toString();
                     if (resStr.includes('%')) dataItem.isPercentage = true;
@@ -186,8 +186,8 @@ async function generateExcel() {
 
     // 3. Determine latest 5 periods
     const sortedPeriodos = Array.from(periodosSet).sort((a, b) => {
-        if (a === 'Mai') return -1;
-        if (b === 'Mai') return 1;
+        if (a === 'Jun') return -1;
+        if (b === 'Jun') return 1;
         let numA = parseInt(a.replace('W', '')) || 0;
         let numB = parseInt(b.replace('W', '')) || 0;
         return numA - numB;
@@ -383,9 +383,9 @@ async function generateExcel() {
         { kpi: 'Aderência Treinamentos Safety Driver', label: 'Aderência Treinamentos Safety Driver', meta: '97%' }
     ];
 
-    const filteredFirstMile = firstMileStruct.filter(item => isOutOfTarget(item, 'Mai'));
-    const filteredLastMile = lastMileStruct.filter(item => isOutOfTarget(item, 'Mai'));
-    const filteredSafety = safetyStruct.filter(item => isOutOfTarget(item, 'Mai'));
+    const filteredFirstMile = firstMileStruct.filter(item => isOutOfTarget(item, 'Jun'));
+    const filteredLastMile = lastMileStruct.filter(item => isOutOfTarget(item, 'Jun'));
+    const filteredSafety = safetyStruct.filter(item => isOutOfTarget(item, 'Jun'));
 
     const headersList = ['Indicador', 'Objetivo', ...weeksToInclude.map(w => w === latestWeek && w.startsWith('W') ? `${w} (Prévia)` : w), 'Média', 'Status'];
 

@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const kpi = row['KPI'];
                     const meta = row['Meta 4 Pontos'];
                     Object.keys(row).forEach(key => {
-                        if ((key.startsWith('W') || key === 'Mai') && key !== 'W21' && row[key] !== '') {
+                        if ((key.startsWith('W') || key === 'Jun') && key !== 'W21' && row[key] !== '') {
                             manualData.push({
                                 'KPI': kpi,
                                 'Período': key,
@@ -386,21 +386,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             window.dashboardIndexedData[kpi][p] = d;
 
-            if (!p.startsWith('W') && p !== 'W21' && p.trim() !== '') {
+            if (p === 'Jun') {
                 window.dashboardIndexedMonthData[kpi] = d;
             }
         });
         
         const periodos = new Set();
         data.forEach(row => {
-            if (row['Período'] && row['Período'] !== 'W21' && (row['Período'].startsWith('W') || row['Período'] === 'Mai')) {
+            if (row['Período'] && row['Período'] !== 'W21' && (row['Período'].startsWith('W') || row['Período'] === 'Jun')) {
                 periodos.add(row['Período']);
             }
         });
         
         let sortedPeriodos = Array.from(periodos).sort((a, b) => {
-            if (a === 'Mai') return -1;
-            if (b === 'Mai') return 1;
+            if (a === 'Jun') return -1;
+            if (b === 'Jun') return 1;
             let numA = parseInt(a.replace('W', '')) || 0;
             let numB = parseInt(b.replace('W', '')) || 0;
             return numA - numB;
