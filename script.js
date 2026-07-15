@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         const periodos = new Set();
-        const allowedWeeks = ['W26', 'W27', 'W28', 'W29'];
+        const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29'];
         data.forEach(row => {
             const p = row['Período'];
             if (p && (p === 'Jun' || allowedWeeks.includes(p))) {

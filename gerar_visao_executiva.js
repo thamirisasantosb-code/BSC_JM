@@ -51,7 +51,7 @@ async function generateExcel() {
         const row = lines[i].split(',').map(c => c.trim());
         
         const periodo = row[0];
-        const allowedWeeks = ['W26', 'W27', 'W28', 'W29'];
+        const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29'];
         if (periodo && (periodo === 'Jun' || allowedWeeks.includes(periodo))) periodosSet.add(periodo);
 
         const milha = row[3] || 'Geral';
@@ -142,7 +142,7 @@ async function generateExcel() {
 
             const dataItem = pivot.get(key);
             Object.keys(row).forEach(col => {
-                const allowedWeeks = ['W26', 'W27', 'W28', 'W29'];
+                const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29'];
                 if ((col === 'Jun' || allowedWeeks.includes(col)) && row[col] !== '') {
                     periodosSet.add(col);
                     const resStr = row[col].toString();
@@ -172,7 +172,7 @@ async function generateExcel() {
                         });
                     }
                     const dataItem = pivot.get(key);
-                    const allowedWeeks = ['W26', 'W27', 'W28', 'W29'];
+                    const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29'];
                     for (const [week, value] of Object.entries(weeks)) {
                         if (week === 'Jun' || allowedWeeks.includes(week)) {
                             periodosSet.add(week);
@@ -197,8 +197,8 @@ async function generateExcel() {
         return numA - numB;
     });
 
-    const last5 = sortedPeriodos.slice(-5);
-    const weeksToInclude = last5.filter(w => w !== '');
+    const last6 = sortedPeriodos.slice(-6);
+    const weeksToInclude = last6.filter(w => w !== '');
     
     // Identificar a semana fechada (a última cadastrada WXX é a prévia, a anterior é a fechada)
     const latestWeek = sortedPeriodos[sortedPeriodos.length - 1];
@@ -238,11 +238,11 @@ async function generateExcel() {
     // Common column widths
     sheet1.getColumn(1).width = 30; // FM Indicador
     sheet1.getColumn(2).width = 12; // Objetivo
-    for(let i=3; i<=9; i++) sheet1.getColumn(i).width = 10; // Ws + Média + Status
-    sheet1.getColumn(10).width = 4;  // Spacer (J)
-    sheet1.getColumn(11).width = 30; // LM Indicador
-    sheet1.getColumn(12).width = 12; // Objetivo
-    for(let i=13; i<=19; i++) sheet1.getColumn(i).width = 10; // Ws + Média + Status
+    for(let i=3; i<=10; i++) sheet1.getColumn(i).width = 10; // Ws (6) + Média + Status
+    sheet1.getColumn(11).width = 4;  // Spacer (K)
+    sheet1.getColumn(12).width = 30; // LM Indicador
+    sheet1.getColumn(13).width = 12; // Objetivo
+    for(let i=14; i<=21; i++) sheet1.getColumn(i).width = 10; // Ws (6) + Média + Status
 
     const drawTable = (startCol, startRow, title, headers, items, milha) => {
         // Title
@@ -396,8 +396,8 @@ async function generateExcel() {
     // Draw First Mile (Row 4, Col 1)
     const nextRowAfterFM = drawTable(1, 4, 'First Mile', headersList, filteredFirstMile, 'First Mile');
     
-    // Draw Last Mile (Row 4, Col 11)
-    drawTable(11, 4, 'Last Mile', headersList, filteredLastMile, 'Last Mile');
+    // Draw Last Mile (Row 4, Col 12)
+    drawTable(12, 4, 'Last Mile', headersList, filteredLastMile, 'Last Mile');
 
     // Draw Safety (Below First Mile)
     const nextRowAfterSafety = drawTable(1, nextRowAfterFM + 2, 'Safety', headersList, filteredSafety, 'Safety');
