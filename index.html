@@ -394,11 +394,8 @@
 
         <div class="date-section-container">
             <div class="date-card">
-                <span style="font-size:16px;">🕐</span>
-                <div>
-                    <div class="date-label">Última atualização da base</div>
-                    <div class="date-value" id="last-update">–</div>
-                </div>
+                <div class="date-label">Data e Hora da última atualização da base</div>
+                <div class="date-value" id="last-update">22 de jul. de 2026, 05:40</div>
             </div>
         </div>
 
@@ -479,51 +476,53 @@
             </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; margin-top: 20px; padding: 0 10px;">
-            <div style="font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #0A246A;">Ações / Tarefas</div>
-            <div style="display: flex; gap: 8px;">
-                <button id="btn-add-action-global" onclick="window.openGlobalActionModal()" style="background-color: #107c41; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 3px; font-weight: bold;">➕ Nova Ação</button>
-                <button id="btn-toggle-tasks" onclick="toggleTasksTable()" style="background-color: #0A246A; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 3px; font-weight: bold;">Minimizar</button>
+        <div id="actions-tasks-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; margin-top: 20px; padding: 0 10px;">
+                <div style="font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #0A246A;">Ações / Tarefas</div>
+                <div style="display: flex; gap: 8px;">
+                    <button id="btn-add-action-global" onclick="window.openGlobalActionModal()" style="background-color: #107c41; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 3px; font-weight: bold;">➕ Nova Ação</button>
+                    <button id="btn-toggle-tasks" onclick="toggleTasksTable()" style="background-color: #0A246A; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 3px; font-weight: bold;">Minimizar</button>
+                </div>
             </div>
-        </div>
-        <div id="tasks-container">
-            <!-- Filter Bar -->
-            <div id="tasks-filter-bar">
-                <input class="tasks-filter-input" id="tasks-search" type="text" placeholder="🔍 Buscar ação, responsável..." oninput="filterTasksTable()">
-                <select class="tasks-filter-input" id="filter-op" onchange="filterTasksTable()" style="min-width:130px;">
-                    <option value="">Todas Operações</option>
-                    <option value="First Mile">First Mile</option>
-                    <option value="Last Mile">Last Mile</option>
-                    <option value="Safety">Safety</option>
-                </select>
-                <select class="tasks-filter-input" id="filter-status" onchange="filterTasksTable()" style="min-width:130px;">
-                    <option value="">Todos os Status</option>
-                    <option value="Em andamento">Em andamento</option>
-                    <option value="Atrasado">Atrasado</option>
-                    <option value="Crítico">Crítico</option>
-                    <option value="Atenção">Atenção</option>
-                    <option value="Concluído">Concluído</option>
-                </select>
-                <span class="tasks-filter-count" id="tasks-count"></span>
+            <div id="tasks-container">
+                <!-- Filter Bar -->
+                <div id="tasks-filter-bar">
+                    <input class="tasks-filter-input" id="tasks-search" type="text" autocomplete="off" name="tasks_search_no_autofill" placeholder="🔍 Buscar ação, responsável..." oninput="filterTasksTable()">
+                    <select class="tasks-filter-input" id="filter-op" onchange="filterTasksTable()" style="min-width:130px;">
+                        <option value="">Todas Operações</option>
+                        <option value="First Mile">First Mile</option>
+                        <option value="Last Mile">Last Mile</option>
+                        <option value="Safety">Safety</option>
+                    </select>
+                    <select class="tasks-filter-input" id="filter-status" onchange="filterTasksTable()" style="min-width:130px;">
+                        <option value="">Todos os Status</option>
+                        <option value="Em andamento">Em andamento</option>
+                        <option value="Atrasado">Atrasado</option>
+                        <option value="Crítico">Crítico</option>
+                        <option value="Atenção">Atenção</option>
+                        <option value="Concluído">Concluído</option>
+                    </select>
+                    <span class="tasks-filter-count" id="tasks-count"></span>
+                </div>
+                <table class="tasks-table">
+                    <thead>
+                        <tr>
+                            <th style="font-weight: bold;">Operação</th>
+                            <th style="font-weight: normal;">Indicador</th>
+                            <th style="font-weight: normal;">Ação / Tarefa</th>
+                            <th style="font-weight: normal;">Como está sendo feito</th>
+                            <th style="font-weight: normal;">Implementação</th>
+                            <th style="font-weight: normal;">Observações</th>
+                            <th style="font-weight: normal;">Responsável</th>
+                            <th style="font-weight: normal;">Prazo</th>
+                            <th style="font-weight: normal;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-tasks">
+                        <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
+                    </tbody>
+                </table>
             </div>
-            <table class="tasks-table">
-                <thead>
-                    <tr>
-                        <th style="font-weight: bold;">Operação</th>
-                        <th style="font-weight: normal;">Indicador</th>
-                        <th style="font-weight: normal;">Ação / Tarefa</th>
-                        <th style="font-weight: normal;">Como está sendo feito</th>
-                        <th style="font-weight: normal;">Implementação</th>
-                        <th style="font-weight: normal;">Observações</th>
-                        <th style="font-weight: normal;">Responsável</th>
-                        <th style="font-weight: normal;">Prazo</th>
-                        <th style="font-weight: normal;">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="table-tasks">
-                    <tr class="skeleton-row"><td colspan="9"><div class="skeleton-line"></div></td></tr>
-                </tbody>
-            </table>
         </div>
         
         <div style="text-align: right; margin-top: 15px; font-size: 13px; color: #666; font-family: Arial, sans-serif; padding-right: 10px; padding-bottom: 30px;">

@@ -111,10 +111,10 @@ async function main() {
 
     const structure = {
         firstMile: [
-            { kpi: 'Pickup Sucess (SI) FULL', label: 'Pickup Sucess (SI) Full' },
-            { kpi: 'Pickup Sucess (Ontime) FULL', label: 'Pickup Sucess (Ontime) Full' },
-            { kpi: '% Utilização Frota Fixa FULL', label: '% Utilização Frota Fixa Full' },
-            { kpi: 'Aceite de Scheduling', label: 'Aceite de Scheduling XD' },
+            { kpi: 'Pickup Sucess (SI) FULL', label: 'Pickup Sucess (SI) FULL' },
+            { kpi: 'Pickup Sucess (Ontime) FULL', label: 'Pickup Sucess (Ontime) FULL' },
+            { kpi: '% Utilização Frota Fixa FULL', label: '% Utilização Frota Fixa FULL' },
+            { kpi: 'Aceite de Scheduling', label: 'Aceite de Scheduling' },
             { kpi: 'Ad. Config XD', label: 'Ad. Config XD' }
         ],
         lastMile: [
@@ -122,7 +122,6 @@ async function main() {
             { kpi: '% Real x D7 FDS (SVC) SPOT', label: '% Real x D7 FDS (SVC) SPOT' },
             { kpi: 'Aceite Scheduling Pré Routing', label: 'Aceite Scheduling Pré Routing' },
             { kpi: 'SDD - % ER', label: 'SDD - % ER' },
-            { kpi: '% Utilização Frota Fixa (LM)', label: '% Utilização Frota Fixa (LM)' },
             { kpi: 'Delivery Success XPT', label: 'Delivery Success XPT' },
             { kpi: '% Real x D7 FDS (XPT) SPOT', label: '% Real x D7 FDS (XPT) SPOT' },
             { kpi: 'Telemetria MM XPT', label: 'Telemetria MM XPT' },

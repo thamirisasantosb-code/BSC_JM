@@ -189,32 +189,34 @@ body {
 .date-section-container {
     display: flex;
     justify-content: flex-end;
-    padding: 14px 24px 6px;
+    padding: 12px 24px 4px;
 }
 
 .date-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    padding: 8px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #d4d4d4;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    padding: 6px 14px;
+    display: inline-flex;
+    flex-direction: column;
+    text-align: left;
 }
 
 .date-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: .6px;
+    font-size: 10px;
+    font-weight: 400;
+    color: #64748b;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 2px;
 }
 
 .date-value {
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #0f172a;
+    font-family: Arial, 'Segoe UI', sans-serif;
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -292,12 +294,13 @@ body {
 }
 
 .excel-table td {
-    padding: 9px 10px;
+    padding: 9px 8px;
     text-align: center;
     border-bottom: 1px solid var(--border);
     border-right: 1px solid var(--border);
     color: var(--text-secondary);
     transition: background var(--t);
+    white-space: nowrap;
 }
 
 .excel-table th:last-child,

@@ -16,7 +16,8 @@ async function createMirror() {
         { header: 'W26', key: 'W26', width: 10 },
         { header: 'W27', key: 'W27', width: 10 },
         { header: 'W28', key: 'W28', width: 10 },
-        { header: 'W29', key: 'W29', width: 10 }
+        { header: 'W29', key: 'W29', width: 10 },
+        { header: 'W30', key: 'W30', width: 10 }
     ];
 
     // Estilizar o cabeçalho
@@ -29,7 +30,7 @@ async function createMirror() {
             { kpi: 'Pickup Sucess (Ontime) FULL', meta: '92.6%' },
             { kpi: 'Aderência ao Perfil FULL', meta: '95%' },
             { kpi: '% Utilização Frota Fixa FULL', meta: '95%' },
-            { kpi: 'Aceite de Scheduling XD', meta: '95%' },
+            { kpi: 'Aceite de Scheduling', meta: '95%' },
             { kpi: 'Ad. Config XD', meta: '97%' }
         ],
         'Last Mile': [
@@ -37,7 +38,6 @@ async function createMirror() {
             { kpi: '% Real x D7 FDS (SVC) SPOT', meta: '90%' },
             { kpi: 'Aceite Scheduling Pré Routing', meta: '5%' },
             { kpi: 'SDD - % ER', meta: '95%' },
-            { kpi: '% Utilização Frota Fixa (LM)', meta: '95%' },
             { kpi: 'Delivery Success XPT', meta: '98.2%' },
             { kpi: '% Real x D7 FDS (XPT) SPOT', meta: '90%' },
             { kpi: 'Telemetria MM XPT', meta: '72%' }
@@ -110,7 +110,8 @@ async function createMirror() {
                 W26: dataForKpi['W26'] || '',
                 W27: dataForKpi['W27'] || '',
                 W28: dataForKpi['W28'] || '',
-                W29: dataForKpi['W29'] || ''
+                W29: dataForKpi['W29'] || '',
+                W30: dataForKpi['W30'] || ''
             });
         }
     }

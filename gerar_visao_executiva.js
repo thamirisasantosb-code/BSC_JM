@@ -51,7 +51,7 @@ async function generateExcel() {
         const row = lines[i].split(',').map(c => c.trim());
         
         const periodo = row[0];
-        const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29'];
+        const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29', 'W30'];
         if (periodo && (periodo === 'Jun' || allowedWeeks.includes(periodo))) periodosSet.add(periodo);
 
         const milha = row[3] || 'Geral';
@@ -68,7 +68,6 @@ async function generateExcel() {
             '% Real x D7 FDS (SVC) SPOT',
             'Aceite Scheduling Pré Routing',
             'SDD - % ER',
-            '% Utilização Frota Fixa (LM)',
             'Delivery Success XPT',
             '% Real x D7 FDS (XPT) SPOT',
             'Telemetria MM XPT',
@@ -117,7 +116,6 @@ async function generateExcel() {
                 '% Real x D7 FDS (SVC) SPOT',
                 'Aceite Scheduling Pré Routing',
                 'SDD - % ER',
-                '% Utilização Frota Fixa (LM)',
                 'Delivery Success XPT',
                 '% Real x D7 FDS (XPT) SPOT',
                 'Telemetria MM XPT',
@@ -142,7 +140,7 @@ async function generateExcel() {
 
             const dataItem = pivot.get(key);
             Object.keys(row).forEach(col => {
-                const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29'];
+                const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29', 'W30'];
                 if ((col === 'Jun' || allowedWeeks.includes(col)) && row[col] !== '') {
                     periodosSet.add(col);
                     const resStr = row[col].toString();
@@ -172,7 +170,7 @@ async function generateExcel() {
                         });
                     }
                     const dataItem = pivot.get(key);
-                    const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29'];
+                    const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29', 'W30'];
                     for (const [week, value] of Object.entries(weeks)) {
                         if (week === 'Jun' || allowedWeeks.includes(week)) {
                             periodosSet.add(week);
@@ -197,12 +195,9 @@ async function generateExcel() {
         return numA - numB;
     });
 
-    const last6 = sortedPeriodos.slice(-6);
-    const weeksToInclude = last6.filter(w => w !== '');
-    
-    // Identificar a semana fechada (a última cadastrada WXX é a prévia, a anterior é a fechada)
-    const latestWeek = sortedPeriodos[sortedPeriodos.length - 1];
-    const closedWeek = sortedPeriodos.length > 1 ? sortedPeriodos[sortedPeriodos.length - 2] : latestWeek;
+    const weeksToInclude = ['Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'];
+    const latestWeek = 'Jul';
+    const closedWeek = 'Jun';
 
     let statusCurrentWeek = latestWeek;
     let statusPrevWeek = sortedPeriodos.length > 1 ? sortedPeriodos[sortedPeriodos.length - 2] : latestWeek;
@@ -366,7 +361,7 @@ async function generateExcel() {
         { kpi: 'Pickup Sucess (Ontime) FULL', label: 'Pickup Sucess (Ontime) FULL', meta: '92.6%' },
         { kpi: 'Aderência ao Perfil FULL', label: 'Aderência ao Perfil FULL', meta: '95%' },
         { kpi: '% Utilização Frota Fixa FULL', label: '% Utilização Frota Fixa FULL', meta: '95%' },
-        { kpi: 'Aceite de Scheduling', label: 'Aceite de Scheduling XD', meta: '95%' },
+        { kpi: 'Aceite de Scheduling', label: 'Aceite de Scheduling', meta: '95%' },
         { kpi: 'Ad. Config XD', label: 'Ad. Config XD', meta: '97%' }
     ];
     
@@ -375,7 +370,6 @@ async function generateExcel() {
         { kpi: '% Real x D7 FDS (SVC) SPOT', label: '% Real x D7 FDS (SVC) SPOT', meta: '90%' },
         { kpi: 'Aceite Scheduling Pré Routing', label: 'Aceite Scheduling Pré Routing', meta: '5%' },
         { kpi: 'SDD - % ER', label: 'SDD - % ER', meta: '95%' },
-        { kpi: '% Utilização Frota Fixa (LM)', label: '% Utilização Frota Fixa (LM)', meta: '95%' },
         { kpi: 'Delivery Success XPT', label: 'Delivery Success XPT', meta: '98.2%' },
         { kpi: '% Real x D7 FDS (XPT) SPOT', label: '% Real x D7 FDS (XPT) SPOT', meta: '90%' },
         { kpi: 'Telemetria MM XPT', label: 'Telemetria MM XPT', meta: '72%' }

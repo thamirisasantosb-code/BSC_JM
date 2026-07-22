@@ -99,7 +99,7 @@ document.addEventListener('keydown', (e) => {
 
 // ==================== FILTER TASKS TABLE ====================
 window.filterTasksTable = function() {
-    const search = (document.getElementById('tasks-search')?.value || '').toLowerCase();
+    const search = (document.getElementById('tasks-search')?.value || '').toLowerCase().trim();
     const opFilter = (document.getElementById('filter-op')?.value || '').toLowerCase();
     const statusFilter = (document.getElementById('filter-status')?.value || '').toLowerCase();
     const rows = document.querySelectorAll('#table-tasks tr');
@@ -108,7 +108,8 @@ window.filterTasksTable = function() {
         const text = tr.textContent.toLowerCase();
         const op = (tr.dataset.op || '').toLowerCase();
         const status = (tr.dataset.status || '').toLowerCase();
-        const matchSearch = !search || text.includes(search);
+        const email = (tr.dataset.email || '').toLowerCase();
+        const matchSearch = !search || text.includes(search) || email.includes(search);
         const matchOp = !opFilter || op.includes(opFilter);
         const matchStatus = !statusFilter || status.includes(statusFilter);
         const show = matchSearch && matchOp && matchStatus;
@@ -188,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { kpi: 'Pickup Sucess (Ontime) FULL', label: 'Pickup Sucess (Ontime) FULL', meta: '92.6%' },
             { kpi: 'Aderência ao Perfil FULL', label: 'Aderência ao Perfil FULL', meta: '95%' },
             { kpi: '% Utilização Frota Fixa FULL', label: '% Utilização Frota Fixa FULL', meta: '95%' },
-            { kpi: 'Aceite de Scheduling', label: 'Aceite de Scheduling XD', meta: '95%' },
+            { kpi: 'Aceite de Scheduling', label: 'Aceite de Scheduling', meta: '95%' },
             { kpi: 'Ad. Config XD', label: 'Ad. Config XD', meta: '97%' }
         ],
         lastMile: [
@@ -196,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { kpi: '% Real x D7 FDS (SVC) SPOT', label: '% Real x D7 FDS (SVC) SPOT', meta: '90%' },
             { kpi: 'Aceite Scheduling Pré Routing', label: 'Aceite Scheduling Pré Routing', meta: '5%' },
             { kpi: 'SDD - % ER', label: 'SDD - % ER', meta: '95%' },
-            { kpi: '% Utilização Frota Fixa (LM)', label: '% Utilização Frota Fixa (LM)', meta: '95%' },
             { kpi: 'Delivery Success XPT', label: 'Delivery Success XPT', meta: '98.2%' },
             { kpi: '% Real x D7 FDS (XPT) SPOT', label: '% Real x D7 FDS (XPT) SPOT', meta: '90%' },
             { kpi: 'Telemetria MM XPT', label: 'Telemetria MM XPT', meta: '72%' }
@@ -392,10 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         const periodos = new Set();
-        const allowedWeeks = ['W24', 'W25', 'W26', 'W27', 'W28', 'W29'];
         data.forEach(row => {
             const p = row['Período'];
-            if (p && (p === 'Jun' || allowedWeeks.includes(p))) {
+            if (p && (p === 'Jun' || /^W\d+$/.test(p))) {
                 periodos.add(p);
             }
         });
@@ -408,17 +407,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return numA - numB;
         });
         
-        globalLast6Weeks = sortedPeriodos.slice(-6);
+        globalLast6Weeks = ['Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'];
         window.globalLast6Weeks = globalLast6Weeks;
         
-        window.latestWeek = sortedPeriodos[sortedPeriodos.length - 1];
-        window.closedWeek = sortedPeriodos.length > 1 ? sortedPeriodos[sortedPeriodos.length - 2] : window.latestWeek;
+        window.latestWeek = 'Jul';
+        window.closedWeek = 'Jun';
         
         const latestWeek = window.latestWeek;
         const closedWeek = window.closedWeek;
         
         statusCurrentWeek = latestWeek;
-        statusPrevWeek = sortedPeriodos[sortedPeriodos.length - 2];
+        statusPrevWeek = 'Mai';
         
         const w6th = globalLast6Weeks[5];
         if (!w6th) {
@@ -427,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.dyn-w6').forEach(th => th.style.display = '');
         }
         
-        const formatHeader = (wk) => wk === 'Jun' ? 'Junho' : (wk === latestWeek ? `${wk} (Prévia)` : (wk || '--'));
+        const formatHeader = (wk) => wk === 'Jul' ? 'Jul (Prévia)' : (wk || '--');
         document.querySelectorAll('.dyn-w1').forEach(th => th.textContent = formatHeader(globalLast6Weeks[0]));
         document.querySelectorAll('.dyn-w2').forEach(th => th.textContent = formatHeader(globalLast6Weeks[1]));
         document.querySelectorAll('.dyn-w3').forEach(th => th.textContent = formatHeader(globalLast6Weeks[2]));
@@ -728,13 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCentralPanel() {
-        if (window.csvLastModifiedDate) {
-            const dateStr = window.csvLastModifiedDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
-            const timeStr = window.csvLastModifiedDate.toLocaleTimeString('pt-BR');
-            document.getElementById('last-update').textContent = `${dateStr}, ${timeStr}`;
-        } else {
-            document.getElementById('last-update').textContent = `1 de jul. de 2026, 02:06:34`;
-        }
+        document.getElementById('last-update').textContent = `22 de jul. de 2026, 05:40`;
     }
 });
 
@@ -1195,6 +1188,7 @@ function populateGlobalTasks() {
         const tr = document.createElement('tr');
         tr.dataset.op = (a.mile || a.opName || '').toLowerCase();
         tr.dataset.status = (a.status || '').toLowerCase();
+        tr.dataset.email = (a.userEmail || (a.rawAction && a.rawAction.userEmail) || '').toLowerCase();
         
         const tdOp = document.createElement('td');
         const opNameClean = a.mile || a.opName || '';
@@ -1389,15 +1383,25 @@ document.addEventListener("DOMContentLoaded", () => {
         const now = new Date();
         accessDateEl.textContent = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR');
     }
+    // Evitar que o autofill do navegador preencha o campo de busca de tarefas com e-mail ao carregar a página
+    setTimeout(() => {
+        const searchInput = document.getElementById('tasks-search');
+        if (searchInput && searchInput.value && searchInput.value.includes('@')) {
+            searchInput.value = '';
+            if (typeof filterTasksTable === 'function') filterTasksTable();
+        }
+    }, 300);
     loadActions();
 });
 
 // Take Screenshot and Download
 async function downloadScreenshot() {
     const btn = document.querySelector('.btn-print');
-    const oldText = btn.innerHTML;
-    btn.innerHTML = '⏳ Gerando...';
-    btn.disabled = true;
+    const oldText = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.innerHTML = '⏳ Gerando...';
+        btn.disabled = true;
+    }
     
     // Fechar dropdowns para evitar que apareçam no print
     const actDropdown = document.querySelector('.actions-dropdown');
@@ -1405,8 +1409,15 @@ async function downloadScreenshot() {
     const profDropdown = document.querySelector('.profile-dropdown');
     if (profDropdown) profDropdown.classList.remove('active');
     
-    // Aguardar os menus sumirem da tela antes de bater o print
-    await new Promise(resolve => setTimeout(resolve, 150));
+    // Ocultar a seção de Ações / Tarefas no print conforme solicitado
+    const tasksSection = document.getElementById('actions-tasks-section') || document.getElementById('tasks-container');
+    const prevTasksDisplay = tasksSection ? tasksSection.style.display : '';
+    if (tasksSection) {
+        tasksSection.style.display = 'none';
+    }
+
+    // Aguardar os menus e elementos sumirem da tela e layout estabilizar antes de bater o print
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     try {
         const container = document.querySelector('.dashboard-container');
@@ -1444,15 +1455,25 @@ async function downloadScreenshot() {
                 
                 alert("O Print do dashboard foi baixado no seu computador!");
             } finally {
-                btn.innerHTML = oldText;
-                btn.disabled = false;
+                if (tasksSection) {
+                    tasksSection.style.display = prevTasksDisplay;
+                }
+                if (btn) {
+                    btn.innerHTML = oldText;
+                    btn.disabled = false;
+                }
             }
         });
     } catch (err) {
         console.error(err);
         alert('Erro ao gerar print da tela.');
-        btn.innerHTML = oldText;
-        btn.disabled = false;
+        if (tasksSection) {
+            tasksSection.style.display = prevTasksDisplay;
+        }
+        if (btn) {
+            btn.innerHTML = oldText;
+            btn.disabled = false;
+        }
     }
 }
 
